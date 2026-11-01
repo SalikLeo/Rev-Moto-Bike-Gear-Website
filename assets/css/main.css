@@ -950,10 +950,12 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .section-desc {
-  font-size: 1.05rem;
-  color: var(--text-secondary);
-  max-width: 640px;
+  font-size: 1.12rem;
+  font-weight: 500;
+  color: #1e293b;
+  max-width: 660px;
   line-height: 1.7;
+  letter-spacing: -0.01em;
 }
 
 /* ── Card Grids & Layouts ── */

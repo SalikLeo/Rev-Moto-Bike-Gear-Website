@@ -1516,3 +1516,17 @@
     box-shadow: 0 8px 20px -4px rgba(37, 99, 235, 0.35);
   }
 }
+
+/* ── Rendering Performance Optimization (Mobile & Desktop) ── */
+.bento-section,
+.tech-lab-section,
+.site-footer {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 600px;
+}
+
+.bento-card,
+.product-card {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}

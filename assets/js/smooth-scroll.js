@@ -7,15 +7,29 @@ var k="1.1.18";function w(r,t,e){return Math.max(r,Math.min(t,e))}function W(r,t
 (function () {
   if (typeof window === 'undefined') return;
 
-  // Check if user prefers reduced motion
-  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  // Check if mobile/touch device or user prefers reduced motion
+  const isReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const isMobile = window.innerWidth <= 991 || 
+                   ('ontouchstart' in window) || 
+                   (navigator.maxTouchPoints > 0) || 
+                   (window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+
+  if (isReducedMotion || isMobile) {
+    // Completely bypass Lenis on mobile/touch screens for silky native 60/120Hz GPU touch scrolling
     window.smoothScrollTo = function(targetY) {
-      window.scrollTo({ top: targetY, behavior: 'auto' });
+      if (typeof targetY === 'string') {
+        const targetEl = document.querySelector(targetY);
+        if (targetEl) targetY = targetEl.getBoundingClientRect().top + window.pageYOffset;
+      }
+      window.scrollTo({
+        top: typeof targetY === 'number' ? targetY : 0,
+        behavior: isReducedMotion ? 'auto' : 'smooth'
+      });
     };
     return;
   }
 
-  // Initialize Lenis with luxury momentum physics (matching Innovax ThemeForest preview)
+  // Initialize Lenis strictly on desktop view with luxury momentum physics
   const lenis = new Lenis({
     duration: 1.25,
     easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),

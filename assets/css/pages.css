@@ -8,7 +8,7 @@
   min-height: clamp(520px, 80vh, 740px);
   display: flex;
   align-items: center;
-  padding: 72px 0 20px;
+  padding: 108px 0 35px;
   overflow: hidden;
   background: transparent;
 }

@@ -1584,16 +1584,61 @@
   backface-visibility: hidden;
 }
 
+/* ── Page Header Sections (Contact & About) Top Spacing ── */
+.contact-main-section {
+  padding: 140px 0 100px;
+}
+
+.about-main-section {
+  padding: 140px 0 90px;
+}
+
+.contact-header-wrap {
+  margin-bottom: 40px;
+  max-width: 620px;
+}
+
+@media (max-width: 991px) {
+  .contact-main-section,
+  .about-main-section {
+    padding: 85px 0 50px !important;
+  }
+  .contact-header-wrap {
+    margin-bottom: 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  .contact-main-section,
+  .about-main-section {
+    padding: 78px 0 40px !important;
+  }
+  .contact-support-card {
+    padding: 22px 18px !important;
+  }
+}
 
 /* ── Contact Support Card Refinements ── */
+.contact-support-title {
+  font-size: 1.3rem;
+  margin-bottom: 6px;
+}
+
+.contact-support-desc {
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+  line-height: 1.55;
+  margin-bottom: 18px;
+}
+
 .contact-channel-item {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 14px 16px;
+  gap: 12px;
+  padding: 10px 14px;
   background: rgba(255, 255, 255, 0.72);
   border: 1px solid rgba(226, 232, 240, 0.85);
-  border-radius: 16px;
+  border-radius: 14px;
   transition: transform 0.25s var(--ease-smooth), background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.25s ease;
 }
 
@@ -1605,13 +1650,13 @@
 }
 
 .contact-icon-box {
-  width: 46px;
-  height: 46px;
-  border-radius: 12px;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   flex-shrink: 0;
   transition: transform 0.25s ease;
 }
@@ -1641,8 +1686,17 @@
   box-shadow: 0 2px 8px rgba(14, 165, 233, 0.1);
 }
 
-.contact-value-link {
-  font-size: 1.05rem;
+.contact-label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.contact-value-link,
+.contact-value-text {
+  font-size: 0.92rem;
   font-weight: 700;
   color: var(--text-pure);
   display: inline-block;
@@ -1653,4 +1707,44 @@
 
 .contact-value-link:hover {
   color: var(--primary-blue);
+}
+
+.contact-subtext {
+  font-size: 0.74rem;
+  color: var(--text-secondary);
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.contact-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.64rem;
+  color: #16a34a;
+  background: rgba(34, 197, 94, 0.12);
+  padding: 1px 6px;
+  border-radius: 12px;
+  font-weight: 700;
+}
+
+.contact-status-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #22c55e;
+}
+
+.contact-whatsapp-btn {
+  height: 44px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  border-radius: var(--radius-pill);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 14px rgba(37, 211, 102, 0.28);
 }

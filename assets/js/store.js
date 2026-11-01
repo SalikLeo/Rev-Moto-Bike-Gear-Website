@@ -7,7 +7,7 @@ const RM_CONFIG = {
   brand: {
     name: 'REV MOTO',
     tagline: 'NEXT-GEN PROTECTION. BUILT FOR SPEED.',
-    email: 'concierge@revmoto.site',
+    email: 'revmoto.pk@gmail.com',
     phone: '+92 337 4249450',
     displayPhone: '+92 337 424 9450',
     address: 'Sialkot Manufacturing District, Punjab, Pakistan',

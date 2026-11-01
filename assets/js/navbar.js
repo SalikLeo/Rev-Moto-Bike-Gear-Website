@@ -92,9 +92,6 @@
           <a href="index.html" class="pill-link ${isActive('index.html')}" style="padding: 9px 12px; font-size: 0.85rem;" onclick="closeMobileDrawer()">
             <i class="fas fa-home text-cyan" style="width: 20px;"></i> Home
           </a>
-          <a href="javascript:void(0)" class="pill-link" style="padding: 9px 12px; font-size: 0.85rem;" onclick="closeMobileDrawer(); openSearchModal();">
-            <i class="fas fa-search text-cyan" style="width: 20px;"></i> Search Gear
-          </a>
           <a href="shop.html" class="pill-link ${isActive('shop.html')}" style="padding: 9px 12px; font-size: 0.85rem;" onclick="closeMobileDrawer()">
             <i class="fas fa-th-large text-cyan" style="width: 20px;"></i> Shop All
           </a>

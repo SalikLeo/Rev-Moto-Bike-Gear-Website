@@ -71,55 +71,55 @@
 
     <!-- Mobile Drawer Overlay & Menu -->
     <div class="drawer-overlay" id="mobileDrawerOverlay" onclick="closeMobileDrawer()"></div>
-    <div class="cart-drawer" id="mobileDrawer" style="left: 0; right: auto; transform: translateX(-100%); width: 320px;">
+    <div class="cart-drawer mobile-nav-drawer" id="mobileDrawer" style="left: 0; right: auto; transform: translateX(-100%); width: 280px;">
       <div class="cart-drawer-header">
         <div class="pill-brand">
-          <img src="assets/images/logo.png" alt="REV MOTO" class="brand-logo-img" width="30" height="30" style="height: 30px;">
+          <img src="assets/images/logo.png" alt="REV MOTO" class="brand-logo-img" width="24" height="24" style="height: 24px;">
           <div class="brand-logotype">REV<span>MOTO</span></div>
         </div>
         <button class="drawer-close-btn" onclick="closeMobileDrawer()"><i class="fas fa-times"></i></button>
       </div>
       <div class="cart-drawer-body">
         <!-- Quick Search Bar inside Menu -->
-        <div class="drawer-search-box" style="margin-bottom: 12px; margin-top: 6px;">
+        <div class="drawer-search-box" style="margin-bottom: 8px; margin-top: 2px;">
           <button class="drawer-search-trigger" onclick="closeMobileDrawer(); openSearchModal();" aria-label="Search Catalog">
             <i class="fas fa-search text-cyan"></i>
             <span>Search products & gear...</span>
           </button>
         </div>
 
-        <div style="display: flex; flex-direction: column; gap: 8px;">
-          <a href="index.html" class="pill-link ${isActive('index.html')}" style="padding: 12px 16px; font-size: 1rem;" onclick="closeMobileDrawer()">
-            <i class="fas fa-home text-cyan" style="width: 24px;"></i> Home
+        <div class="mobile-menu-links" style="display: flex; flex-direction: column; gap: 5px;">
+          <a href="index.html" class="pill-link ${isActive('index.html')}" style="padding: 9px 12px; font-size: 0.85rem;" onclick="closeMobileDrawer()">
+            <i class="fas fa-home text-cyan" style="width: 20px;"></i> Home
           </a>
-          <a href="javascript:void(0)" class="pill-link" style="padding: 12px 16px; font-size: 1rem;" onclick="closeMobileDrawer(); openSearchModal();">
-            <i class="fas fa-search text-cyan" style="width: 24px;"></i> Search Gear
+          <a href="javascript:void(0)" class="pill-link" style="padding: 9px 12px; font-size: 0.85rem;" onclick="closeMobileDrawer(); openSearchModal();">
+            <i class="fas fa-search text-cyan" style="width: 20px;"></i> Search Gear
           </a>
-          <a href="shop.html" class="pill-link ${isActive('shop.html')}" style="padding: 12px 16px; font-size: 1rem;" onclick="closeMobileDrawer()">
-            <i class="fas fa-th-large text-cyan" style="width: 24px;"></i> Shop All
+          <a href="shop.html" class="pill-link ${isActive('shop.html')}" style="padding: 9px 12px; font-size: 0.85rem;" onclick="closeMobileDrawer()">
+            <i class="fas fa-th-large text-cyan" style="width: 20px;"></i> Shop All
           </a>
-          <a href="shop.html?cat=apparel" class="pill-link" style="padding: 12px 16px; font-size: 1rem;" onclick="closeMobileDrawer()">
-            <i class="fas fa-vest text-cyan" style="width: 24px;"></i> Jackets
+          <a href="shop.html?cat=apparel" class="pill-link" style="padding: 9px 12px; font-size: 0.85rem;" onclick="closeMobileDrawer()">
+            <i class="fas fa-vest text-cyan" style="width: 20px;"></i> Jackets
           </a>
-          <a href="shop.html?cat=gloves" class="pill-link" style="padding: 12px 16px; font-size: 1rem;" onclick="closeMobileDrawer()">
-            <i class="fas fa-mitten text-cyan" style="width: 24px;"></i> Gloves
+          <a href="shop.html?cat=gloves" class="pill-link" style="padding: 9px 12px; font-size: 0.85rem;" onclick="closeMobileDrawer()">
+            <i class="fas fa-mitten text-cyan" style="width: 20px;"></i> Gloves
           </a>
-          <a href="shop.html?cat=packs" class="pill-link" style="padding: 12px 16px; font-size: 1rem;" onclick="closeMobileDrawer()">
-            <i class="fas fa-box text-cyan" style="width: 24px;"></i> Bags & Packs
+          <a href="shop.html?cat=packs" class="pill-link" style="padding: 9px 12px; font-size: 0.85rem;" onclick="closeMobileDrawer()">
+            <i class="fas fa-box text-cyan" style="width: 20px;"></i> Bags & Packs
           </a>
-          <a href="about.html" class="pill-link ${isActive('about.html')}" style="padding: 12px 16px; font-size: 1rem;" onclick="closeMobileDrawer()">
-            <i class="fas fa-shield-halved text-cyan" style="width: 24px;"></i> About Us
+          <a href="about.html" class="pill-link ${isActive('about.html')}" style="padding: 9px 12px; font-size: 0.85rem;" onclick="closeMobileDrawer()">
+            <i class="fas fa-shield-halved text-cyan" style="width: 20px;"></i> About Us
           </a>
-          <a href="contact.html" class="pill-link ${isActive('contact.html')}" style="padding: 12px 16px; font-size: 1rem;" onclick="closeMobileDrawer()">
-            <i class="fas fa-headset text-cyan" style="width: 24px;"></i> Contact Us
+          <a href="contact.html" class="pill-link ${isActive('contact.html')}" style="padding: 9px 12px; font-size: 0.85rem;" onclick="closeMobileDrawer()">
+            <i class="fas fa-headset text-cyan" style="width: 20px;"></i> Contact Us
           </a>
         </div>
 
-        <div style="margin-top: 36px; padding-top: 24px; border-top: 1px solid var(--border-glass);">
-          <a href="https://wa.me/${RM_CONFIG.whatsapp.number}" target="_blank" rel="noopener" class="btn btn-whatsapp btn-full">
+        <div class="drawer-bottom-cta" style="margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border-glass);">
+          <a href="https://wa.me/${RM_CONFIG.whatsapp.number}" target="_blank" rel="noopener" class="btn btn-whatsapp btn-full" style="height: 40px; font-size: 0.84rem;">
             <i class="fab fa-whatsapp"></i> Chat On WhatsApp
           </a>
-          <div style="font-size: 0.8rem; color: var(--text-muted); text-align: center; margin-top: 16px;">
+          <div class="drawer-bottom-info" style="font-size: 0.72rem; color: var(--text-muted); text-align: center; margin-top: 10px; line-height: 1.4;">
             ${RM_CONFIG.brand.displayPhone} • ${RM_CONFIG.brand.address}
           </div>
         </div>

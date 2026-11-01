@@ -133,10 +133,11 @@
 }
 
 .stat-label {
-  font-size: 0.72rem;
-  color: var(--text-secondary);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #1e293b;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   margin-top: 6px;
 }
 

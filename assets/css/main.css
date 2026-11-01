@@ -831,19 +831,22 @@ h1, h2, h3, h4, h5, h6 {
   z-index: 950;
   display: flex;
   align-items: center;
+  border-radius: var(--radius-pill);
+  isolation: isolate;
+  background: transparent;
 }
 
 .cart-dock-pill {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.78) 0%, rgba(255, 255, 255, 0.62) 100%);
-  backdrop-filter: blur(28px) saturate(190%) contrast(96%) brightness(106%);
-  -webkit-backdrop-filter: blur(28px) saturate(190%) contrast(96%) brightness(106%);
-  border: 1px solid rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(226, 232, 240, 0.85);
   box-shadow: 
-    0 20px 48px -10px rgba(15, 23, 42, 0.16),
-    0 6px 18px -2px rgba(15, 23, 42, 0.08),
-    inset 0 1.5px 1.5px 0 rgba(255, 255, 255, 0.95),
-    inset 0 -1.5px 1.5px 0 rgba(255, 255, 255, 0.40);
+    0 16px 36px -8px rgba(15, 23, 42, 0.12),
+    0 4px 12px -2px rgba(15, 23, 42, 0.05);
   border-radius: var(--radius-pill);
+  overflow: hidden;
+  transform: translate3d(0, 0, 0);
   height: 52px;
   padding: 0 20px 0 14px;
   display: flex;
@@ -857,12 +860,11 @@ h1, h2, h3, h4, h5, h6 {
 
 .cart-dock-pill:hover {
   transform: translateY(-3px) scale(1.02);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.78) 100%);
-  border-color: rgba(37, 99, 235, 0.5);
+  background: #ffffff;
+  border-color: var(--accent-cyan);
   box-shadow: 
-    0 24px 50px -10px rgba(15, 23, 42, 0.20),
-    0 0 24px rgba(37, 99, 235, 0.20),
-    inset 0 1.5px 1.5px 0 #ffffff;
+    0 20px 42px -8px rgba(15, 23, 42, 0.16),
+    0 0 22px var(--accent-cyan-glow);
 }
 
 .cart-dock-icon-wrap {
@@ -2101,15 +2103,6 @@ html {
 }
 
 /* ── Floating Cart Dock Animation & Pulse ── */
-.cart-dock-pill {
-  transition: transform 0.3s var(--ease-out-expo), box-shadow 0.3s var(--ease-out-expo), border-color 0.3s ease;
-}
-
-.cart-dock-pill:hover {
-  transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 24px 50px -10px rgba(15, 23, 42, 0.2), 0 0 28px var(--accent-cyan-glow);
-  border-color: var(--accent-cyan);
-}
 
 .cart-pulse {
   animation: dockPulse 0.6s cubic-bezier(0.16, 1, 0.3, 1);

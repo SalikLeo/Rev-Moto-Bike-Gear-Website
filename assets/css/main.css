@@ -64,7 +64,7 @@
 }
 
 html {
-  font-size: 14.5px;
+  font-size: 14.8px;
   background-color: #f1f6fc;
   color: var(--text-primary);
   font-family: var(--font-body);
@@ -107,6 +107,67 @@ body::before {
   pointer-events: none;
   transform: translateZ(0);
   will-change: transform;
+}
+
+
+/* ── Adaptive Zoom & Viewport Harmonization (24" Desktop 100% vs 150% Zoom & Laptops) ── */
+@media (min-width: 1440px) {
+  html {
+    font-size: 15.6px;
+  }
+  .site-container {
+    max-width: 1320px;
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+  .pill-navbar {
+    max-width: 1040px;
+    height: 58px;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1366px) {
+  html {
+    font-size: 13.8px;
+  }
+  .site-container {
+    max-width: 1160px;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  .pill-navbar {
+    max-width: 900px;
+    height: 52px;
+    padding: 0 16px;
+  }
+  .pill-brand-text {
+    font-size: 0.98rem;
+  }
+  .pill-nav-link {
+    font-size: 0.86rem;
+    padding: 6px 10px;
+  }
+  .pill-action-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 0.88rem;
+  }
+  .cart-drawer {
+    width: 420px;
+  }
+}
+
+@media (min-width: 1367px) and (max-width: 1439px) {
+  html {
+    font-size: 14.8px;
+  }
+  .site-container {
+    max-width: 1240px;
+  }
+  .pill-navbar {
+    max-width: 980px;
+    height: 56px;
+  }
 }
 
 /* ── Lenis Smooth Scrolling Integration (Desktop Only) ── */

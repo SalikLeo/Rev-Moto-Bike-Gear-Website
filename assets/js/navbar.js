@@ -436,11 +436,11 @@
           </div>
         </div>
 
-        <div style="display: flex; gap: 12px; margin-top: auto;">
-          <button class="btn btn-primary btn-full" onclick="addFromQuickView('${product.id}')">
+        <div style="display: flex; gap: 12px; margin-top: auto; padding-top: 14px;">
+          <button class="btn btn-primary" onclick="addFromQuickView('${product.id}')" style="flex: 1.35; white-space: nowrap;">
             <i class="fas fa-shopping-bag"></i> Add to Bag
           </button>
-          <a href="product.html?id=${product.id}" class="btn btn-glass">
+          <a href="product.html?id=${product.id}" class="btn btn-glass" style="flex: 1; white-space: nowrap; justify-content: center;">
             Full Details <i class="fas fa-arrow-right"></i>
           </a>
         </div>

@@ -1083,9 +1083,27 @@
     justify-content: center;
   }
   .hero-stats-row {
-    flex-wrap: wrap;
-    gap: 16px 24px;
-    padding-top: 24px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    gap: 10px;
+    padding-top: 18px;
+    width: 100%;
+  }
+  .hero-stat {
+    flex: 1;
+    min-width: 0;
+  }
+  .hero-stat .stat-value {
+    font-size: 1.32rem;
+    white-space: nowrap;
+  }
+  .hero-stat .stat-label {
+    font-size: 0.62rem;
+    letter-spacing: 0.04em;
+    line-height: 1.25;
+    margin-top: 4px;
   }
   .pdp-section {
     padding: 85px 0 50px;

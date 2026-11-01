@@ -5,10 +5,10 @@
 /* ── Hero Section ── */
 .hero-section {
   position: relative;
-  min-height: clamp(620px, 86vh, 860px);
+  min-height: clamp(520px, 80vh, 740px);
   display: flex;
   align-items: center;
-  padding: 120px 0 70px;
+  padding: 72px 0 20px;
   overflow: hidden;
   background: transparent;
 }
@@ -74,28 +74,28 @@
   display: grid;
   grid-template-columns: 1.1fr 0.9fr;
   align-items: center;
-  gap: 60px;
+  gap: 40px;
   position: relative;
   z-index: 2;
 }
 
 .hero-headline {
-  font-size: clamp(2.2rem, 5.5vw, 5.2rem);
+  font-size: clamp(2rem, 4.4vw, 4.2rem);
   font-weight: 800;
   line-height: 1.05;
   letter-spacing: -0.035em;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
   color: var(--text-pure);
   word-break: break-word;
 }
 
 .hero-subheadline {
-  font-size: 1.2rem;
+  font-size: 1.05rem;
   font-weight: 500;
   color: #1e293b;
-  line-height: 1.75;
-  max-width: 560px;
-  margin-bottom: 38px;
+  line-height: 1.6;
+  max-width: 500px;
+  margin-bottom: 20px;
   letter-spacing: -0.01em;
 }
 
@@ -104,14 +104,14 @@
   align-items: center;
   gap: 16px;
   flex-wrap: wrap;
-  margin-bottom: 46px;
+  margin-bottom: 22px;
 }
 
 .hero-stats-row {
   display: flex;
   align-items: center;
-  gap: 36px;
-  padding-top: 32px;
+  gap: 28px;
+  padding-top: 20px;
   border-top: 1px solid var(--border-subtle);
 }
 
@@ -123,7 +123,7 @@
 .stat-value {
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: 1.9rem;
+  font-size: 1.65rem;
   color: var(--text-pure);
   line-height: 1;
 }
@@ -133,7 +133,7 @@
 }
 
 .stat-label {
-  font-size: 0.82rem;
+  font-size: 0.76rem;
   font-weight: 700;
   color: #1e293b;
   text-transform: uppercase;
@@ -148,12 +148,12 @@
   -webkit-backdrop-filter: blur(28px) saturate(180%);
   border: 1px solid var(--border-medium);
   border-radius: var(--radius-card);
-  padding: 24px;
+  padding: 16px;
   box-shadow: 0 20px 50px -10px rgba(15, 23, 42, 0.10), 0 0 25px rgba(2, 132, 199, 0.06);
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  max-width: 420px;
+  gap: 12px;
+  max-width: 340px;
   margin-left: auto;
   position: relative;
   transition: all 0.4s var(--ease-out-expo);
@@ -185,7 +185,7 @@
 
 .hfc-image-wrap {
   width: 100%;
-  aspect-ratio: 1;
+  aspect-ratio: 1.28;
   border-radius: var(--radius-md);
   overflow: hidden;
   background: #f1f5f9;
@@ -211,13 +211,13 @@
 
 .hfc-title {
   font-family: var(--font-display);
-  font-size: 1.35rem;
+  font-size: 1.15rem;
   font-weight: 700;
   color: var(--text-pure);
 }
 
 .hfc-desc {
-  font-size: 0.88rem;
+  font-size: 0.82rem;
   color: var(--text-secondary);
   line-height: 1.5;
 }
@@ -233,7 +233,7 @@
 .hfc-price {
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: 1.6rem;
+  font-size: 1.35rem;
   color: var(--text-pure);
 }
 
@@ -288,7 +288,7 @@
 
 /* ── Bento Grid Categories ── */
 .bento-section {
-  padding: 110px 0;
+  padding: 80px 0;
   background: linear-gradient(180deg, transparent 0%, rgba(236, 245, 254, 0.55) 50%, transparent 100%);
 }
 

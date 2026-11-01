@@ -891,28 +891,55 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: 0 8px 24px rgba(37, 99, 235, 0.45), 0 0 12px rgba(56, 189, 248, 0.3);
 }
 
-/* Fast Luminous Flash / Shimmer Sheen on Primary Buttons */
+/* Living Continuous Luminous Flash / Shimmer Sheen on Primary Buttons */
 .btn-primary::after {
   content: '';
   position: absolute;
   top: -50%;
-  left: -60%;
-  width: 45%;
+  left: -75%;
+  width: 50%;
   height: 200%;
   background: linear-gradient(
     60deg,
     transparent 0%,
-    rgba(255, 255, 255, 0.35) 50%,
+    rgba(255, 255, 255, 0.15) 30%,
+    rgba(255, 255, 255, 0.45) 50%,
+    rgba(255, 255, 255, 0.15) 70%,
     transparent 100%
   );
   transform: rotate(25deg);
-  transition: left 0.85s cubic-bezier(0.22, 1, 0.36, 1);
   pointer-events: none;
+  animation: btnContinuousShimmer 3.6s cubic-bezier(0.25, 1, 0.4, 1) infinite;
+}
+
+@keyframes btnContinuousShimmer {
+  0% {
+    left: -75%;
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  38% {
+    left: 155%;
+    opacity: 1;
+  }
+  42%, 100% {
+    left: 155%;
+    opacity: 0;
+  }
 }
 
 .btn-primary:hover::after {
-  left: 150%;
-  transition: left 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+  animation-duration: 2.2s;
+  background: linear-gradient(
+    60deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.25) 30%,
+    rgba(255, 255, 255, 0.58) 50%,
+    rgba(255, 255, 255, 0.25) 70%,
+    transparent 100%
+  );
 }
 
 .btn-glass {

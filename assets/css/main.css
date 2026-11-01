@@ -36,7 +36,7 @@
   --border-glass: rgba(0, 0, 0, 0.08);
   --border-subtle: #e2e8f0;
   --border-medium: #cbd5e1;
-  --border-glass-hover: rgba(37, 99, 235, 0.35);
+  --border-glass-hover: rgba(37, 99, 235, 0.26);
 
   --font-display: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -96,11 +96,11 @@ body::before {
   width: 100vw;
   height: 100vh;
   background-image: 
-    radial-gradient(ellipse 700px 550px at 10% 20%, rgba(56, 189, 248, 0.42) 0%, rgba(37, 99, 235, 0.24) 38%, rgba(56, 189, 248, 0.08) 65%, transparent 78%),
-    radial-gradient(ellipse 750px 600px at 90% 24%, rgba(37, 99, 235, 0.35) 0%, rgba(56, 189, 248, 0.27) 38%, rgba(99, 102, 241, 0.14) 64%, transparent 80%),
-    radial-gradient(ellipse 650px 520px at 12% 68%, rgba(56, 189, 248, 0.33) 0%, rgba(37, 99, 235, 0.20) 40%, transparent 72%),
-    radial-gradient(ellipse 700px 580px at 88% 74%, rgba(37, 99, 235, 0.32) 0%, rgba(56, 189, 248, 0.24) 42%, transparent 74%),
-    radial-gradient(ellipse 550px 450px at 50% 50%, rgba(186, 230, 253, 0.30) 0%, transparent 68%),
+    radial-gradient(ellipse 700px 550px at 10% 20%, rgba(56, 189, 248, 0.32) 0%, rgba(37, 99, 235, 0.18) 38%, rgba(56, 189, 248, 0.08) 65%, transparent 78%),
+    radial-gradient(ellipse 750px 600px at 90% 24%, rgba(37, 99, 235, 0.35) 0%, rgba(56, 189, 248, 0.20) 38%, rgba(99, 102, 241, 0.14) 64%, transparent 80%),
+    radial-gradient(ellipse 650px 520px at 12% 68%, rgba(56, 189, 248, 0.25) 0%, rgba(37, 99, 235, 0.20) 40%, transparent 72%),
+    radial-gradient(ellipse 700px 580px at 88% 74%, rgba(37, 99, 235, 0.24) 0%, rgba(56, 189, 248, 0.24) 42%, transparent 74%),
+    radial-gradient(ellipse 550px 450px at 50% 50%, rgba(186, 230, 253, 0.22) 0%, transparent 68%),
     linear-gradient(180deg, #f0f6fd 0%, #f7faff 35%, #edf4fc 70%, #f3f8fe 100%);
   background-size: 100% 100%;
   z-index: 0;
@@ -149,7 +149,7 @@ html.lenis, html.lenis body {
   filter: blur(105px);
   -webkit-filter: blur(105px);
   pointer-events: none;
-  opacity: 0.80;
+  opacity: 0.68;
   will-change: transform;
   transform: translate3d(0, 0, 0);
 }
@@ -212,9 +212,12 @@ main, section, header, footer, .hero-section, .bento-section, .tech-lab-section,
 }
 
 @media (max-width: 768px) {
-  .ambient-glow {
-    filter: blur(55px);
+  body::before {
     opacity: 0.82;
+  }
+  .ambient-glow {
+    filter: blur(80px);
+    opacity: 0.52;
   }
   .ambient-glow.orb-1 { width: 340px; height: 320px; left: -40px; top: 14px; }
   .ambient-glow.orb-2 { width: 360px; height: 340px; right: -50px; top: 20px; }

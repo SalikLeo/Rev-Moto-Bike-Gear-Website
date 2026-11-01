@@ -888,6 +888,29 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: 0 8px 24px rgba(37, 99, 235, 0.45), 0 0 12px rgba(56, 189, 248, 0.3);
 }
 
+/* Fast Luminous Flash / Shimmer Sheen on Primary Buttons */
+.btn-primary::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -60%;
+  width: 45%;
+  height: 200%;
+  background: linear-gradient(
+    60deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.35) 50%,
+    transparent 100%
+  );
+  transform: rotate(25deg);
+  transition: all 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+.btn-primary:hover::after {
+  left: 150%;
+}
+
 .btn-glass {
   background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
   border: 1.5px solid rgba(15, 23, 42, 0.14);

@@ -2339,7 +2339,7 @@ html {
   z-index: 1200;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.5s ease, visibility 0.5s ease;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
 }
 
 .qv-modal-overlay.open {
@@ -2351,8 +2351,8 @@ html {
   position: fixed;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%) scale(0.88);
-  width: 860px;
+  transform: translate(-50%, -50%) scale(0.92);
+  width: 840px;
   max-width: 92vw;
   background: #ffffff;
   border: 1px solid var(--border-medium);
@@ -2361,7 +2361,7 @@ html {
   z-index: 1201;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.5s ease, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), visibility 0.5s ease;
+  transition: opacity 0.4s ease, transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), visibility 0.4s ease;
   overflow: hidden;
   max-height: 90vh;
   display: flex;
@@ -2374,12 +2374,38 @@ html {
   transform: translate(-50%, -50%) scale(1);
 }
 
+.qv-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border-subtle);
+  background: #ffffff;
+}
+
 .qv-modal-body {
-  padding: 30px;
+  padding: 26px 30px;
   overflow-y: auto;
+  overflow-x: hidden;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 32px;
+  grid-template-columns: 1fr 1.15fr;
+  gap: 28px;
+}
+
+.qv-media-col {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: #f1f5f9;
+  border: 1px solid var(--border-subtle);
+}
+
+.qv-info-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
 }
 
 .qv-modal-body .size-option-btn {
@@ -2387,11 +2413,126 @@ html {
   font-size: 0.85rem;
 }
 
-@media (max-width: 768px) {
+/* ── Mobile & Tablet Quick View Harmonization (< 992px) ── */
+@media (max-width: 991px) {
+  .qv-modal {
+    width: 92vw !important;
+    max-width: 420px !important;
+    max-height: 86vh !important;
+    border-radius: 20px !important;
+  }
+
+  .qv-modal-header {
+    padding: 12px 16px !important;
+  }
+
   .qv-modal-body {
-    grid-template-columns: 1fr;
-    padding: 20px 16px;
-    gap: 20px;
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 14px !important;
+    gap: 12px !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+  }
+
+  .qv-media-col {
+    width: 100% !important;
+    max-width: 190px !important;
+    max-height: 140px !important;
+    aspect-ratio: 1.35 !important;
+    margin: 0 auto !important;
+    border-radius: 12px !important;
+    flex-shrink: 0 !important;
+  }
+
+  .qv-info-col {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .qv-category {
+    font-size: 0.70rem !important;
+  }
+
+  .qv-title {
+    font-size: 1.15rem !important;
+    line-height: 1.25 !important;
+  }
+
+  .qv-price-row {
+    gap: 8px !important;
+  }
+
+  .qv-price-val {
+    font-size: 1.32rem !important;
+  }
+
+  .qv-old-price {
+    font-size: 0.95rem !important;
+  }
+
+  .qv-desc {
+    font-size: 0.80rem !important;
+    line-height: 1.45 !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+  }
+
+  .qv-options-wrap {
+    margin: 4px 0 !important;
+  }
+
+  .qv-options-wrap label {
+    font-size: 0.72rem !important;
+    margin-bottom: 4px !important;
+  }
+
+  .qv-size-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 6px !important;
+    width: 100% !important;
+  }
+
+  .qv-modal-body .size-option-btn {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 6px 10px !important;
+    font-size: 0.78rem !important;
+    min-height: 36px !important;
+    width: 100% !important;
+    border-radius: 8px !important;
+  }
+
+  .qv-modal-body .size-option-btn .size-name {
+    font-size: 0.78rem !important;
+  }
+
+  .qv-modal-body .size-option-btn .size-price-tag {
+    font-size: 0.72rem !important;
+    padding: 2px 6px !important;
+  }
+
+  .qv-actions-row {
+    display: flex !important;
+    gap: 8px !important;
+    padding-top: 6px !important;
+    margin-top: 4px !important;
+  }
+
+  .qv-actions-row .btn {
+    height: 40px !important;
+    font-size: 0.82rem !important;
+    padding: 0 10px !important;
+    border-radius: var(--radius-pill) !important;
+    white-space: nowrap !important;
   }
 }
 

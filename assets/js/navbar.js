@@ -174,7 +174,7 @@
     <!-- Unified Quick View Modal -->
     <div class="qv-modal-overlay" id="qvModalOverlay" onclick="closeQuickView()"></div>
     <div class="qv-modal" id="qvModal">
-      <div style="display: flex; justify-content: space-between; align-items: center; padding: 18px 24px; border-bottom: 1px solid var(--border-subtle); background: #ffffff;">
+      <div class="qv-modal-header" style="display: flex; justify-content: space-between; align-items: center; padding: 18px 24px; border-bottom: 1px solid var(--border-subtle); background: #ffffff;">
         <div style="display: flex; align-items: center; gap: 10px;">
           <span class="brand-tag-dot"></span>
           <span style="font-size: 0.85rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--accent-cyan);">Quick Product Overview</span>
@@ -412,21 +412,21 @@
         }));
 
     content.innerHTML = `
-      <div style="border-radius: var(--radius-md); overflow: hidden; background: #f1f5f9; aspect-ratio: 1; border: 1px solid var(--border-subtle);">
+      <div class="qv-media-col" style="border-radius: var(--radius-md); overflow: hidden; background: #f1f5f9; aspect-ratio: 1; border: 1px solid var(--border-subtle);">
         <img src="${product.img}" alt="${product.name}" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy" decoding="async" onerror="this.src='assets/images/jacket_cyber.jpg'">
       </div>
-      <div style="display: flex; flex-direction: column; gap: 14px;">
-        <span style="font-size: 0.75rem; color: var(--accent-cyan); font-weight: 700; text-transform: uppercase;">${product.categoryLabel || product.category}</span>
-        <h2 style="font-size: 1.6rem; line-height: 1.2;">${product.name}</h2>
-        <div style="display: flex; align-items: baseline; gap: 12px;">
-          <span id="qvCurrentPrice" style="font-family: var(--font-display); font-size: 1.8rem; font-weight: 800; color: var(--accent-cyan);">${formatPKR(variants[0].price)}</span>
-          <span id="qvOldPrice" style="color: var(--text-muted); text-decoration: line-through; ${variants[0].oldPrice ? '' : 'display:none;'}">${variants[0].oldPrice ? formatPKR(variants[0].oldPrice) : ''}</span>
+      <div class="qv-info-col" style="display: flex; flex-direction: column; gap: 14px;">
+        <span class="qv-category" style="font-size: 0.75rem; color: var(--accent-cyan); font-weight: 700; text-transform: uppercase;">${product.categoryLabel || product.category}</span>
+        <h2 class="qv-title" style="font-size: 1.6rem; line-height: 1.2;">${product.name}</h2>
+        <div class="qv-price-row" style="display: flex; align-items: baseline; gap: 12px;">
+          <span id="qvCurrentPrice" class="qv-price-val" style="font-family: var(--font-display); font-size: 1.8rem; font-weight: 800; color: var(--accent-cyan);">${formatPKR(variants[0].price)}</span>
+          <span id="qvOldPrice" class="qv-old-price" style="color: var(--text-muted); text-decoration: line-through; ${variants[0].oldPrice ? '' : 'display:none;'}">${variants[0].oldPrice ? formatPKR(variants[0].oldPrice) : ''}</span>
         </div>
-        <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6;">${product.desc}</p>
+        <p class="qv-desc" style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6;">${product.desc}</p>
         
-        <div style="margin: 8px 0;">
+        <div class="qv-options-wrap" style="margin: 8px 0;">
           <label style="font-size: 0.78rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 6px;">Select Option / Size:</label>
-          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <div class="qv-size-grid" style="display: flex; gap: 8px; flex-wrap: wrap;">
             ${variants.map((v, i) => `
               <button type="button" class="size-option-btn ${i === 0 ? 'active' : ''}" onclick="selectQuickViewVariant('${product.id}', ${i}, this)" data-index="${i}">
                 <span class="size-name">${v.size}</span>
@@ -436,7 +436,7 @@
           </div>
         </div>
 
-        <div style="display: flex; gap: 12px; margin-top: auto; padding-top: 14px;">
+        <div class="qv-actions-row" style="display: flex; gap: 12px; margin-top: auto; padding-top: 14px;">
           <button class="btn btn-primary" onclick="addFromQuickView('${product.id}')" style="flex: 1.35; white-space: nowrap;">
             <i class="fas fa-shopping-bag"></i> Add to Bag
           </button>

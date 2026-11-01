@@ -1571,16 +1571,15 @@
   }
 }
 
-/* ── Rendering Performance Optimization (Mobile & Desktop) ── */
-.bento-section,
-.tech-lab-section,
-.site-footer {
-  content-visibility: auto;
-  contain-intrinsic-size: 1px 600px;
+/* ── Mobile Marquee Ticker Speed & Performance Optimization ── */
+@media (max-width: 991px) {
+  .marquee-track {
+    animation: marqueeRoll 14s linear infinite !important;
+    gap: 32px !important;
+  }
 }
 
 .bento-card,
 .product-card {
-  transform: translateZ(0);
   backface-visibility: hidden;
 }

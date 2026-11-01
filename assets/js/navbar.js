@@ -268,6 +268,10 @@
   // Scroll Reveal Observer
   function initScrollReveal() {
     const reveals = document.querySelectorAll('.reveal, .reveal-up, .reveal-left, .reveal-right, .reveal-zoom, .reveal-zoom-up');
+    if (typeof window !== 'undefined' && window.innerWidth <= 991) {
+      reveals.forEach(el => el.classList.add('revealed'));
+      return;
+    }
     if ('IntersectionObserver' in window) {
       if (!window.__revScrollObserver) {
         window.__revScrollObserver = new IntersectionObserver((entries, obs) => {
@@ -278,8 +282,8 @@
             }
           });
         }, {
-          threshold: 0.08,
-          rootMargin: '0px 0px -40px 0px'
+          threshold: 0.05,
+          rootMargin: '100px 0px 100px 0px'
         });
       }
       reveals.forEach(el => {

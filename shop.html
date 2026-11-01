@@ -9,8 +9,8 @@
   <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
   <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <link rel="stylesheet" href="assets/css/main.css?v=2.5">
-  <link rel="stylesheet" href="assets/css/pages.css?v=2.5">
+  <link rel="stylesheet" href="assets/css/main.css?v=2.6">
+  <link rel="stylesheet" href="assets/css/pages.css?v=2.6">
 </head>
 <body>
 
@@ -28,7 +28,8 @@
   <!-- ═══ STICKY FILTER BAR ═════════════════════════════════════════ -->
   <div class="shop-filter-bar">
     <div class="site-container shop-filter-inner">
-      <div class="category-pills-list" id="categoryPills">
+      <div class="category-slider-wrapper">
+        <div class="category-pills-list" id="categoryPills">
         <button class="cat-pill-btn active" data-category="all" onclick="filterCategory('all', this)">
           <i class="fas fa-border-all"></i> All Gear
         </button>
@@ -48,8 +49,9 @@
           <i class="fas fa-heart text-cyan"></i> Saved Wishlist
         </button>
       </div>
+      </div>
 
-      <div style="display: flex; align-items: center; gap: 14px; margin-left: auto;">
+      <div class="shop-filter-sort-row">
         <span style="font-size: 0.82rem; color: var(--text-muted); white-space: nowrap;" id="productCountLabel">
           Showing 6 products
         </span>
@@ -82,9 +84,9 @@
     </div>
   </section>
 
-  <script src="assets/js/store.js?v=2.5"></script>
-  <script src="assets/js/smooth-scroll.js?v=2.5"></script>
-  <script src="assets/js/navbar.js?v=2.5"></script>
+  <script src="assets/js/store.js?v=2.6"></script>
+  <script src="assets/js/smooth-scroll.js?v=2.6"></script>
+  <script src="assets/js/navbar.js?v=2.6"></script>
   <script>
     let activeCategory = 'all';
     let currentSort = 'featured';
@@ -110,6 +112,9 @@
     function filterCategory(catId, btnElement) {
       if (activeCategory === catId) return;
       activeCategory = catId;
+      if (btnElement && btnElement.scrollIntoView) {
+        btnElement.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      }
       document.querySelectorAll('.cat-pill-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.category === catId);
       });
@@ -258,6 +263,40 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       initCatalog();
+
+    // Smooth Touch & Drag Slider for Category Pills
+    (function initCategoryPillsSlider() {
+      const slider = document.getElementById('categoryPills');
+      if (!slider) return;
+      let isDown = false;
+      let startX, scrollLeft;
+
+      slider.addEventListener('mousedown', (e) => {
+        isDown = true;
+        slider.classList.add('dragging');
+        startX = e.pageX - slider.offsetLeft;
+        scrollLeft = slider.scrollLeft;
+      });
+      slider.addEventListener('mouseleave', () => {
+        isDown = false;
+        slider.classList.remove('dragging');
+      });
+      slider.addEventListener('mouseup', () => {
+        isDown = false;
+        slider.classList.remove('dragging');
+      });
+      slider.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - slider.offsetLeft;
+        const walk = (x - startX) * 1.5;
+        slider.scrollLeft = scrollLeft - walk;
+      });
+    })();
+
+
+    
+
     });
   </script>
 </body>

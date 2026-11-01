@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Full Gear Collection & Armor — REV MOTO</title>
+  <meta name="description" content="Explore the full Rev Moto technical armor lineup: Cyber Mesh Jackets, Carbon Gloves, Modular Luggage, and Climate Shields.">
+  <link rel="icon" type="image/png" href="assets/images/logo.png">
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="assets/css/main.css">
+  <link rel="stylesheet" href="assets/css/pages.css">
+</head>
+<body>
+
+  <!-- ═══ SHOP HERO ═════════════════════════════════════════════════ -->
+  <section class="shop-hero">
+    <div class="site-container">
+      <div style="max-width: 660px;" class="reveal-up">
+        <div class="section-badge"><i class="fas fa-th-large"></i> 2026 Collection</div>
+        <h1 class="section-title">ALL MOTORCYCLE GEAR</h1>
+        <p class="section-desc">Protective riding jackets, carbon gloves, magnetic bags, and weather accessories engineered for safety, comfort, and all-weather control.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ STICKY FILTER BAR ═════════════════════════════════════════ -->
+  <div class="shop-filter-bar">
+    <div class="site-container shop-filter-inner">
+      <div class="category-pills-list" id="categoryPills">
+        <button class="cat-pill-btn active" data-category="all" onclick="filterCategory('all', this)">
+          <i class="fas fa-border-all"></i> All Gear
+        </button>
+        <button class="cat-pill-btn" data-category="apparel" onclick="filterCategory('apparel', this)">
+          <i class="fas fa-vest"></i> Riding Jackets
+        </button>
+        <button class="cat-pill-btn" data-category="gloves" onclick="filterCategory('gloves', this)">
+          <i class="fas fa-mitten"></i> Gloves
+        </button>
+        <button class="cat-pill-btn" data-category="packs" onclick="filterCategory('packs', this)">
+          <i class="fas fa-box"></i> Bags & Packs
+        </button>
+        <button class="cat-pill-btn" data-category="masks" onclick="filterCategory('masks', this)">
+          <i class="fas fa-mask"></i> Face Masks
+        </button>
+        <button class="cat-pill-btn" data-category="wishlist" onclick="filterCategory('wishlist', this)">
+          <i class="fas fa-heart text-cyan"></i> Saved Wishlist
+        </button>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 14px; margin-left: auto;">
+        <span style="font-size: 0.82rem; color: var(--text-muted); white-space: nowrap;" id="productCountLabel">
+          Showing 6 products
+        </span>
+        <select class="shop-sort-select" id="sortSelect" onchange="applySorting(this.value)">
+          <option value="featured">Sort: Featured</option>
+          <option value="price-low">Price: Low to High</option>
+          <option value="price-high">Price: High to Low</option>
+          <option value="rating">Top Rated</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ CATALOG GRID ══════════════════════════════════════════════ -->
+  <section class="section">
+    <div class="site-container">
+      <div class="shop-grid" id="catalogGrid">
+        <!-- Rendered by JS -->
+      </div>
+
+      <!-- Empty State -->
+      <div id="shopEmptyState" style="display: none; text-align: center; padding: 80px 20px; background: var(--bg-surface); border: 1px solid var(--border-glass); border-radius: var(--radius-card); margin: 40px 0;">
+        <i class="fas fa-box-open" style="font-size: 3.5rem; color: var(--text-muted); margin-bottom: 18px; display: block;"></i>
+        <h3 style="font-size: 1.5rem; margin-bottom: 8px;">No gear found in this category</h3>
+        <p style="color: var(--text-secondary); max-width: 420px; margin: 0 auto 24px;">Try resetting filters or exploring other armor categories.</p>
+        <button class="btn btn-primary" onclick="filterCategory('all')">
+          Reset Filter to All Gear
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <script src="assets/js/store.js"></script>
+  <script src="assets/js/smooth-scroll.js"></script>
+  <script src="assets/js/navbar.js"></script>
+  <script>
+    let activeCategory = 'all';
+    let currentSort = 'featured';
+
+    function initCatalog() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const catParam = urlParams.get('cat');
+      const filterParam = urlParams.get('filter');
+
+      if (filterParam === 'wishlist') {
+        activeCategory = 'wishlist';
+      } else if (catParam) {
+        activeCategory = catParam;
+      }
+
+      document.querySelectorAll('.cat-pill-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.category === activeCategory);
+      });
+
+      renderCatalog();
+    }
+
+    function filterCategory(catId, btnElement) {
+      if (activeCategory === catId) return;
+      activeCategory = catId;
+      document.querySelectorAll('.cat-pill-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.category === catId);
+      });
+
+      const url = new URL(window.location);
+      if (catId === 'all') {
+        url.searchParams.delete('cat');
+        url.searchParams.delete('filter');
+      } else if (catId === 'wishlist') {
+        url.searchParams.set('filter', 'wishlist');
+        url.searchParams.delete('cat');
+      } else {
+        url.searchParams.set('cat', catId);
+        url.searchParams.delete('filter');
+      }
+      window.history.replaceState({}, '', url);
+
+      const grid = document.getElementById('catalogGrid');
+      if (grid) {
+        grid.style.opacity = '0.35';
+        grid.style.transform = 'translateY(6px)';
+        grid.style.transition = 'opacity 0.18s cubic-bezier(0.16, 1, 0.3, 1), transform 0.18s cubic-bezier(0.16, 1, 0.3, 1)';
+        setTimeout(() => {
+          renderCatalog();
+          grid.style.opacity = '1';
+          grid.style.transform = 'translateY(0)';
+        }, 70);
+      } else {
+        renderCatalog();
+      }
+    }
+
+    function applySorting(sortMode) {
+      currentSort = sortMode;
+      renderCatalog();
+    }
+
+    function renderCatalog() {
+      const grid = document.getElementById('catalogGrid');
+      const emptyState = document.getElementById('shopEmptyState');
+      const countLabel = document.getElementById('productCountLabel');
+      if (!grid) return;
+
+      let list = [...STORE_PRODUCTS];
+
+      if (activeCategory === 'wishlist') {
+        const wishIds = new Set(getWishlist().map(w => String(w.id)));
+        list = list.filter(p => wishIds.has(String(p.id)));
+      } else if (activeCategory !== 'all') {
+        list = list.filter(p => p.subcategory === activeCategory || p.category === activeCategory);
+      }
+
+      if (currentSort === 'price-low') {
+        list.sort((a, b) => a.price - b.price);
+      } else if (currentSort === 'price-high') {
+        list.sort((a, b) => b.price - a.price);
+      } else if (currentSort === 'rating') {
+        list.sort((a, b) => b.rating - a.rating);
+      }
+
+      if (countLabel) {
+        countLabel.textContent = `Showing ${list.length} product${list.length === 1 ? '' : 's'}`;
+      }
+
+      if (list.length === 0) {
+        grid.style.display = 'none';
+        if (emptyState) emptyState.style.display = 'block';
+        return;
+      }
+
+      grid.style.display = 'grid';
+      if (emptyState) emptyState.style.display = 'none';
+
+      grid.innerHTML = list.map((p, idx) => `
+        <div class="product-card reveal-zoom-up stagger-${(idx % 4) + 1}" data-product-id="${p.id}">
+          <div class="product-card-media">
+            <a href="product.html?id=${p.id}">
+              <img src="${p.img}" alt="${p.name}" class="product-card-img" loading="lazy" decoding="async" onerror="this.src='assets/images/jacket_cyber.jpg'">
+            </a>
+            <button class="product-card-wish ${isWishlisted(p.id) ? 'active' : ''}" onclick="handleWishToggle('${p.id}', this)" aria-label="Save to Wishlist">
+              <i class="fas fa-heart"></i>
+            </button>
+          </div>
+          <div class="product-card-content">
+            <span class="product-card-cat">${p.categoryLabel}</span>
+            <h3 class="product-card-title">
+              <a href="product.html?id=${p.id}">${p.name}</a>
+            </h3>
+            <div class="product-card-rating">
+              <span>★ ${p.rating}</span>
+              <span class="rating-count">(${p.reviews} verified)</span>
+            </div>
+            <div class="product-card-bottom">
+              <div class="product-card-price">
+                <span class="price-current">${formatPKR(p.price)}</span>
+                ${p.oldPrice ? `<span class="price-old">${formatPKR(p.oldPrice)}</span>` : ''}
+              </div>
+              <div class="product-card-actions">
+                <button class="product-card-action-btn product-card-qv-btn" onclick="openQuickView('${p.id}', event)" aria-label="Quick View" title="Quick View">
+                  <i class="fas fa-eye"></i>
+                </button>
+                <button class="product-card-action-btn product-card-add-btn" onclick="handleCardAdd('${p.id}', event)" aria-label="Add to Bag" title="Add to Bag">
+                  <i class="fas fa-shopping-bag"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      if (typeof initScrollReveal === 'function') {
+        setTimeout(initScrollReveal, 50);
+      }
+    }
+
+    function handleCardAdd(productId, event) {
+      const product = STORE_PRODUCTS.find(p => String(p.id) === String(productId));
+      if (product) {
+        addToCart(product, {
+          sourceEl: event.currentTarget,
+          openDrawer: false,
+        });
+
+        const btn = event.currentTarget;
+        if (btn) {
+          const original = btn.innerHTML;
+          btn.innerHTML = '<i class="fas fa-check"></i>';
+          btn.style.background = '#2563eb';
+          btn.style.color = '#ffffff';
+          setTimeout(() => {
+            btn.innerHTML = original;
+            btn.style.background = '';
+            btn.style.color = '';
+          }, 1200);
+        }
+      }
+    }
+
+    function handleWishToggle(productId, btnEl) {
+      const product = STORE_PRODUCTS.find(p => String(p.id) === String(productId));
+      if (product) {
+        toggleWishlist(product);
+        btnEl.classList.toggle('active', isWishlisted(product.id));
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initCatalog();
+    });
+  </script>
+</body>
+</html>

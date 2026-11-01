@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Secure Checkout — REV MOTO</title>
+  <meta name="description" content="Complete your Rev Moto technical gear dispatch securely via Nationwide Cash on Delivery.">
+  <link rel="icon" type="image/png" href="assets/images/logo.png">
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="assets/css/main.css">
+  <link rel="stylesheet" href="assets/css/pages.css">
+</head>
+<body>
+
+  <!-- ═══ CHECKOUT MAIN ═════════════════════════════════════════════ -->
+  <section class="checkout-section" style="padding: 140px 0 100px;">
+    <div class="site-container">
+      <div style="margin-bottom: 28px;" class="reveal-up">
+        <div class="section-badge"><i class="fas fa-lock"></i> 256-Bit SSL Encrypted</div>
+        <h1 class="section-title">ORDER CHECKOUT</h1>
+      </div>
+
+      <!-- Checkout Step Progress Bar -->
+      <div class="checkout-steps-bar reveal-up stagger-1">
+        <div class="checkout-step-pill active" id="stepPill1">
+          <div class="step-num-circle">1</div>
+          <span>Shipping Details</span>
+        </div>
+        <i class="fas fa-chevron-right text-muted" style="font-size: 0.75rem;"></i>
+        <div class="checkout-step-pill" id="stepPill2">
+          <div class="step-num-circle">2</div>
+          <span>Payment Method</span>
+        </div>
+      </div>
+
+      <div class="checkout-grid" id="checkoutGrid">
+        <div class="checkout-forms-col">
+          <form id="checkoutMasterForm" onsubmit="handleCheckoutSubmit(event)">
+            
+            <!-- STAGE 1: Contact & Shipping -->
+            <div class="glass-card reveal-up stagger-2" id="checkoutStage1" style="margin-bottom: 24px;">
+              <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding-bottom: 14px; border-bottom: 1px solid var(--border-subtle);">
+                <i class="fas fa-map-marker-alt text-cyan" style="font-size: 1.25rem;"></i>
+                <h3 style="font-size: 1.25rem; color: var(--text-pure);">1. Shipping & Contact Information</h3>
+              </div>
+
+              <div class="form-group-grid">
+                <div class="form-field">
+                  <label for="coFullName">Your Full Name *</label>
+                  <input type="text" id="coFullName" placeholder="e.g. Daniyal Tariq" required>
+                </div>
+                <div class="form-field">
+                  <label for="coPhone">WhatsApp / Mobile Number *</label>
+                  <input type="tel" id="coPhone" placeholder="03XX-XXXXXXX" required>
+                </div>
+              </div>
+
+              <div class="form-field" style="margin-top: 16px;">
+                <label for="coEmail">Email Address (For Tracking & Invoice) *</label>
+                <input type="email" id="coEmail" placeholder="you@domain.com" required>
+              </div>
+
+              <div class="form-field" style="margin-top: 16px;">
+                <label for="coAddress">Complete Street Address *</label>
+                <textarea id="coAddress" rows="2" placeholder="House / Building #, Street, Area / Sector, City, Landmark..." required></textarea>
+              </div>
+
+              <div class="form-field" style="margin-top: 16px;">
+                <label for="coNotes">Special Delivery Instructions (Optional)</label>
+                <input type="text" id="coNotes" placeholder="e.g. Call before delivery, leave with reception...">
+              </div>
+            </div>
+
+            <!-- STAGE 2: Payment Method (Cash on Delivery) -->
+            <div class="glass-card reveal-up stagger-3" id="checkoutStage2">
+              <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding-bottom: 14px; border-bottom: 1px solid var(--border-subtle);">
+                <i class="fas fa-hand-holding-dollar text-cyan" style="font-size: 1.25rem;"></i>
+                <h3 style="font-size: 1.25rem; color: var(--text-pure);">2. Payment Method</h3>
+              </div>
+
+              <div class="payment-method-card selected" style="cursor: default;">
+                <div class="pm-header" style="margin-bottom: 6px;">
+                  <div class="pm-left" style="display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-money-bill-wave text-cyan" style="font-size: 1.2rem;"></i>
+                    <span style="font-weight: 700; color: var(--text-pure); font-size: 1.05rem;">Cash on Delivery (COD)</span>
+                  </div>
+                  <span class="section-badge" style="margin-bottom: 0;">Verified Nationwide</span>
+                </div>
+                <div class="pm-body" style="display: block; padding-top: 6px; font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6;">
+                  <p>Pay cash securely directly to the courier agent upon doorstep parcel delivery across Pakistan. Please keep the exact order amount ready at delivery time.</p>
+                </div>
+              </div>
+
+              <!-- Submit -->
+              <div style="margin-top: 28px;">
+                <button type="submit" class="btn btn-primary btn-full btn-lg" id="coSubmitBtn">
+                  <i class="fas fa-lock"></i> Confirm & Place Order (Cash on Delivery)
+                </button>
+                <div style="font-size: 0.78rem; color: var(--text-muted); text-align: center; margin-top: 12px;">
+                  By placing this order you agree to our <a href="terms.html" style="color: var(--accent-cyan);">Terms of Service</a>.
+                </div>
+              </div>
+            </div>
+
+          </form>
+        </div>
+
+        <!-- Sidebar Summary -->
+        <div>
+          <div class="glass-card" style="padding: 28px; position: sticky; top: 110px;">
+            <h3 style="font-size: 1.25rem; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border-subtle); color: var(--text-pure);">
+              Dispatch Summary
+            </h3>
+
+            <div id="coSummaryItems" style="display: flex; flex-direction: column; gap: 14px; margin-bottom: 20px; max-height: 280px; overflow-y: auto;">
+              <!-- Injected by JS -->
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 10px; font-size: 0.92rem; border-top: 1px solid var(--border-subtle); padding-top: 16px;">
+              <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--text-secondary);">Gear Subtotal:</span>
+                <span style="font-weight: 700; color: var(--text-pure);" id="coSubtotalVal">Rs. 0</span>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--text-secondary);">Courier Fee:</span>
+                <span style="font-weight: 700; color: var(--accent-cyan);" id="coDeliveryVal">Rs. 200</span>
+              </div>
+              <div style="height: 1px; background: var(--border-subtle); margin: 6px 0;"></div>
+              <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                <span style="font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; color: var(--text-pure);">Total Payable:</span>
+                <span style="font-family: var(--font-display); font-weight: 800; font-size: 1.85rem; color: var(--accent-cyan);" id="coGrandTotalVal">Rs. 0</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Confirmation Screen -->
+      <div id="orderSuccessScreen" style="display: none; max-width: 680px; margin: 30px auto;" class="glass-card">
+        <div style="width: 80px; height: 80px; border-radius: 50%; background: var(--accent-cyan-dim); border: 2px solid var(--accent-cyan); color: var(--accent-cyan); font-size: 2.2rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; box-shadow: 0 0 30px var(--accent-cyan-glow);">
+          <i class="fas fa-check"></i>
+        </div>
+
+        <h2 style="font-size: 2.3rem; margin-bottom: 10px; text-align: center; color: var(--text-pure);">ORDER CONFIRMED!</h2>
+        <p style="color: var(--text-secondary); font-size: 1.05rem; margin-bottom: 24px; text-align: center;">Thank you! Your order has been placed and is being prepared for tracked dispatch.</p>
+
+        <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 22px; text-align: left; margin-bottom: 28px;">
+          <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-subtle); padding-bottom: 10px; margin-bottom: 10px;">
+            <span style="color: var(--text-secondary); font-size: 0.85rem;">Order Number:</span>
+            <strong style="color: var(--accent-cyan); font-size: 1.15rem; font-family: monospace;" id="successOrderId">RM-78219</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-subtle); padding-bottom: 10px; margin-bottom: 10px;">
+            <span style="color: var(--text-secondary); font-size: 0.85rem;">Estimated Delivery:</span>
+            <strong style="color: var(--text-pure);" id="successDeliveryTime">3–5 Business Days</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span style="color: var(--text-secondary); font-size: 0.85rem;">Total Amount:</span>
+            <strong style="color: var(--accent-cyan); font-size: 1.25rem;" id="successTotalAmount">Rs. 0</strong>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <button id="successWhatsAppBtn" class="btn btn-whatsapp btn-lg btn-full" onclick="dispatchOrderToWhatsApp()">
+            <i class="fab fa-whatsapp"></i> Confirm Order With Us on WhatsApp
+          </button>
+          <a href="index.html" class="btn btn-glass">
+            Back to Homepage <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script src="assets/js/store.js"></script>
+  <script src="assets/js/smooth-scroll.js"></script>
+  <script src="assets/js/navbar.js"></script>
+  <script>
+    let currentDeliveryMethod = 'standard';
+    let currentPaymentMethod = 'cod';
+    let placedOrderPayload = null;
+
+    function initCheckout() {
+      const cart = getCart();
+      if (cart.length === 0) {
+        window.location.href = 'cart.html';
+        return;
+      }
+      renderCheckoutSummary();
+    }
+
+    function renderCheckoutSummary() {
+      const cart = getCart();
+      const container = document.getElementById('coSummaryItems');
+      const subtotalValEl = document.getElementById('coSubtotalVal');
+      const deliveryValEl = document.getElementById('coDeliveryVal');
+      const grandTotalValEl = document.getElementById('coGrandTotalVal');
+
+      if (!container) return;
+
+      const subtotal = getCartSubtotal();
+      const deliveryCost = 350; // Standard Flat Courier Delivery Across Pakistan
+
+      container.innerHTML = cart.map(item => `
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <img src="${item.img}" alt="${item.name}" style="width: 48px; height: 48px; border-radius: var(--radius-sm); object-fit: cover; background: #f1f5f9; border: 1px solid var(--border-subtle);" loading="lazy" decoding="async" onerror="this.src='assets/images/jacket_cyber.jpg'">
+          <div style="flex: 1; font-size: 0.85rem;">
+            <div style="font-weight: 700; color: var(--text-pure); line-height: 1.2;">${item.name}</div>
+            <div style="color: var(--text-secondary); font-size: 0.75rem;">Spec: ${item.size} • Qty: ${item.qty}</div>
+          </div>
+          <div style="font-family: var(--font-display); font-weight: 700; color: var(--accent-cyan); font-size: 0.95rem;">
+            ${formatPKR(item.price * item.qty)}
+          </div>
+        </div>
+      `).join('');
+
+      subtotalValEl.textContent = formatPKR(subtotal);
+      deliveryValEl.textContent = formatPKR(deliveryCost);
+      grandTotalValEl.textContent = formatPKR(subtotal + deliveryCost);
+    }
+
+    function handleCheckoutSubmit(e) {
+      e.preventDefault();
+
+      const fullName = document.getElementById('coFullName').value.trim();
+      const phone = document.getElementById('coPhone').value.trim();
+      const email = document.getElementById('coEmail').value.trim();
+      const address = document.getElementById('coAddress').value.trim();
+      const notes = document.getElementById('coNotes').value.trim();
+
+      const cart = getCart();
+      const subtotal = getCartSubtotal();
+      const deliveryCost = 350;
+      const grandTotal = subtotal + deliveryCost;
+      const orderId = 'RM-' + Math.floor(10000 + Math.random() * 90000);
+
+      placedOrderPayload = {
+        orderId,
+        customerName: fullName,
+        phone,
+        email,
+        address,
+        notes,
+        paymentMethod: 'Cash on Delivery (COD)',
+        deliveryMethod: 'standard',
+        deliveryLabel: 'Standard Tracked Delivery (3–5 Days)',
+        deliveryCost: 350,
+        items: cart,
+        totalAmount: grandTotal,
+        createdAt: new Date().toISOString()
+      };
+
+      saveCart([]);
+
+      document.getElementById('checkoutGrid').style.display = 'none';
+      document.querySelector('.checkout-steps-bar').style.display = 'none';
+      
+      const successScreen = document.getElementById('orderSuccessScreen');
+      document.getElementById('successOrderId').textContent = orderId;
+      document.getElementById('successDeliveryTime').textContent = currentDeliveryMethod === 'express' ? '1–2 Business Days' : '3–5 Business Days';
+      document.getElementById('successTotalAmount').textContent = formatPKR(grandTotal);
+
+      successScreen.style.display = 'block';
+      window.scrollTo({ top: 80, behavior: 'smooth' });
+
+      showToast(`Order ${orderId} confirmed!`, 'success');
+    }
+
+    function openWhatsAppOrder(order) {
+      if (!order) return;
+      const itemsList = (order.items || []).map(i => `• ${i.name} (${i.size || 'Standard'}) x${i.qty} - Rs. ${(i.price * i.qty).toLocaleString()}`).join('\n');
+      const msg = `*NEW REV MOTO ORDER: ${order.orderId}*\n\n` +
+        `*Customer:* ${order.customerName}\n` +
+        `*Phone:* ${order.phone}\n` +
+        `*Email:* ${order.email}\n` +
+        `*Delivery Address:* ${order.address}\n` +
+        (order.notes ? `*Delivery Notes:* ${order.notes}\n` : '') +
+        `\n*Order Items:*\n${itemsList}\n\n` +
+        `*Delivery:* ${order.deliveryLabel} (Rs. ${order.deliveryCost})\n` +
+        `*Payment Method:* ${order.paymentMethod.toUpperCase()}` + (order.transactionId ? ` (Trx ID: ${order.transactionId})` : '') + `\n` +
+        `*Grand Total:* Rs. ${order.totalAmount.toLocaleString()}\n\n` +
+        `Please confirm order dispatch!`;
+      
+      const url = `https://wa.me/923374249450?text=${encodeURIComponent(msg)}`;
+      window.open(url, '_blank');
+    }
+
+    function dispatchOrderToWhatsApp() {
+      if (placedOrderPayload) {
+        openWhatsAppOrder(placedOrderPayload);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initCheckout();
+    });
+  </script>
+</body>
+</html>

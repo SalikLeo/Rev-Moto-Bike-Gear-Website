@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Gear Bag — REV MOTO</title>
+  <meta name="description" content="Review your technical armor selections, enter promo codes, and proceed to secure checkout.">
+  <link rel="icon" type="image/png" href="assets/images/logo.png">
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="assets/css/main.css">
+  <link rel="stylesheet" href="assets/css/pages.css">
+</head>
+<body>
+
+  <!-- ═══ CART MAIN ═════════════════════════════════════════════════ -->
+  <section class="cart-page-section" style="padding: 140px 0 100px;">
+    <div class="site-container">
+      <div style="margin-bottom: 32px;" class="reveal-up">
+        <div class="section-badge"><i class="fas fa-shopping-bag"></i> Your Selection</div>
+        <h1 class="section-title">YOUR SHOPPING BAG</h1>
+      </div>
+
+      <!-- Standard Tracked Shipping Banner -->
+      <div class="glass-card reveal-up stagger-1" style="padding: 16px 24px; margin-bottom: 28px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(37, 99, 235, 0.1); border: 1px solid rgba(37, 99, 235, 0.2); color: #2563eb; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">
+            <i class="fas fa-truck-fast"></i>
+          </div>
+          <div>
+            <div style="font-size: 0.95rem; font-weight: 700; color: var(--text-pure);">Standard Tracked Delivery Across Pakistan</div>
+            <div style="font-size: 0.8rem; color: var(--text-secondary);">Direct door-to-door courier transit via Leopard / TCS (3–5 Days)</div>
+          </div>
+        </div>
+        <div style="font-family: var(--font-display); font-weight: 800; font-size: 1.15rem; color: var(--accent-cyan);">
+          Rs. 350
+        </div>
+      </div>
+
+      <!-- Cart Grid -->
+      <div class="cart-layout-grid" id="cartLayoutGrid">
+        <div class="glass-card reveal-up stagger-2" style="padding: 28px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 18px; border-bottom: 1px solid var(--border-subtle); margin-bottom: 24px;">
+            <h3 style="font-size: 1.2rem; color: var(--text-pure);">Your Items (<span id="cartItemsCount">0</span>)</h3>
+            <button onclick="clearCartConfirm()" style="background: none; border: none; color: var(--text-muted); font-size: 0.82rem; cursor: pointer;">
+              <i class="fas fa-trash-alt"></i> Clear Bag
+            </button>
+          </div>
+
+          <div id="cartItemsContainer" style="display: flex; flex-direction: column; gap: 20px;">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="glass-card reveal-up stagger-3" style="padding: 32px; position: sticky; top: 110px;">
+          <h3 style="font-size: 1.3rem; margin-bottom: 22px; padding-bottom: 14px; border-bottom: 1px solid var(--border-subtle); color: var(--text-pure);">
+            Order Summary
+          </h3>
+
+          <div style="display: flex; flex-direction: column; gap: 14px; margin-bottom: 24px; font-size: 0.95rem;">
+            <div style="display: flex; justify-content: space-between;">
+              <span style="color: var(--text-secondary);">Items Subtotal</span>
+              <span style="font-weight: 700; color: var(--text-pure);" id="cartSubtotalText">Rs. 0</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; display: none;" id="discountRow">
+              <span style="color: var(--accent-cyan);">Discount</span>
+              <span style="font-weight: 700; color: var(--accent-cyan);" id="discountValText">- Rs. 0</span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+              <span style="color: var(--text-secondary);">Delivery Fee</span>
+              <span style="font-weight: 700; color: var(--text-pure);" id="cartDeliveryText">Calculated at Checkout</span>
+            </div>
+            <div style="height: 1px; background: var(--border-subtle); margin: 6px 0;"></div>
+            <div style="display: flex; justify-content: space-between; align-items: baseline;">
+              <span style="font-family: var(--font-display); font-weight: 700; font-size: 1.15rem; color: var(--text-pure);">Total Amount</span>
+              <span style="font-family: var(--font-display); font-weight: 800; font-size: 1.9rem; color: var(--accent-cyan);" id="cartTotalText">Rs. 0</span>
+            </div>
+          </div>
+
+          <!-- Promo Code -->
+          <div style="margin-bottom: 24px;">
+            <label style="font-size: 0.78rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; display: block; margin-bottom: 8px;">Promo / Coupon Code</label>
+            <div style="display: flex; gap: 8px;">
+              <input type="text" id="couponCodeInput" placeholder="Try 'REV2026'" style="flex: 1; background: #ffffff; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 12px 16px; color: var(--text-pure); text-transform: uppercase; outline: none; font-size: 0.88rem;">
+              <button onclick="applyCouponCode()" class="btn btn-glass btn-sm">Apply</button>
+            </div>
+            <div id="couponMessage" style="font-size: 0.78rem; margin-top: 8px; display: none;"></div>
+          </div>
+
+          <a href="checkout.html" class="btn btn-primary btn-full btn-lg" style="margin-bottom: 12px;">
+            <i class="fas fa-lock"></i> Proceed to Checkout
+          </a>
+
+          <a href="shop.html" class="btn btn-glass btn-full btn-sm">
+            <i class="fas fa-arrow-left"></i> Continue Shopping
+          </a>
+
+          <div style="margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--border-subtle); text-align: center; font-size: 0.78rem; color: var(--text-muted);">
+            <i class="fas fa-shield-halved text-cyan"></i> 100% Verified Cash on Delivery (COD) Checkout
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div id="cartPageEmpty" style="display: none; text-align: center; padding: 100px 20px;" class="glass-card">
+        <i class="fas fa-shopping-bag" style="font-size: 4rem; color: var(--text-muted); margin-bottom: 20px; display: block;"></i>
+        <h2 style="font-size: 2.2rem; margin-bottom: 10px;">Your Gear Bag Is Empty</h2>
+        <p style="color: var(--text-secondary); max-width: 440px; margin: 0 auto 30px;">Discover the 2026 collection of cyber jackets, carbon gloves, and modular packs.</p>
+        <a href="shop.html" class="btn btn-primary btn-lg">
+          Explore Collection <i class="fas fa-arrow-right"></i>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <script src="assets/js/store.js"></script>
+  <script src="assets/js/smooth-scroll.js"></script>
+  <script src="assets/js/navbar.js"></script>
+  <script>
+    let discountPercent = 0;
+
+    function renderCartPage() {
+      const cart = getCart();
+      const container = document.getElementById('cartItemsContainer');
+      const layoutGrid = document.getElementById('cartLayoutGrid');
+      const emptyState = document.getElementById('cartPageEmpty');
+      const countEl = document.getElementById('cartItemsCount');
+
+      if (!container) return;
+
+      if (cart.length === 0) {
+        if (layoutGrid) layoutGrid.style.display = 'none';
+        if (emptyState) emptyState.style.display = 'block';
+        return;
+      }
+
+      if (layoutGrid) layoutGrid.style.display = 'grid';
+      if (emptyState) emptyState.style.display = 'none';
+
+      countEl.textContent = getCartCount();
+      const subtotal = getCartSubtotal();
+      const deliveryFee = 350;
+      const deliveryEl = document.getElementById('cartDeliveryText');
+      if (deliveryEl) deliveryEl.textContent = formatPKR(deliveryFee);
+
+      container.innerHTML = cart.map((item, index) => `
+        <div class="cart-item-row">
+          <a href="product.html?id=${item.id}" style="width: 90px; height: 90px; border-radius: var(--radius-md); overflow: hidden; background: #f1f5f9; border: 1px solid var(--border-subtle); display: block; flex-shrink: 0;">
+            <img src="${item.img}" alt="${item.name}" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy" decoding="async" onerror="this.src='assets/images/jacket_cyber.jpg'">
+          </a>
+
+          <div>
+            <a href="product.html?id=${item.id}" style="font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; color: var(--text-pure); display: block; margin-bottom: 4px; line-height: 1.3;">
+              ${item.name}
+            </a>
+            <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 8px;">
+              <span style="background: var(--bg-surface-elevated); padding: 3px 10px; border-radius: 4px; border: 1px solid var(--border-subtle);">Size: ${item.size}</span>
+            </div>
+            <div style="font-family: var(--font-display); font-weight: 800; color: var(--accent-cyan); font-size: 1.15rem;">
+              ${formatPKR(item.price)}
+            </div>
+          </div>
+
+          <div class="cart-item-actions" style="display: flex; flex-direction: column; align-items: flex-end; gap: 12px;">
+            <button type="button" onclick="removeFromCartIndex(${index}); renderCartPage();" style="background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.92rem; transition: color 0.2s;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='var(--text-muted)'" title="Remove">
+              <i class="fas fa-trash-alt"></i>
+            </button>
+
+            <div style="display: inline-flex; align-items: center; background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); overflow: hidden;">
+              <button type="button" onclick="updateCartQtyByIndex(${index}, -1); renderCartPage();" style="background: none; border: none; color: var(--text-pure); width: 28px; height: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center;"><i class="fas fa-minus"></i></button>
+              <span style="font-size: 0.9rem; font-weight: 700; min-width: 26px; text-align: center; color: var(--text-pure);">${item.qty}</span>
+              <button type="button" onclick="updateCartQtyByIndex(${index}, 1); renderCartPage();" style="background: none; border: none; color: var(--text-pure); width: 28px; height: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center;"><i class="fas fa-plus"></i></button>
+            </div>
+
+            <div style="font-size: 0.88rem; font-weight: 700; color: var(--text-pure);">
+              ${formatPKR(item.price * item.qty)}
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      const subtotalEl = document.getElementById('cartSubtotalText');
+      const totalEl = document.getElementById('cartTotalText');
+      const discountRow = document.getElementById('discountRow');
+      const discountValText = document.getElementById('discountValText');
+
+      subtotalEl.textContent = formatPKR(subtotal);
+
+      let finalTotal = subtotal;
+      if (discountPercent > 0) {
+        const discountAmount = Math.round(subtotal * (discountPercent / 100));
+        finalTotal -= discountAmount;
+        discountRow.style.display = 'flex';
+        discountValText.textContent = `- ${formatPKR(discountAmount)} (${discountPercent}%)`;
+      } else {
+        discountRow.style.display = 'none';
+      }
+
+      totalEl.textContent = formatPKR(finalTotal + deliveryFee);
+    }
+
+    function applyCouponCode() {
+      const code = document.getElementById('couponCodeInput').value.trim().toUpperCase();
+      const msg = document.getElementById('couponMessage');
+      if (code === 'REV2026' || code === 'REVMOTO10') {
+        discountPercent = 10;
+        msg.style.display = 'block';
+        msg.style.color = 'var(--accent-cyan)';
+        msg.textContent = '✓ 10% VIP Launch discount successfully verified!';
+        renderCartPage();
+      } else if (code) {
+        msg.style.display = 'block';
+        msg.style.color = 'var(--accent-rose)';
+        msg.textContent = 'Invalid promo token. Try "REV2026"';
+      }
+    }
+
+    function clearCartConfirm() {
+      if (confirm('Empty gear bag completely?')) {
+        saveCart([]);
+        renderCartPage();
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderCartPage();
+      window.addEventListener('rev:cart-updated', renderCartPage);
+    });
+  </script>
+</body>
+</html>

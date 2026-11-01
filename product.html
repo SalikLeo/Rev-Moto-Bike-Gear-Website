@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Details — REV MOTO</title>
+  <meta name="description" content="Detailed armor specifications, CE impact protection, and size charts for Rev Moto gear.">
+  <link rel="icon" type="image/png" href="assets/images/logo.png">
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="assets/css/main.css">
+  <link rel="stylesheet" href="assets/css/pages.css">
+</head>
+<body>
+
+  <!-- ═══ PRODUCT DETAIL MAIN ═══════════════════════════════════════ -->
+  <section class="pdp-section">
+    <div class="site-container">
+      <div style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 28px;">
+        <a href="index.html" style="color: var(--text-secondary);">Home</a>
+        <span>/</span>
+        <a href="shop.html" style="color: var(--text-secondary);">Shop</a>
+        <span>/</span>
+        <span id="pdpBreadcrumbCurrent" style="color: var(--accent-cyan);">Product Details</span>
+      </div>
+
+      <div class="pdp-grid" id="pdpMainContainer">
+        <!-- Gallery Column -->
+        <div class="pdp-gallery-sticky reveal-zoom">
+          <div class="pdp-main-image">
+            <img src="assets/images/jacket_cyber.jpg" alt="Rev Moto Armor" id="pdpMainImg" fetchpriority="high">
+            <span class="pdp-zoom-badge" aria-hidden="true"><i class="fas fa-search-plus"></i> Hover to zoom</span>
+          </div>
+          <div class="pdp-thumb-strip" id="pdpThumbStrip">
+            <!-- Thumbnails -->
+          </div>
+        </div>
+
+        <!-- Details Column -->
+        <div class="pdp-details reveal-left">
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 6px;">
+            <span class="section-badge" id="pdpBadge">Riding Jackets</span>
+          </div>
+
+          <h1 style="font-size: clamp(2rem, 3.8vw, 2.9rem); line-height: 1.1;" id="pdpTitle">
+            Armored Mesh Riding Jacket
+          </h1>
+
+          <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+            <div style="color: var(--accent-gold); font-size: 0.92rem;">★★★★★</div>
+            <span style="font-size: 0.85rem; color: var(--text-muted);" id="pdpReviewsCount">(48 verified dispatches)</span>
+          </div>
+
+          <div style="display: flex; align-items: baseline; gap: 14px; margin: 4px 0;">
+            <span style="font-family: var(--font-display); font-size: 2.3rem; font-weight: 800; color: var(--accent-cyan);" id="pdpCurrentPrice">Rs. 14,500</span>
+            <span style="font-size: 1.2rem; color: var(--text-muted); text-decoration: line-through;" id="pdpOldPrice">Rs. 18,000</span>
+          </div>
+
+          <p style="color: var(--text-secondary); font-size: 1rem; line-height: 1.75;" id="pdpDescription">
+            The pinnacle of technical electric and motorcycle street armor. Features genuine vacuum-infused carbon fiber shoulder and forearm impact shields with high-velocity airflow cooling channels.
+          </p>
+
+          <!-- Size Selector -->
+          <div style="margin: 6px 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.88rem; font-weight: 600; margin-bottom: 10px;">
+              <span id="pdpVariationLabel">Select Your Size:</span>
+              <button type="button" class="pdp-size-guide-btn" onclick="openSizeGuideModal(event)" aria-label="Open Size Chart and Fit Guide">
+                <i class="fas fa-ruler-combined"></i> Size Chart & Fit Guide
+              </button>
+            </div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;" id="pdpSizesList">
+              <!-- Injected by JS -->
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div style="display: flex; gap: 14px; align-items: center; margin-top: 10px;">
+            <div style="display: inline-flex; align-items: center; background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius-pill); height: 52px; padding: 0 10px;">
+              <button onclick="changePdpQty(-1)" style="background: none; border: none; color: var(--text-pure); width: 34px; height: 34px; cursor: pointer; display: flex; align-items: center; justify-content: center;"><i class="fas fa-minus"></i></button>
+              <span id="pdpQtyVal" style="width: 32px; text-align: center; font-weight: 700; font-size: 1.05rem; color: var(--text-pure);">1</span>
+              <button onclick="changePdpQty(1)" style="background: none; border: none; color: var(--text-pure); width: 34px; height: 34px; cursor: pointer; display: flex; align-items: center; justify-content: center;"><i class="fas fa-plus"></i></button>
+            </div>
+
+            <button class="btn btn-primary btn-lg" id="pdpAddToCartBtn" onclick="handlePdpAddToCart(event)" style="flex: 1;">
+              <i class="fas fa-shopping-bag"></i> Add to Bag
+            </button>
+
+            <button class="btn-wish-pdp" id="pdpWishBtn" onclick="handlePdpWishlist()" aria-label="Save to Wishlist" title="Save to Wishlist">
+              <i class="fas fa-heart"></i>
+            </button>
+          </div>
+
+          <!-- WhatsApp Direct Order CTA -->
+          <a href="#" id="pdpWhatsAppBtn" target="_blank" rel="noopener" class="btn btn-whatsapp btn-full" style="margin-top: 6px;">
+            <i class="fab fa-whatsapp"></i> Order or Chat on WhatsApp
+          </a>
+
+          <!-- Trust Badges -->
+          <div class="trust-badges-grid">
+            <div>
+              <i class="fas fa-truck-fast text-cyan" style="font-size: 1.25rem; margin-bottom: 6px; display: block;"></i>
+              <span style="font-size: 0.75rem; color: var(--text-secondary); display: block;">Tracked Delivery Across Pakistan</span>
+            </div>
+            <div>
+              <i class="fas fa-shield-halved text-cyan" style="font-size: 1.25rem; margin-bottom: 6px; display: block;"></i>
+              <span style="font-size: 0.75rem; color: var(--text-secondary); display: block;">CE Level-2 Certified Armor</span>
+            </div>
+            <div>
+              <i class="fas fa-rotate-left text-cyan" style="font-size: 1.25rem; margin-bottom: 6px; display: block;"></i>
+              <span style="font-size: 0.75rem; color: var(--text-secondary); display: block;">7-Day Easy Size Exchange</span>
+            </div>
+          </div>
+
+          <!-- Tech Specs Accordion -->
+          <div style="border-top: 1px solid var(--border-subtle); margin-top: 24px;">
+            <div class="spec-item" style="border-bottom: 1px solid var(--border-subtle); padding: 18px 0;">
+              <div class="spec-title" onclick="toggleSpec(this)" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-weight: 700; color: var(--text-pure);">
+                <span><i class="fas fa-shield-halved text-cyan" style="margin-right: 8px;"></i> Materials & Armor Protection</span>
+                <i class="fas fa-chevron-down text-muted"></i>
+              </div>
+              <div class="spec-content" id="pdpFeaturesList" style="margin-top: 14px; color: var(--text-secondary); font-size: 0.92rem; line-height: 1.7;">
+                <!-- Injected by JS -->
+              </div>
+            </div>
+
+            <div class="spec-item" style="border-bottom: 1px solid var(--border-subtle); padding: 18px 0;">
+              <div class="spec-title" onclick="toggleSpec(this)" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-weight: 700; color: var(--text-pure);">
+                <span><i class="fas fa-droplet text-cyan" style="margin-right: 8px;"></i> Washing & Care Instructions</span>
+                <i class="fas fa-chevron-down text-muted"></i>
+              </div>
+              <div class="spec-content" id="pdpCareList" style="display: none; margin-top: 14px; color: var(--text-secondary); font-size: 0.92rem; line-height: 1.7;">
+                <p>• Detach all memory foam armor protectors from internal zippered sleeves prior to cleaning.</p>
+                <p>• Handwash outer Cordura/Mesh shell in lukewarm water with mild technical detergent.</p>
+                <p>• Air dry on wide padded hanger away from high thermal heating or direct sun exposure.</p>
+              </div>
+            </div>
+
+            <div class="spec-item" style="border-bottom: 1px solid var(--border-subtle); padding: 18px 0;">
+              <div class="spec-title" onclick="toggleSpec(this)" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-weight: 700; color: var(--text-pure);">
+                <span><i class="fas fa-truck-fast text-cyan" style="margin-right: 8px;"></i> Delivery & Payment Details</span>
+                <i class="fas fa-chevron-down text-muted"></i>
+              </div>
+              <div class="spec-content" style="display: none; margin-top: 14px; color: var(--text-secondary); font-size: 0.92rem; line-height: 1.7;">
+                <p>• Standard courier takes 3–5 working days nationwide (Flat Rs. 350).</p>
+                <p>• Door-to-door tracked courier transit via Leopard / TCS with automated SMS updates.</p>
+                <p>• Verified Cash on Delivery (COD) accepted at checkout — pay when your package arrives.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ RELATED RELEASES ════════════════════════════════════════════ -->
+  <section class="section" style="padding: 40px 0 90px; border-top: 1px solid var(--border-subtle); background: var(--bg-surface-subtle);">
+    <div class="site-container">
+      <div style="display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 32px;">
+        <div>
+          <div class="section-badge"><i class="fas fa-bolt"></i> Complete Your Outfit</div>
+          <h2 class="section-title" style="font-size: clamp(1.6rem, 3vw, 2.2rem);">RECOMMENDED GEAR</h2>
+          <p class="section-desc">Gear that pairs perfectly with your selection for maximum protection and comfort.</p>
+        </div>
+        <a href="shop.html" class="btn btn-glass">Explore Catalog <i class="fas fa-arrow-right"></i></a>
+      </div>
+      <div class="shop-grid" id="pdpRelatedGrid">
+        <!-- Injected by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Size Guide Modal -->
+  <div class="modal-overlay" id="sizeGuideOverlay" onclick="closeSizeGuideModal()"></div>
+  <div class="size-guide-modal" id="sizeGuideModal" role="dialog" aria-modal="true" aria-labelledby="sizingTitle">
+    <div class="size-guide-header">
+      <h3 class="size-guide-title" id="sizingTitle"><i class="fas fa-ruler-combined text-cyan"></i> Size Chart & Fit Guide</h3>
+      <button class="drawer-close-btn" onclick="closeSizeGuideModal()" aria-label="Close Size Chart"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="size-guide-body" id="sizeGuideContent">
+      <!-- Dynamically Injected by JS -->
+    </div>
+  </div>
+
+  <!-- Mobile Sticky Add-to-Bag Footer Bar (Mobile View Only) -->
+  <div class="pdp-mobile-sticky-bar" id="pdpMobileStickyBar" aria-label="Quick Add to Bag">
+    <div class="pdp-sticky-bar-inner">
+      <div class="pdp-sticky-info" onclick="scrollToSizeSelector()" title="Tap to select size">
+        <div class="pdp-sticky-price" id="pdpStickyPrice">Rs. 14,500</div>
+        <div class="pdp-sticky-variant">
+          <span id="pdpStickyVariant">M (38–40")</span>
+          <i class="fas fa-chevron-up pdp-sticky-chevron"></i>
+        </div>
+      </div>
+      <div class="pdp-sticky-actions">
+        <button type="button" class="pdp-sticky-wish-btn" id="pdpStickyWishBtn" onclick="handlePdpWishlist()" aria-label="Save to Wishlist" title="Save to Wishlist">
+          <i class="fas fa-heart"></i>
+        </button>
+        <button type="button" class="btn btn-primary pdp-sticky-add-btn" id="pdpStickyAddBtn" onclick="handlePdpAddToCart(event)">
+          <i class="fas fa-shopping-bag"></i> Add to Bag
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/js/store.js"></script>
+  <script src="assets/js/smooth-scroll.js"></script>
+  <script src="assets/js/navbar.js"></script>
+  <script>
+    let currentProduct = null;
+    let selectedSize = '';
+    let selectedVariantPrice = 0;
+    let selectedVariantOldPrice = null;
+    let selectedQty = 1;
+
+    function initProductDetails() {
+      const urlParams = new URLSearchParams(window.location.search);
+      let prodId = urlParams.get('id');
+      if (!prodId && window.location.hash) {
+        const hash = window.location.hash.substring(1);
+        if (hash.includes('id=')) {
+          prodId = new URLSearchParams(hash).get('id');
+        } else {
+          prodId = hash;
+        }
+      }
+
+      currentProduct = STORE_PRODUCTS.find(p => String(p.id) === String(prodId)) || STORE_PRODUCTS[0];
+      if (!currentProduct) return;
+
+      // Resolve product variants with default fallback
+      const variants = (currentProduct.variants && currentProduct.variants.length > 0)
+        ? currentProduct.variants
+        : (currentProduct.sizes || ['Standard']).map(s => ({
+            size: s,
+            price: currentProduct.price,
+            oldPrice: currentProduct.oldPrice,
+          }));
+
+      selectedSize = variants[0].size;
+      selectedVariantPrice = variants[0].price;
+      selectedVariantOldPrice = variants[0].oldPrice;
+
+      document.title = `${currentProduct.name} — REV MOTO`;
+      document.getElementById('pdpBreadcrumbCurrent').textContent = currentProduct.name;
+      document.getElementById('pdpTitle').textContent = currentProduct.name;
+      const pdpCat = document.getElementById('pdpCategory');
+      if (pdpCat) pdpCat.textContent = currentProduct.categoryLabel;
+      const pdpBadgeEl = document.getElementById('pdpBadge');
+      if (pdpBadgeEl) pdpBadgeEl.textContent = currentProduct.categoryLabel;
+      document.getElementById('pdpCurrentPrice').textContent = formatPKR(selectedVariantPrice);
+      document.getElementById('pdpReviewsCount').textContent = `(${currentProduct.reviews} verified dispatches)`;
+
+      if (selectedVariantOldPrice) {
+        document.getElementById('pdpOldPrice').textContent = formatPKR(selectedVariantOldPrice);
+        document.getElementById('pdpOldPrice').style.display = 'inline';
+      } else {
+        document.getElementById('pdpOldPrice').style.display = 'none';
+      }
+
+      document.getElementById('pdpDescription').textContent = currentProduct.desc;
+      document.getElementById('pdpMainImg').src = currentProduct.img;
+
+      // Gallery Thumbnails
+      const thumbStrip = document.getElementById('pdpThumbStrip');
+      const allImgs = (currentProduct.images && currentProduct.images.length > 0)
+        ? currentProduct.images
+        : [currentProduct.img];
+
+      if (allImgs.length > 1) {
+        thumbStrip.style.display = 'grid';
+        thumbStrip.innerHTML = allImgs.map((src, idx) => `
+          <div class="pdp-thumb ${idx === 0 ? 'active' : ''}" onclick="swapPdpImage('${src}', this)">
+            <img src="${src}" alt="Thumbnail ${idx + 1}" loading="lazy" decoding="async" onerror="this.src='assets/images/jacket_cyber.jpg'">
+          </div>
+        `).join('');
+      } else {
+        thumbStrip.style.display = 'none';
+        thumbStrip.innerHTML = '';
+      }
+
+      // Variation label customization
+      const varLabelEl = document.getElementById('pdpVariationLabel');
+      if (varLabelEl) {
+        if (currentProduct.subcategory === 'packs' || currentProduct.category.includes('pack')) {
+          varLabelEl.textContent = 'Select Capacity:';
+        } else if (currentProduct.subcategory === 'masks' || currentProduct.category.includes('mask')) {
+          varLabelEl.textContent = 'Select Package:';
+        } else {
+          varLabelEl.textContent = 'Select Your Size:';
+        }
+      }
+
+      // Variation Options List - Uses numeric index so quotes or inches in sizes NEVER break HTML!
+      const sizesList = document.getElementById('pdpSizesList');
+      sizesList.innerHTML = variants.map((v, idx) => `
+        <button type="button" class="size-option-btn ${idx === 0 ? 'active' : ''}" onclick="selectVariantByIndex(${idx}, this)" data-index="${idx}">
+          <span class="size-name">${v.size}</span>
+          <span class="size-price-tag">${formatPKR(v.price)}</span>
+        </button>
+      `).join('');
+
+      // Features Box
+      const featuresBox = document.getElementById('pdpFeaturesList');
+      if (currentProduct.features) {
+        featuresBox.innerHTML = currentProduct.features.map(f => `<p>• ${f}</p>`).join('');
+      } else {
+        featuresBox.innerHTML = '<p>• Engineered for aerodynamic stability and impact dissipation.</p>';
+      }
+
+      // Care Instructions
+      updateCareInstructions(currentProduct);
+
+      // Wishlist Button State
+      const wishBtn = document.getElementById('pdpWishBtn');
+      if (wishBtn) {
+        wishBtn.classList.toggle('active', isWishlisted(currentProduct.id));
+      }
+
+      updatePdpWhatsAppUrl();
+      renderSizeGuideMatrix(currentProduct);
+      renderRelatedProducts(currentProduct);
+      document.body.classList.add('has-pdp-sticky-bar');
+      updatePdpStickyBar();
+    }
+
+    function updateCareInstructions(prod) {
+      const careBox = document.getElementById('pdpCareList');
+      if (!careBox) return;
+
+      if (prod.subcategory === 'gloves' || prod.category.includes('gloves')) {
+        careBox.innerHTML = `
+          <p>• Wipe composite/carbon knuckle carapaces with a microfiber cloth and light damp sponge.</p>
+          <p>• Treat goat leather palm areas with technical leather beeswax balm periodically to preserve grip suppleness.</p>
+          <p>• Do not machine wash or soak. Air dry naturally away from direct heaters or engine blocks.</p>
+        `;
+      } else if (prod.subcategory === 'packs' || prod.category.includes('pack')) {
+        careBox.innerHTML = `
+          <p>• Clean 1680D ballistic exterior with soft bristled brush and mild soapy lukewarm water.</p>
+          <p>• Inspect rare-earth neodymium magnetic flaps regularly to ensure zero metal shavings are trapped against clear coat.</p>
+          <p>• Deploy included neon rain storm hood in torrential rain conditions to protect top clear-view HUD window.</p>
+        `;
+      } else if (prod.subcategory === 'masks' || prod.category.includes('mask')) {
+        careBox.innerHTML = `
+          <p>• Remove PM0.1 active carbon filtration insert prior to washing neoprene chassis.</p>
+          <p>• Handwash neoprene shield in cool water with gentle antibacterial soap and air dry thoroughly.</p>
+          <p>• Replace internal PM0.1 carbon matrix cartridge every 60–90 hours of active highway riding.</p>
+        `;
+      } else if (prod.category === 'tees') {
+        careBox.innerHTML = `
+          <p>• Machine wash cold on gentle cycle (30°C) with like technical streetwear garments.</p>
+          <p>• Turn inside out prior to wash to preserve hydrophobic nano-coating and silicone insignia.</p>
+          <p>• Tumble dry low or hang dry; do not iron directly on raised high-density chest emblems.</p>
+        `;
+      } else {
+        careBox.innerHTML = `
+          <p>• Detach all memory foam armor protectors from internal zippered sleeves prior to cleaning.</p>
+          <p>• Handwash outer Cordura/Mesh shell in lukewarm water with mild technical detergent.</p>
+          <p>• Air dry on wide padded hanger away from high thermal heating or direct sun exposure.</p>
+        `;
+      }
+    }
+
+    function renderSizeGuideMatrix(prod) {
+      const container = document.getElementById('sizeGuideContent');
+      if (!container) return;
+
+      if (prod.subcategory === 'gloves' || prod.category.includes('gloves')) {
+        container.innerHTML = `
+          <p>Measure palm circumference around the widest part (excluding thumb) in inches:</p>
+          <div class="size-table-wrap">
+            <table class="size-table">
+              <thead>
+                <tr>
+                  <th class="size-col">Size</th>
+                  <th>Palm Circumference</th>
+                  <th>Hand Length</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td class="size-col">M</td><td>8.0 – 8.5"</td><td>7.5"</td></tr>
+                <tr><td class="size-col">L</td><td>8.5 – 9.0"</td><td>8.0"</td></tr>
+                <tr><td class="size-col">XL</td><td>9.0 – 9.5"</td><td>8.5"</td></tr>
+              </tbody>
+            </table>
+          </div>
+        `;
+      } else if (prod.subcategory === 'packs' || prod.category.includes('pack')) {
+        container.innerHTML = `
+          <p>Designed for magnetic fitment on steel motorcycle fuel tanks:</p>
+          <div class="size-table-wrap">
+            <table class="size-table">
+              <thead>
+                <tr>
+                  <th>Metric</th>
+                  <th>Compressed</th>
+                  <th>Expanded</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>Volume</td><td>12 Liters</td><td>18 Liters</td></tr>
+                <tr><td>Dimensions</td><td>14" x 10" x 6.5"</td><td>14" x 10" x 9.5"</td></tr>
+                <tr><td>Mounting</td><td colspan="2">4x Shielded Rare-Earth Neodymium Wings + Steering Head Harness</td></tr>
+              </tbody>
+            </table>
+          </div>
+        `;
+      } else if (prod.subcategory === 'masks' || prod.category.includes('mask')) {
+        container.innerHTML = `
+          <p>Contoured universal 3D profile with moldable aluminum nose seal:</p>
+          <div class="size-table-wrap">
+            <table class="size-table">
+              <thead>
+                <tr>
+                  <th>Component</th>
+                  <th>Specification</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>Profile Size</td><td>Universal Ergonomic (Fits under full-face helmets)</td></tr>
+                <tr><td>Nose Clamp</td><td>Anti-fog pliable memory aluminum seal</td></tr>
+                <tr><td>Exhale Valves</td><td>Dual Rapid-Flow downward directional one-way check valves</td></tr>
+              </tbody>
+            </table>
+          </div>
+        `;
+      } else if (prod.category === 'tees') {
+        container.innerHTML = `
+          <p>Oversized drop-shoulder streetwear cut. All measurements in inches:</p>
+          <div class="size-table-wrap">
+            <table class="size-table">
+              <thead>
+                <tr>
+                  <th class="size-col">Size</th>
+                  <th>Chest Width</th>
+                  <th>Body Length</th>
+                  <th>Shoulder Drop</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td class="size-col">S</td><td>42"</td><td>28"</td><td>21"</td></tr>
+                <tr><td class="size-col">M</td><td>44"</td><td>29"</td><td>22"</td></tr>
+                <tr><td class="size-col">L</td><td>46"</td><td>30"</td><td>23"</td></tr>
+                <tr><td class="size-col">XL</td><td>48"</td><td>31"</td><td>24"</td></tr>
+              </tbody>
+            </table>
+          </div>
+        `;
+      } else {
+        container.innerHTML = `
+          <p>All measurements in inches. Tailored race-cut designed to prevent drag and flutter at hyper velocities:</p>
+          <div class="size-table-wrap">
+            <table class="size-table">
+              <thead>
+                <tr>
+                  <th class="size-col">Size</th>
+                  <th>Chest</th>
+                  <th>Sleeve</th>
+                  <th>Waist</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td class="size-col">M</td><td>38 – 40"</td><td>25.5"</td><td>32 – 34"</td></tr>
+                <tr><td class="size-col">L</td><td>41 – 43"</td><td>26.5"</td><td>34 – 36"</td></tr>
+                <tr><td class="size-col">XL</td><td>44 – 46"</td><td>27.5"</td><td>37 – 39"</td></tr>
+                <tr><td class="size-col">XXL</td><td>47 – 49"</td><td>28.5"</td><td>40 – 42"</td></tr>
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+    }
+
+    function renderRelatedProducts(prod) {
+      const grid = document.getElementById('pdpRelatedGrid');
+      if (!grid) return;
+
+      const related = STORE_PRODUCTS.filter(p => String(p.id) !== String(prod.id)).slice(0, 3);
+      grid.innerHTML = related.map((p, idx) => `
+        <div class="product-card reveal-zoom-up stagger-${idx + 1}" data-product-id="${p.id}">
+          <div class="product-card-media">
+            <a href="product.html?id=${p.id}">
+              <img src="${p.img}" alt="${p.name}" class="product-card-img" loading="lazy" decoding="async" onerror="this.src='assets/images/jacket_cyber.jpg'">
+            </a>
+            <button class="product-card-wish ${isWishlisted(p.id) ? 'active' : ''}" onclick="handleWishToggle('${p.id}', this)" aria-label="Save to Wishlist">
+              <i class="fas fa-heart"></i>
+            </button>
+          </div>
+          <div class="product-card-content">
+            <span class="product-card-cat">${p.categoryLabel}</span>
+            <h3 class="product-card-title">
+              <a href="product.html?id=${p.id}">${p.name}</a>
+            </h3>
+            <div class="product-card-rating">
+              <span>★ ${p.rating}</span>
+              <span class="rating-count">(${p.reviews} verified)</span>
+            </div>
+            <div class="product-card-bottom">
+              <div class="product-card-price">
+                <span class="price-current">${formatPKR(p.price)}</span>
+                ${p.oldPrice ? `<span class="price-old">${formatPKR(p.oldPrice)}</span>` : ''}
+              </div>
+              <div class="product-card-actions">
+                <button class="product-card-action-btn product-card-qv-btn" onclick="openQuickView('${p.id}', event)" aria-label="Quick View" title="Quick View">
+                  <i class="fas fa-eye"></i>
+                </button>
+                <button class="product-card-action-btn product-card-add-btn" onclick="handleRelatedAdd('${p.id}', event)" aria-label="Add to Bag" title="Add to Bag">
+                  <i class="fas fa-shopping-bag"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      if (typeof initScrollReveal === 'function') {
+        setTimeout(initScrollReveal, 50);
+      }
+    }
+
+    function handleRelatedAdd(productId, event) {
+      const p = STORE_PRODUCTS.find(item => String(item.id) === String(productId));
+      if (p) {
+        addToCart(p, {
+          sourceEl: event.currentTarget,
+          openDrawer: false,
+        });
+
+        const btn = event.currentTarget;
+        if (btn) {
+          const original = btn.innerHTML;
+          btn.innerHTML = '<i class="fas fa-check"></i>';
+          btn.style.background = '#2563eb';
+          btn.style.color = '#ffffff';
+          setTimeout(() => {
+            btn.innerHTML = original;
+            btn.style.background = '';
+            btn.style.color = '';
+          }, 1200);
+        }
+      }
+    }
+
+    function selectVariantByIndex(idx, btnEl) {
+      if (!currentProduct) return;
+      const variants = (currentProduct.variants && currentProduct.variants.length > 0)
+        ? currentProduct.variants
+        : (currentProduct.sizes || ['Standard']).map(s => ({
+            size: s,
+            price: currentProduct.price,
+            oldPrice: currentProduct.oldPrice,
+          }));
+      const v = variants[idx];
+      if (!v) return;
+
+      selectedSize = v.size;
+      selectedVariantPrice = v.price;
+      selectedVariantOldPrice = v.oldPrice;
+
+      const parent = btnEl ? btnEl.parentElement : document.getElementById('pdpSizesList');
+      if (parent) {
+        parent.querySelectorAll('.size-option-btn').forEach(b => b.classList.remove('active'));
+      }
+      if (btnEl) {
+        btnEl.classList.add('active');
+      }
+
+      // Smooth price change animation
+      const priceEl = document.getElementById('pdpCurrentPrice');
+      const oldPriceEl = document.getElementById('pdpOldPrice');
+      if (priceEl) {
+        priceEl.classList.remove('price-pulse');
+        void priceEl.offsetWidth; // Force CSS reflow to replay animation
+        priceEl.textContent = formatPKR(selectedVariantPrice);
+        priceEl.classList.add('price-pulse');
+      }
+      if (oldPriceEl) {
+        if (selectedVariantOldPrice) {
+          oldPriceEl.textContent = formatPKR(selectedVariantOldPrice);
+          oldPriceEl.style.display = 'inline';
+        } else {
+          oldPriceEl.style.display = 'none';
+        }
+      }
+
+      updatePdpWhatsAppUrl();
+      updatePdpStickyBar();
+    }
+
+    function selectSize(size, btnEl) {
+      if (!currentProduct) return;
+      const variants = currentProduct.variants || [];
+      const idx = variants.findIndex(v => v.size === size);
+      if (idx >= 0) {
+        selectVariantByIndex(idx, btnEl);
+      } else {
+        selectedSize = size;
+        if (btnEl && btnEl.parentElement) {
+          btnEl.parentElement.querySelectorAll('.size-option-btn').forEach(b => b.classList.remove('active'));
+          btnEl.classList.add('active');
+        }
+        updatePdpWhatsAppUrl();
+      }
+    }
+
+    function changePdpQty(delta) {
+      selectedQty = Math.max(1, selectedQty + delta);
+      const qtyEl = document.getElementById('pdpQtyVal');
+      if (qtyEl) qtyEl.textContent = selectedQty;
+      updatePdpWhatsAppUrl();
+      updatePdpStickyBar();
+    }
+
+    function swapPdpImage(src, thumbEl) {
+      const mainImg = document.getElementById('pdpMainImg');
+      const container = document.querySelector('.pdp-main-image');
+      if (container) {
+        container.classList.remove('zoomed');
+      }
+      if (mainImg) {
+        mainImg.style.transformOrigin = 'center center';
+        mainImg.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+        mainImg.style.opacity = '0.3';
+        mainImg.src = src;
+        setTimeout(() => { mainImg.style.opacity = '1'; }, 80);
+      }
+      if (thumbEl && thumbEl.parentElement) {
+        thumbEl.parentElement.querySelectorAll('.pdp-thumb').forEach(t => t.classList.remove('active'));
+        thumbEl.classList.add('active');
+      }
+    }
+
+    function handlePdpAddToCart(event) {
+      if (!currentProduct) return;
+      addToCart(currentProduct, {
+        size: selectedSize || (currentProduct.sizes ? currentProduct.sizes[0] : 'Standard'),
+        price: selectedVariantPrice || currentProduct.price,
+        qty: selectedQty,
+        sourceEl: event.currentTarget,
+        openDrawer: false,
+      });
+
+      const btn = document.getElementById('pdpAddToCartBtn');
+      if (btn) {
+        const originalHtml = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check"></i> Added to Bag!';
+        btn.style.background = 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)';
+        setTimeout(() => {
+          btn.innerHTML = originalHtml;
+          btn.style.background = '';
+        }, 1600);
+      }
+    }
+
+    function handlePdpWishlist() {
+      if (!currentProduct) return;
+      toggleWishlist(currentProduct);
+      const btn = document.getElementById('pdpWishBtn');
+      if (btn) {
+        btn.classList.toggle('active', isWishlisted(currentProduct.id));
+      }
+      const stickyWishBtn = document.getElementById('pdpStickyWishBtn');
+      if (stickyWishBtn) {
+        stickyWishBtn.classList.toggle('active', isWishlisted(currentProduct.id));
+      }
+    }
+
+    function handleWishToggle(productId, btnEl) {
+      const p = STORE_PRODUCTS.find(item => String(item.id) === String(productId));
+      if (p) {
+        toggleWishlist(p);
+        btnEl.classList.toggle('active', isWishlisted(p.id));
+      }
+    }
+
+    function toggleSpec(titleEl) {
+      const content = titleEl.nextElementSibling;
+      const icon = titleEl.querySelector('.fa-chevron-down, .fa-chevron-up');
+      if (!content) return;
+      if (content.style.display === 'none' || !content.style.display) {
+        content.style.display = 'block';
+        if (icon) {
+          icon.classList.remove('fa-chevron-down');
+          icon.classList.add('fa-chevron-up');
+        }
+      } else {
+        content.style.display = 'none';
+        if (icon) {
+          icon.classList.remove('fa-chevron-up');
+          icon.classList.add('fa-chevron-down');
+        }
+      }
+    }
+
+    function openSizeGuideModal(event) {
+      if (event) {
+        if (typeof event.preventDefault === 'function') event.preventDefault();
+        if (typeof event.stopPropagation === 'function') event.stopPropagation();
+      }
+      const modal = document.getElementById('sizeGuideModal');
+      const overlay = document.getElementById('sizeGuideOverlay');
+      if (modal && overlay) {
+        const currentY = window.scrollY || window.pageYOffset || 0;
+        modal.classList.add('open');
+        overlay.classList.add('open');
+        document.body.classList.add('modal-open');
+        if (window.lenis && typeof window.lenis.stop === 'function') {
+          window.lenis.stop();
+        }
+        window.scrollTo(0, currentY);
+      }
+    }
+
+    function closeSizeGuideModal() {
+      const modal = document.getElementById('sizeGuideModal');
+      const overlay = document.getElementById('sizeGuideOverlay');
+      if (modal && overlay) {
+        const currentY = window.scrollY || window.pageYOffset || 0;
+        modal.classList.remove('open');
+        overlay.classList.remove('open');
+        document.body.classList.remove('modal-open');
+        if (window.lenis && typeof window.lenis.start === 'function') {
+          window.lenis.start();
+        }
+        window.scrollTo(0, currentY);
+      }
+    }
+
+    // ── Single Product Desktop Hover-to-Zoom Engine ──
+    function initPdpHoverZoom() {
+      const container = document.querySelector('.pdp-main-image');
+      const img = document.getElementById('pdpMainImg');
+      if (!container || !img) return;
+
+      const isDesktop = () => window.innerWidth >= 992 && window.matchMedia('(hover: hover)').matches;
+
+      const updateHoverState = () => {
+        if (isDesktop()) {
+          container.classList.add('has-hover-zoom');
+        } else {
+          container.classList.remove('has-hover-zoom', 'zoomed');
+          img.style.transformOrigin = 'center center';
+        }
+      };
+
+      updateHoverState();
+      window.addEventListener('resize', updateHoverState, { passive: true });
+
+      container.addEventListener('mouseenter', () => {
+        if (!isDesktop()) return;
+        container.classList.add('zoomed');
+      });
+
+      container.addEventListener('mousemove', (e) => {
+        if (!isDesktop()) return;
+        const rect = container.getBoundingClientRect();
+        if (!rect.width || !rect.height) return;
+        const x = ((e.clientX - rect.left) / rect.width) * 100;
+        const y = ((e.clientY - rect.top) / rect.height) * 100;
+        const clampedX = Math.max(0, Math.min(100, x));
+        const clampedY = Math.max(0, Math.min(100, y));
+        img.style.transformOrigin = `${clampedX.toFixed(2)}% ${clampedY.toFixed(2)}%`;
+      });
+
+      container.addEventListener('mouseleave', () => {
+        container.classList.remove('zoomed');
+        img.style.transformOrigin = 'center center';
+      });
+    }
+
+    function updatePdpWhatsAppUrl() {
+      const btn = document.getElementById('pdpWhatsAppBtn');
+      if (!btn || !currentProduct) return;
+      const activePrice = selectedVariantPrice || currentProduct.price;
+      const text = `Hello Rev Moto! I would like to order: ${currentProduct.name} (Option/Size: ${selectedSize}, Qty: ${selectedQty}, Price: ${formatPKR(activePrice)}). Can you confirm availability and delivery?`;
+      btn.href = `https://wa.me/${RM_CONFIG.whatsapp.number}?text=${encodeURIComponent(text)}`;
+    }
+
+    function updatePdpStickyBar() {
+      const stickyPrice = document.getElementById('pdpStickyPrice');
+      const stickyVariant = document.getElementById('pdpStickyVariant');
+      const stickyWishBtn = document.getElementById('pdpStickyWishBtn');
+      if (stickyPrice) {
+        stickyPrice.textContent = formatPKR(selectedVariantPrice || (currentProduct ? currentProduct.price : 0));
+      }
+      if (stickyVariant) {
+        stickyVariant.textContent = selectedSize ? `${selectedSize}` : 'Standard';
+      }
+      if (stickyWishBtn && currentProduct) {
+        stickyWishBtn.classList.toggle('active', isWishlisted(currentProduct.id));
+      }
+    }
+
+    function scrollToSizeSelector() {
+      const sizeSec = document.getElementById('pdpSizesList');
+      if (sizeSec) {
+        const navOffset = 90;
+        const targetY = sizeSec.getBoundingClientRect().top + window.scrollY - navOffset;
+        if (typeof window.smoothScrollTo === 'function') {
+          window.smoothScrollTo(targetY, 600);
+        } else {
+          window.scrollTo({ top: targetY, behavior: 'smooth' });
+        }
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initProductDetails();
+      initPdpHoverZoom();
+    });
+  </script>
+</body>
+</html>

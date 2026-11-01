@@ -39,21 +39,21 @@
   mask-image: radial-gradient(
     ellipse 48% 44% at 52% 50%,
     #000000 0%,
-    rgba(0, 0, 0, 0.95) 20%,
-    rgba(0, 0, 0, 0.75) 40%,
-    rgba(0, 0, 0, 0.45) 60%,
-    rgba(0, 0, 0, 0.18) 75%,
-    rgba(0, 0, 0, 0.04) 86%,
+    #000000 32%,
+    rgba(0, 0, 0, 0.92) 46%,
+    rgba(0, 0, 0, 0.65) 62%,
+    rgba(0, 0, 0, 0.25) 78%,
+    rgba(0, 0, 0, 0.04) 88%,
     transparent 94%
   );
   -webkit-mask-image: radial-gradient(
     ellipse 48% 44% at 52% 50%,
     #000000 0%,
-    rgba(0, 0, 0, 0.95) 20%,
-    rgba(0, 0, 0, 0.75) 40%,
-    rgba(0, 0, 0, 0.45) 60%,
-    rgba(0, 0, 0, 0.18) 75%,
-    rgba(0, 0, 0, 0.04) 86%,
+    #000000 32%,
+    rgba(0, 0, 0, 0.92) 46%,
+    rgba(0, 0, 0, 0.65) 62%,
+    rgba(0, 0, 0, 0.25) 78%,
+    rgba(0, 0, 0, 0.04) 88%,
     transparent 94%
   );
 }
@@ -63,8 +63,8 @@
   height: 100%;
   object-fit: cover;
   object-position: 50% 50%;
-  opacity: 0.70;
-  filter: contrast(1.02) brightness(1.02);
+  opacity: 0.82;
+  filter: contrast(1.06) brightness(1.03);
   transform: scale(1.02);
   transform-origin: 52% 50%;
   transition: transform 0.4s ease, opacity 0.4s ease;
@@ -931,7 +931,7 @@
   .hero-bg-media img {
     transform: scale(1.0);
     transform-origin: 52% 50%;
-    opacity: 0.68;
+    opacity: 0.80;
   }
   .hero-floating-card {
     max-width: 400px;
@@ -949,7 +949,7 @@
   .hero-bg-media img {
     transform: scale(0.98);
     transform-origin: 52% 50%;
-    opacity: 0.65;
+    opacity: 0.76;
   }
   .hero-floating-card {
     max-width: 340px;

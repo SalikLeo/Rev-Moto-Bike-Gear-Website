@@ -661,16 +661,6 @@ function renderCartDrawer() {
 
   if (foot) foot.style.display = 'block';
 
-  let shippingHtml = `
-    <div style="background: rgba(37, 99, 235, 0.05); border: 1px solid rgba(37, 99, 235, 0.15); border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 18px; display: flex; align-items: center; justify-content: space-between;">
-      <div style="font-size: 0.82rem; color: var(--text-pure); display: flex; align-items: center; gap: 8px;">
-        <i class="fas fa-truck-fast" style="color: #2563eb;"></i>
-        <span>Standard Tracked Courier Delivery</span>
-      </div>
-      <strong style="color: var(--accent-cyan); font-size: 0.85rem;">Rs. 350</strong>
-    </div>
-  `;
-
   let itemsHtml = cart.map((item, index) => `
     <div style="display: grid; grid-template-columns: 80px 1fr; gap: 16px; padding-bottom: 18px; border-bottom: 1px solid var(--border-subtle); margin-bottom: 18px;">
       <a href="product.html?id=${item.id}" style="width: 80px; height: 80px; border-radius: var(--radius-md); overflow: hidden; background: #f1f5f9; border: 1px solid var(--border-subtle); display: block;">
@@ -696,7 +686,7 @@ function renderCartDrawer() {
     </div>
   `).join('');
 
-  body.innerHTML = shippingHtml + `<div class="drawer-items-list">${itemsHtml}</div>`;
+  body.innerHTML = `<div class="drawer-items-list">${itemsHtml}</div>`;
 
   const subtotalEl = document.getElementById('drawerSubtotalVal');
   if (subtotalEl) {

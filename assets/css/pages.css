@@ -90,11 +90,13 @@
 }
 
 .hero-subheadline {
-  font-size: 1.15rem;
-  color: var(--text-secondary);
-  line-height: 1.7;
-  max-width: 540px;
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: #1e293b;
+  line-height: 1.75;
+  max-width: 560px;
   margin-bottom: 38px;
+  letter-spacing: -0.01em;
 }
 
 .hero-cta-group {
@@ -1030,7 +1032,10 @@
     line-height: 1.1;
   }
   .hero-subheadline {
-    font-size: 0.98rem;
+    font-size: 1.05rem;
+    font-weight: 500;
+    color: #1e293b;
+    line-height: 1.65;
     margin-bottom: 26px;
   }
   .hero-cta-group {

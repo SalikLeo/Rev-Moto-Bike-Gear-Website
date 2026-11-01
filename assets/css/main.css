@@ -71,6 +71,7 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+  scrollbar-gutter: stable;
   max-width: 100%;
 }
 
@@ -272,7 +273,6 @@ main, section, header, footer, .hero-section, .bento-section, .tech-lab-section,
 
 body.modal-open {
   overflow: hidden;
-  scrollbar-gutter: stable;
 }
 
 img {

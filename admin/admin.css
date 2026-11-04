@@ -873,7 +873,7 @@ body::before {
 .desktop-table-container {
   display: block;
   background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
+  border: 1.5px solid #cbd5e1;
   border-radius: var(--radius-md);
   overflow: hidden;
   box-shadow: var(--shadow-card);
@@ -888,14 +888,14 @@ body::before {
 
 .admin-orders-table th {
   background: linear-gradient(180deg, #f8faff 0%, #edf3fb 100%);
-  color: #334155;
+  color: #1e293b;
   font-weight: 800;
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  padding: 9px 12px;
+  padding: 10px 14px;
   border-bottom: 1.5px solid #cbd5e1;
-  border-right: 1px solid #e2e8f0;
+  border-right: 1px solid #cbd5e1;
 }
 
 .admin-orders-table th:last-child {
@@ -903,9 +903,9 @@ body::before {
 }
 
 .admin-orders-table td {
-  padding: 8px 12px;
-  border-bottom: 1px solid #f1f5f9;
-  border-right: 1px solid #f1f5f9;
+  padding: 9px 13px;
+  border-bottom: 1px solid #e2e8f0;
+  border-right: 1px solid #e2e8f0;
   vertical-align: middle;
 }
 
@@ -913,8 +913,12 @@ body::before {
   border-right: none;
 }
 
+.admin-orders-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
 .admin-orders-table tr:hover td {
-  background: #f4f8ff;
+  background: #f1f6fe;
 }
 
 .order-id-link {

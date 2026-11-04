@@ -580,7 +580,7 @@ h1, h2, h3, h4, h5, h6 {
   padding: 6px 2px;
   font-family: var(--font-display);
   font-size: 0.94rem;
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: -0.01em;
   color: #475569;
   display: inline-flex;
@@ -622,7 +622,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .pill-nav-links .pill-link.active {
   color: #0f172a;
-  font-weight: 800;
+  font-weight: 700;
   background: transparent;
   border: none;
   box-shadow: none;
@@ -729,6 +729,40 @@ h1, h2, h3, h4, h5, h6 {
   border-radius: 50%;
   color: #0f172a;
   text-decoration: none;
+}
+
+.pill-user-btn {
+  width: 42px !important;
+  height: 42px !important;
+  min-width: 42px !important;
+  min-height: 42px !important;
+  max-width: 42px !important;
+  max-height: 42px !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  aspect-ratio: 1 / 1 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+  box-sizing: border-box !important;
+  color: #334155 !important;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.pill-user-btn .user-icon-svg {
+  width: 20px;
+  height: 20px;
+  color: #334155;
+  transition: color 0.2s ease, transform 0.2s ease;
+  flex-shrink: 0;
+  display: block;
+}
+
+.pill-user-btn:hover .user-icon-svg {
+  color: #2563eb;
+  transform: scale(1.06);
 }
 
 .pill-whatsapp-btn i {
@@ -1924,6 +1958,21 @@ h1, h2, h3, h4, h5, h6 {
     padding: 0;
     font-size: 0.9rem;
   }
+  .pill-user-btn {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    min-height: 36px !important;
+    max-width: 36px !important;
+    max-height: 36px !important;
+    padding: 0 !important;
+    border-radius: 50% !important;
+    aspect-ratio: 1 / 1 !important;
+  }
+  .pill-user-btn .user-icon-svg {
+    width: 18px;
+    height: 18px;
+  }
   .pill-hamburger {
     width: 36px;
     height: 36px;
@@ -1988,6 +2037,21 @@ h1, h2, h3, h4, h5, h6 {
     height: 34px;
     padding: 0;
     font-size: 0.85rem;
+  }
+  .pill-user-btn {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    min-height: 34px !important;
+    max-width: 34px !important;
+    max-height: 34px !important;
+    padding: 0 !important;
+    border-radius: 50% !important;
+    aspect-ratio: 1 / 1 !important;
+  }
+  .pill-user-btn .user-icon-svg {
+    width: 17px;
+    height: 17px;
   }
   .pill-hamburger {
     width: 34px;
@@ -2651,20 +2715,8 @@ html {
 
 .pill-user-btn {
   position: relative;
-  border: none;
-  background: transparent;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px;
-  border-radius: 50%;
   transition: all 0.2s ease;
-}
-
-.pill-user-btn:hover {
-  background: rgba(37, 99, 235, 0.08);
-  transform: translateY(-1px);
 }
 
 .user-logged-dot {

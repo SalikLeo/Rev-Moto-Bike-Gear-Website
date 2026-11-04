@@ -35,7 +35,10 @@
         <!-- Right Quick Actions -->
         <div class="pill-actions">
           <button class="pill-action-btn pill-user-btn" id="navUserBtn" onclick="openUserProfileModal()" title="My Profile & Orders" aria-label="User Profile">
-            <i class="fas fa-user-circle" id="navUserIcon" style="font-size: 1.25rem; color: #2563eb;"></i>
+            <svg id="navUserIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="user-icon-svg">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
           </button>
 
           <button class="pill-action-btn pill-search-btn" onclick="openSearchModal()" title="Search Products" aria-label="Search Catalog">
@@ -83,7 +86,10 @@
         <div style="margin-bottom: 8px; margin-top: 2px;">
           <button class="pill-link" style="width: 100%; text-align: left; padding: 10px 14px; font-size: 0.88rem; background: rgba(37,99,235,0.06); border: 1px solid rgba(37,99,235,0.18); border-radius: 8px; display: flex; align-items: center; justify-content: space-between; cursor: pointer;" onclick="closeMobileDrawer(); openUserProfileModal();">
             <div style="display: flex; align-items: center; gap: 10px;">
-              <i class="fas fa-user-circle text-cyan" style="font-size: 1.25rem;"></i>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent-cyan); flex-shrink: 0;">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
               <span id="drawerUserName" style="font-weight: 700; color: var(--text-pure);">My Account &amp; Orders</span>
             </div>
             <i class="fas fa-chevron-right text-cyan" style="font-size: 0.72rem;"></i>

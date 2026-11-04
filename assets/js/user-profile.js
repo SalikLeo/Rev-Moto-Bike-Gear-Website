@@ -1276,13 +1276,19 @@ function openUserWhatsAppSupport(orderId) {
 // ── HEADER USER ICON & AUTO-FILL HELPERS ──
 function updateHeaderUserIcon() {
   const navBtn = document.getElementById('navUserBtn');
-  const navIcon = document.getElementById('navUserIcon');
   const googleUser = getStoredCustomerUser();
 
-  if (navIcon && googleUser && googleUser.picture) {
-    navIcon.outerHTML = `<img src="${googleUser.picture}" id="navUserIcon" alt="${googleUser.name}" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover; border: 1.5px solid #2563eb;">`;
-  } else if (navBtn && googleUser) {
-    navBtn.innerHTML = `<img src="${googleUser.picture}" id="navUserIcon" alt="${googleUser.name}" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover; border: 1.5px solid #2563eb;">`;
+  if (navBtn) {
+    if (googleUser && googleUser.picture) {
+      navBtn.innerHTML = `<img src="${googleUser.picture}" id="navUserIcon" alt="${googleUser.name}" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover; border: 1.5px solid #2563eb;">`;
+    } else {
+      navBtn.innerHTML = `
+        <svg id="navUserIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="user-icon-svg">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+          <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+      `;
+    }
   }
 
   // Update Drawer user name if present

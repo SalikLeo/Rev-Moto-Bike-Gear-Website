@@ -25,7 +25,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
   <!-- Admin Portal CSS -->
-  <link rel="stylesheet" href="admin.css?v=2.7">
+  <link rel="stylesheet" href="admin.css?v=2.8">
 </head>
 <body>
 
@@ -202,39 +202,6 @@
 
     <!-- ════ SALES VIEW (ITEM-WISE SALES & TIME FILTERS) ════════════ -->
     <div id="salesView" class="admin-tab-view" style="display: none;">
-      <!-- Time Filters Bar for Sales -->
-      <section class="period-filter-bar">
-        <div class="period-filter-left">
-          <span class="period-label">PERIOD</span>
-          
-          <!-- Segmented Mode Control -->
-          <div class="period-segmented-control" id="salesPeriodSegmentedControl">
-            <button type="button" class="period-segment-btn active" id="btnSalesPeriodDaily" onclick="setSalesPeriod('daily', this)">Daily</button>
-            <button type="button" class="period-segment-btn" id="btnSalesPeriodMonthly" onclick="setSalesPeriod('monthly', this)">Monthly</button>
-            <button type="button" class="period-segment-btn" id="btnSalesPeriodAnnual" onclick="setSalesPeriod('annual', this)">Annual</button>
-            <button type="button" class="period-segment-btn" id="btnSalesPeriodAll" onclick="setSalesPeriod('all', this)">All</button>
-          </div>
-
-          <!-- Dynamic Date Navigator Box -->
-          <div class="period-navigator-box" id="salesPeriodNavigatorBox">
-            <!-- Rendered by admin.js -->
-          </div>
-        </div>
-
-        <!-- Sales Search & Sort -->
-        <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
-          <div class="search-input-wrapper" style="max-width: 240px;">
-            <i class="fas fa-search"></i>
-            <input type="text" id="salesSearchInput" class="admin-search-input" placeholder="Search gear..." oninput="handleSalesSearch()">
-          </div>
-          <select id="salesSortSelect" class="form-control-select" onchange="handleSalesSortChange()">
-            <option value="rev_desc">Highest Revenue</option>
-            <option value="qty_desc">Most Units Sold</option>
-            <option value="name_asc">Item Name (A–Z)</option>
-          </select>
-        </div>
-      </section>
-
       <!-- Sales Summary Metrics Cards -->
       <section class="metrics-grid">
         <div class="metric-card">
@@ -271,6 +238,40 @@
           </div>
           <div class="metric-value" id="salesMetricSkus">0</div>
           <div class="metric-sub">Distinct products sold</div>
+        </div>
+      </section>
+
+      
+      <!-- Time Filters Bar for Sales -->
+      <section class="period-filter-bar">
+        <div class="period-filter-left">
+          <span class="period-label">PERIOD</span>
+          
+          <!-- Segmented Mode Control -->
+          <div class="period-segmented-control" id="salesPeriodSegmentedControl">
+            <button type="button" class="period-segment-btn active" id="btnSalesPeriodDaily" onclick="setSalesPeriod('daily', this)">Daily</button>
+            <button type="button" class="period-segment-btn" id="btnSalesPeriodMonthly" onclick="setSalesPeriod('monthly', this)">Monthly</button>
+            <button type="button" class="period-segment-btn" id="btnSalesPeriodAnnual" onclick="setSalesPeriod('annual', this)">Annual</button>
+            <button type="button" class="period-segment-btn" id="btnSalesPeriodAll" onclick="setSalesPeriod('all', this)">All</button>
+          </div>
+
+          <!-- Dynamic Date Navigator Box -->
+          <div class="period-navigator-box" id="salesPeriodNavigatorBox">
+            <!-- Rendered by admin.js -->
+          </div>
+        </div>
+
+        <!-- Sales Search & Sort -->
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+          <div class="search-input-wrapper" style="max-width: 240px;">
+            <i class="fas fa-search"></i>
+            <input type="text" id="salesSearchInput" class="admin-search-input" placeholder="Search gear..." oninput="handleSalesSearch()">
+          </div>
+          <select id="salesSortSelect" class="form-control-select" onchange="handleSalesSortChange()">
+            <option value="rev_desc">Highest Revenue</option>
+            <option value="qty_desc">Most Units Sold</option>
+            <option value="name_asc">Item Name (A–Z)</option>
+          </select>
         </div>
       </section>
 
@@ -871,7 +872,7 @@
     }
   </style>
 
-  <script src="admin.js?v=2.7"></script>
+  <script src="admin.js?v=2.8"></script>
 
   <!-- ═══ PRODUCT UPLOAD & EDIT MODAL ═════════════════════════════════ -->
   <div class="admin-modal-overlay" id="productModal" onclick="if(event.target===this) closeProductModal()">

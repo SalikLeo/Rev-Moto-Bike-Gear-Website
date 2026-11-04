@@ -3411,9 +3411,15 @@ const DEFAULT_CATALOG_PRODUCTS = [
     price: 14500,
     oldPrice: 18000,
     badge: 'Flagship Drop',
-    stockCount: 17,
     inStock: true,
+    isVariable: true,
     sizes: 'M (38-40"), L (41-43"), XL (44-46"), XXL (47-49")',
+    variants: [
+      { size: 'M (38-40")', price: 14500, oldPrice: 18000 },
+      { size: 'L (41-43")', price: 15200, oldPrice: 18800 },
+      { size: 'XL (44-46")', price: 15800, oldPrice: 19500 },
+      { size: 'XXL (47-49")', price: 16500, oldPrice: 20500 },
+    ],
     img: 'assets/images/jacket_cyber.jpg',
     tagline: 'Molded Carbon Armor Plates · High-Flow Airflow Mesh · 360° Reflective',
     desc: 'The pinnacle of motorcycle street armor. Features genuine vacuum-infused carbon fiber shoulder impact shields, ultra-durable 1000D ballistic mesh chassis for maximum hot-climate airflow.'
@@ -3426,9 +3432,14 @@ const DEFAULT_CATALOG_PRODUCTS = [
     price: 5200,
     oldPrice: 6500,
     badge: 'Carbon Knuckle',
-    stockCount: 35,
     inStock: true,
+    isVariable: true,
     sizes: 'M (Palm 8.0-8.5"), L (Palm 8.5-9.0"), XL (Palm 9.0-9.5")',
+    variants: [
+      { size: 'M (Palm 8.0-8.5")', price: 5200, oldPrice: 6500 },
+      { size: 'L (Palm 8.5-9.0")', price: 5500, oldPrice: 6900 },
+      { size: 'XL (Palm 9.0-9.5")', price: 5900, oldPrice: 7400 },
+    ],
     img: 'assets/images/gloves_carbon.jpg',
     tagline: 'Carbon Knuckle Shield · Palm Slider · Touchscreen Controls',
     desc: 'Crafted for instant throttle sensitivity and high-level protection. Molded carbon-fiber knuckles with shock-absorbing silicone gel underlay deflect impacts.'
@@ -3438,12 +3449,17 @@ const DEFAULT_CATALOG_PRODUCTS = [
     name: 'Magnetic Tank Bag (Modular)',
     category: 'packs',
     categoryLabel: 'Bags & Packs',
-    price: 6800,
-    oldPrice: 8500,
+    price: 8200,
+    oldPrice: 9900,
     badge: '18L Modular',
-    stockCount: 22,
     inStock: true,
-    sizes: '18L Expandable (Standard)',
+    isVariable: true,
+    sizes: '14L Streamline Urban, 18L Expandable Modular, 24L Long-Haul Touring',
+    variants: [
+      { size: '14L Streamline Urban', price: 8200, oldPrice: 9900 },
+      { size: '18L Expandable Modular', price: 8900, oldPrice: 10500 },
+      { size: '24L Long-Haul Touring', price: 9800, oldPrice: 11900 },
+    ],
     img: 'assets/images/tankbag.jpeg',
     tagline: 'High-Strength Rare-Earth Magnets · Waterproof Cockpit Shell',
     desc: 'Four multi-directional high-flux rare-earth neodymium magnetic flaps clamp securely onto any steel fuel tank.'
@@ -3456,9 +3472,10 @@ const DEFAULT_CATALOG_PRODUCTS = [
     price: 11500,
     oldPrice: 14000,
     badge: 'CE Hip & Knee',
-    stockCount: 14,
     inStock: true,
+    isVariable: false,
     sizes: '30, 32, 34, 36, 38',
+    variants: [],
     img: 'assets/images/jacket.jpeg',
     tagline: 'HydraShield 10K Membrane · Adjustable CE Armor Pockets',
     desc: 'Engineered for cross-country highway endurance in torrential weather with reinforced knee abrasion pads.'
@@ -3471,9 +3488,14 @@ const DEFAULT_CATALOG_PRODUCTS = [
     price: 1850,
     oldPrice: 2400,
     badge: 'Anti-Fog Vents',
-    stockCount: 50,
     inStock: true,
-    sizes: 'Universal Elastic',
+    isVariable: true,
+    sizes: 'Standard (Single PM0.1 Filter), Twin-Pack (3x Carbon Filters), Winter Pro (Thermal + 5x Filters)',
+    variants: [
+      { size: 'Standard (Single PM0.1 Filter)', price: 1850, oldPrice: 2400 },
+      { size: 'Twin-Pack (3x Carbon Filters)', price: 2600, oldPrice: 3200 },
+      { size: 'Winter Pro (Thermal + 5x Filters)', price: 3400, oldPrice: 4200 },
+    ],
     img: 'assets/images/halfmask.jpeg',
     tagline: 'Laser Micro-Vents · Ergonomic Thermal Throat Gaiter',
     desc: 'Stops biting highway crosswinds while channeling exhalation away from helmet visors to eliminate fogging.'
@@ -3486,9 +3508,10 @@ const DEFAULT_CATALOG_PRODUCTS = [
     price: 4200,
     oldPrice: 5500,
     badge: 'Short Cuff',
-    stockCount: 18,
     inStock: true,
+    isVariable: false,
     sizes: 'M, L, XL',
+    variants: [],
     img: 'assets/images/glove.jpeg',
     tagline: 'Titanium Slider Pucks · Perforated Airflow Leather',
     desc: 'Short aggressive urban cuff for everyday warm weather city riding.'
@@ -3498,12 +3521,18 @@ const DEFAULT_CATALOG_PRODUCTS = [
     name: 'Rev Moto Performance Rider Tee',
     category: 'apparel',
     categoryLabel: 'Apparel',
-    price: 2400,
-    oldPrice: 3200,
+    price: 3200,
+    oldPrice: 3900,
     badge: 'Quick-Dry',
-    stockCount: 30,
     inStock: true,
-    sizes: 'S, M, L, XL, XXL',
+    isVariable: true,
+    sizes: 'S (Drop Shoulder), M (Drop Shoulder), L (Drop Shoulder), XL (Drop Shoulder)',
+    variants: [
+      { size: 'S (Drop Shoulder)', price: 3200, oldPrice: 3900 },
+      { size: 'M (Drop Shoulder)', price: 3200, oldPrice: 3900 },
+      { size: 'L (Drop Shoulder)', price: 3450, oldPrice: 4200 },
+      { size: 'XL (Drop Shoulder)', price: 3650, oldPrice: 4400 },
+    ],
     img: 'assets/images/tshirt.jpeg',
     tagline: 'Moisture-Wicking Technical Poly · Antimicrobial Silver Fibers',
     desc: 'High-breathability base layer designed to be worn comfortably underneath armored jackets.'
@@ -3518,7 +3547,20 @@ function getAdminProducts() {
     const raw = localStorage.getItem('revmoto_custom_products');
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        // Migration / enrichment: ensure default catalog products inherit variants if previously missing
+        return parsed.map(p => {
+          const defaultMatch = DEFAULT_CATALOG_PRODUCTS.find(d => d.id === p.id);
+          if (defaultMatch && (!p.variants || p.variants.length === 0) && defaultMatch.variants && defaultMatch.variants.length > 0) {
+            return {
+              ...p,
+              isVariable: defaultMatch.isVariable,
+              variants: defaultMatch.variants
+            };
+          }
+          return p;
+        });
+      }
     }
   } catch (e) {}
 
@@ -3537,14 +3579,14 @@ function renderProductsView() {
 
   // Metrics
   const total = products.length;
-  const inStockUnits = products.reduce((sum, p) => sum + (Number(p.stockCount) || 0), 0);
+  const inStockCount = products.filter(p => p.inStock !== false).length;
   const categoriesCount = new Set(products.map(p => p.category)).size;
 
   const totalEl = document.getElementById('prodMetricTotal');
   if (totalEl) totalEl.textContent = total;
 
   const unitsEl = document.getElementById('prodMetricUnits');
-  if (unitsEl) unitsEl.textContent = inStockUnits;
+  if (unitsEl) unitsEl.textContent = inStockCount;
 
   const catEl = document.getElementById('prodMetricCategories');
   if (catEl) catEl.textContent = categoriesCount;
@@ -3566,8 +3608,24 @@ function renderProductsView() {
       tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 36px; color: var(--text-muted);">No products found matching filters.</td></tr>`;
     } else {
       tbody.innerHTML = filtered.map(p => {
-        const inStock = p.inStock !== false && Number(p.stockCount) > 0;
-        const stockLabel = inStock ? `In Stock (${p.stockCount})` : 'Out of Stock';
+        const inStock = p.inStock !== false;
+        const stockLabel = inStock ? 'In Stock' : 'Out of Stock';
+
+        // Check if variable pricing
+        let priceHtml = `<strong style="color: var(--accent-blue); font-size: 0.92rem;">${formatPKR(p.price)}</strong>`;
+        if (p.isVariable && Array.isArray(p.variants) && p.variants.length > 1) {
+          const prices = p.variants.map(v => Number(v.price)).filter(n => !isNaN(n) && n > 0);
+          if (prices.length > 0) {
+            const minP = Math.min(...prices);
+            const maxP = Math.max(...prices);
+            if (minP !== maxP) {
+              priceHtml = `<strong style="color: var(--accent-blue); font-size: 0.92rem;">From ${formatPKR(minP)}</strong>`;
+            }
+          }
+        }
+        if (p.oldPrice) {
+          priceHtml += ` <span style="font-size: 0.75rem; text-decoration: line-through; color: var(--text-muted); margin-left: 4px;">${formatPKR(p.oldPrice)}</span>`;
+        }
 
         return `
           <tr>
@@ -3583,8 +3641,8 @@ function renderProductsView() {
               <span style="font-size: 0.82rem; color: var(--text-primary); font-weight: 600;">${escapeHtml(p.categoryLabel || p.category)}</span>
             </td>
             <td>
-              <strong style="color: var(--accent-blue); font-size: 0.92rem;">${formatPKR(p.price)}</strong>
-              ${p.oldPrice ? `<span style="font-size: 0.75rem; text-decoration: line-through; color: var(--text-muted); margin-left: 4px;">${formatPKR(p.oldPrice)}</span>` : ''}
+              ${priceHtml}
+              ${p.isVariable && Array.isArray(p.variants) && p.variants.length > 1 ? `<div style="font-size: 0.68rem; color: #2563eb; font-weight: 700; margin-top: 2px;"><i class="fas fa-layer-group"></i> ${p.variants.length} Sizes (Variable)</div>` : ''}
             </td>
             <td>
               <span style="font-size: 0.76rem; color: var(--text-secondary); max-width: 220px; display: block; overflow: hidden; text-overflow: ellipsis;">
@@ -3620,7 +3678,14 @@ function renderProductsView() {
       mobileContainer.innerHTML = `<div style="text-align: center; padding: 30px; color: var(--text-muted);">No products found.</div>`;
     } else {
       mobileContainer.innerHTML = filtered.map(p => {
-        const inStock = p.inStock !== false && Number(p.stockCount) > 0;
+        const inStock = p.inStock !== false;
+        let priceDisplay = formatPKR(p.price);
+        if (p.isVariable && Array.isArray(p.variants) && p.variants.length > 1) {
+          const prices = p.variants.map(v => Number(v.price)).filter(n => !isNaN(n) && n > 0);
+          if (prices.length > 0 && Math.min(...prices) !== Math.max(...prices)) {
+            priceDisplay = `From ${formatPKR(Math.min(...prices))}`;
+          }
+        }
         return `
           <div class="mobile-order-card">
             <div style="display: flex; gap: 12px; align-items: center;">
@@ -3628,12 +3693,13 @@ function renderProductsView() {
               <div style="flex: 1;">
                 <strong style="color: var(--text-pure); font-size: 0.92rem;">${escapeHtml(p.name)}</strong>
                 <div style="font-size: 0.75rem; color: var(--text-muted);">${escapeHtml(p.categoryLabel || p.category)}</div>
-                <strong style="color: var(--accent-blue); font-size: 0.95rem; margin-top: 2px; display: block;">${formatPKR(p.price)}</strong>
+                <strong style="color: var(--accent-blue); font-size: 0.95rem; margin-top: 2px; display: block;">${priceDisplay}</strong>
               </div>
             </div>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; border-top: 1px dashed var(--border-subtle); padding-top: 8px;">
               <button type="button" class="stock-pill-btn ${inStock ? 'in-stock' : 'out-of-stock'}" onclick="toggleProductStock('${escapeHtml(p.id)}')">
-                ${inStock ? 'In Stock (' + p.stockCount + ')' : 'Out of Stock'}
+                <i class="fas ${inStock ? 'fa-check-circle' : 'fa-times-circle'}"></i>
+                <span>${inStock ? 'In Stock' : 'Out of Stock'}</span>
               </button>
               <div style="display: flex; gap: 6px;">
                 <button class="btn-admin btn-admin-subtle" style="padding: 5px 10px; font-size: 0.75rem;" onclick="openProductModal('${escapeHtml(p.id)}')">
@@ -3668,16 +3734,9 @@ function toggleProductStock(productId) {
   const prod = products.find(p => String(p.id) === String(productId));
   if (!prod) return;
 
-  const currentStatus = prod.inStock !== false && Number(prod.stockCount) > 0;
-  if (currentStatus) {
-    prod.inStock = false;
-    prod.stockCount = 0;
-    showToast(`"${prod.name}" marked Out of Stock`, 'info');
-  } else {
-    prod.inStock = true;
-    prod.stockCount = 10;
-    showToast(`"${prod.name}" marked In Stock (10 units)`, 'success');
-  }
+  const currentStatus = prod.inStock !== false;
+  prod.inStock = !currentStatus;
+  showToast(`"${prod.name}" marked ${prod.inStock ? 'In Stock' : 'Out of Stock'}`, prod.inStock ? 'success' : 'info');
 
   saveAdminProducts(products);
   renderProductsView();
@@ -3696,6 +3755,195 @@ function deleteProduct(productId) {
   renderProductsView();
 }
 
+// ── PRODUCT PRICING & VARIANT CONTROLLERS ──
+let currentProductPricingMode = 'simple';
+
+function setProductPricingMode(mode) {
+  currentProductPricingMode = mode;
+  const btnSimple = document.getElementById('btnModeSimple');
+  const btnVariable = document.getElementById('btnModeVariable');
+  const simpleSec = document.getElementById('simplePricingSection');
+  const varSec = document.getElementById('variablePricingSection');
+  const typeInput = document.getElementById('prodPricingType');
+
+  if (typeInput) typeInput.value = mode;
+
+  if (mode === 'variable') {
+    if (btnSimple) btnSimple.classList.remove('active');
+    if (btnVariable) btnVariable.classList.add('active');
+    if (simpleSec) simpleSec.style.display = 'none';
+    if (varSec) varSec.style.display = 'block';
+
+    // If container has no rows yet, populate default rows based on current simple inputs
+    const container = document.getElementById('variantRowsContainer');
+    if (container && container.children.length === 0) {
+      const curPrice = Number(document.getElementById('prodPriceInput')?.value) || 0;
+      const curOldPrice = Number(document.getElementById('prodOldPriceInput')?.value) || 0;
+      const sizesStr = document.getElementById('prodSizesInput')?.value || '';
+      const sizesArr = sizesStr.split(',').map(s => s.trim()).filter(Boolean);
+      if (sizesArr.length > 0) {
+        renderVariantRows(sizesArr.map(s => ({ size: s, price: curPrice || 14500, oldPrice: curOldPrice || 18000 })));
+      } else {
+        renderVariantRows([
+          { size: 'M (38-40")', price: curPrice || 14500, oldPrice: curOldPrice || 18000 },
+          { size: 'L (41-43")', price: (curPrice || 14500) + 700, oldPrice: (curOldPrice || 18000) + 800 }
+        ]);
+      }
+    }
+  } else {
+    if (btnSimple) btnSimple.classList.add('active');
+    if (btnVariable) btnVariable.classList.remove('active');
+    if (simpleSec) simpleSec.style.display = 'block';
+    if (varSec) varSec.style.display = 'none';
+
+    // If switching back to simple, derive base price & sizes string from first variant
+    const container = document.getElementById('variantRowsContainer');
+    if (container && container.children.length > 0) {
+      const rows = getVariantRowsData();
+      if (rows.length > 0) {
+        const priceInput = document.getElementById('prodPriceInput');
+        const oldPriceInput = document.getElementById('prodOldPriceInput');
+        const sizesInput = document.getElementById('prodSizesInput');
+        if (priceInput && (!priceInput.value || Number(priceInput.value) === 0)) {
+          priceInput.value = rows[0].price || '';
+        }
+        if (oldPriceInput && !oldPriceInput.value) {
+          oldPriceInput.value = rows[0].oldPrice || '';
+        }
+        if (sizesInput) {
+          sizesInput.value = rows.map(r => r.size).join(', ');
+        }
+      }
+    }
+  }
+}
+
+function renderVariantRows(variants = []) {
+  const container = document.getElementById('variantRowsContainer');
+  if (!container) return;
+  container.innerHTML = '';
+  if (!variants || variants.length === 0) {
+    addEmptyVariantRow();
+    return;
+  }
+  variants.forEach(v => {
+    addVariantRow(v.size || '', v.price !== undefined ? v.price : '', v.oldPrice !== undefined ? v.oldPrice : '');
+  });
+}
+
+function addVariantRow(size = '', price = '', oldPrice = '') {
+  const container = document.getElementById('variantRowsContainer');
+  if (!container) return;
+
+  const row = document.createElement('div');
+  row.className = 'variant-row';
+  row.innerHTML = `
+    <div>
+      <input type="text" class="admin-search-input var-size-input" placeholder="e.g. M (38-40&quot;)" value="${escapeHtml(size)}" required style="width: 100%; height: 36px; font-size: 0.84rem; font-weight: 600;">
+    </div>
+    <div style="position: relative;">
+      <span style="position: absolute; left: 8px; top: 50%; transform: translateY(-50%); font-size: 0.75rem; color: #94a3b8; font-weight: 700;">Rs.</span>
+      <input type="number" class="admin-search-input var-price-input" placeholder="14500" value="${price !== '' ? price : ''}" min="0" required style="width: 100%; height: 36px; padding-left: 32px; font-size: 0.84rem; font-weight: 700; color: #0f172a;">
+    </div>
+    <div style="position: relative;">
+      <span style="position: absolute; left: 8px; top: 50%; transform: translateY(-50%); font-size: 0.75rem; color: #94a3b8; font-weight: 700;">Rs.</span>
+      <input type="number" class="admin-search-input var-oldprice-input" placeholder="18000" value="${oldPrice !== '' ? oldPrice : ''}" min="0" style="width: 100%; height: 36px; padding-left: 32px; font-size: 0.84rem;">
+    </div>
+    <div style="text-align: center;">
+      <button type="button" class="btn-var-delete" onclick="removeVariantRow(this)" title="Remove size variant">
+        <i class="fas fa-trash-alt"></i>
+      </button>
+    </div>
+  `;
+  container.appendChild(row);
+}
+
+function addEmptyVariantRow() {
+  const basePrice = Number(document.getElementById('prodPriceInput')?.value) || '';
+  const baseOldPrice = Number(document.getElementById('prodOldPriceInput')?.value) || '';
+  addVariantRow('', basePrice, baseOldPrice);
+}
+
+function removeVariantRow(btn) {
+  const container = document.getElementById('variantRowsContainer');
+  if (!container) return;
+  const row = btn.closest('.variant-row');
+  if (row) {
+    if (container.querySelectorAll('.variant-row').length <= 1) {
+      showToast('At least one size variant is required for variable products.', 'warning');
+      return;
+    }
+    row.remove();
+  }
+}
+
+function getVariantRowsData() {
+  const container = document.getElementById('variantRowsContainer');
+  if (!container) return [];
+  const rows = container.querySelectorAll('.variant-row');
+  const data = [];
+  rows.forEach(r => {
+    const size = r.querySelector('.var-size-input')?.value.trim();
+    const price = Number(r.querySelector('.var-price-input')?.value || 0);
+    const oldPrice = Number(r.querySelector('.var-oldprice-input')?.value || 0);
+    if (size) {
+      data.push({ size, price, oldPrice });
+    }
+  });
+  return data;
+}
+
+function applySimpleSizesPreset(presetStr) {
+  const input = document.getElementById('prodSizesInput');
+  if (input) {
+    input.value = presetStr;
+    input.focus();
+  }
+}
+
+function loadVariantPreset(type) {
+  const basePrice = Number(document.getElementById('prodPriceInput')?.value) || 0;
+  const baseOld = Number(document.getElementById('prodOldPriceInput')?.value) || 0;
+
+  let presets = [];
+  if (type === 'jackets') {
+    const p = basePrice || 14500;
+    const op = baseOld || 18000;
+    presets = [
+      { size: 'M (38-40")', price: p, oldPrice: op },
+      { size: 'L (41-43")', price: p + 700, oldPrice: op + 800 },
+      { size: 'XL (44-46")', price: p + 1300, oldPrice: op + 1500 },
+      { size: 'XXL (47-49")', price: p + 2000, oldPrice: op + 2500 },
+    ];
+  } else if (type === 'gloves') {
+    const p = basePrice || 5200;
+    const op = baseOld || 6500;
+    presets = [
+      { size: 'M (Palm 8.0-8.5")', price: p, oldPrice: op },
+      { size: 'L (Palm 8.5-9.0")', price: p + 300, oldPrice: op + 400 },
+      { size: 'XL (Palm 9.0-9.5")', price: p + 700, oldPrice: op + 900 },
+    ];
+  } else if (type === 'packs') {
+    const p = basePrice || 8200;
+    const op = baseOld || 9900;
+    presets = [
+      { size: '14L Streamline Urban', price: p, oldPrice: op },
+      { size: '18L Expandable Modular', price: p + 700, oldPrice: op + 600 },
+      { size: '24L Long-Haul Touring', price: p + 1600, oldPrice: op + 2000 },
+    ];
+  } else if (type === 'masks') {
+    const p = basePrice || 1850;
+    const op = baseOld || 2400;
+    presets = [
+      { size: 'Standard (Single PM0.1 Filter)', price: p, oldPrice: op },
+      { size: 'Twin-Pack (3x Carbon Filters)', price: p + 750, oldPrice: op + 800 },
+      { size: 'Winter Pro (Thermal + 5x Filters)', price: p + 1550, oldPrice: op + 1800 },
+    ];
+  }
+
+  renderVariantRows(presets);
+}
+
 // ── PRODUCT MODAL CONTROLLER ──
 function openProductModal(productId = null) {
   populateProductCategorySelect();
@@ -3709,7 +3957,6 @@ function openProductModal(productId = null) {
   const badgeInput = document.getElementById('prodBadgeInput');
   const priceInput = document.getElementById('prodPriceInput');
   const oldPriceInput = document.getElementById('prodOldPriceInput');
-  const stockInput = document.getElementById('prodStockInput');
   const sizesInput = document.getElementById('prodSizesInput');
   const imgUrlInput = document.getElementById('prodImageUrlInput');
   const taglineInput = document.getElementById('prodTaglineInput');
@@ -3728,14 +3975,29 @@ function openProductModal(productId = null) {
     if (badgeInput) badgeInput.value = prod.badge || '';
     if (priceInput) priceInput.value = prod.price || '';
     if (oldPriceInput) oldPriceInput.value = prod.oldPrice || '';
-    if (stockInput) stockInput.value = prod.stockCount || 10;
     if (sizesInput) sizesInput.value = prod.sizes || '';
     if (imgUrlInput) imgUrlInput.value = prod.img || '';
     if (taglineInput) taglineInput.value = prod.tagline || '';
     if (descInput) descInput.value = prod.desc || '';
 
     if (previewBox) {
-      previewBox.innerHTML = prod.img ? `<img src="${resolveAdminImgPath(prod.img)}" alt="Preview" onerror="this.onerror=null; this.src='../assets/images/logo.png';">` : `<i class="fas fa-image" style="color: var(--text-muted); font-size: 1.5rem;"></i>`;
+      previewBox.innerHTML = prod.img ? `<img src="${resolveAdminImgPath(prod.img)}" alt="Preview" onerror="this.onerror=null; this.src='../assets/images/logo.png';" style="width: 100%; height: 100%; object-fit: cover;">` : `<i class="fas fa-image" style="color: var(--text-muted); font-size: 1.5rem;"></i>`;
+    }
+
+    // Determine pricing mode: is it variable product?
+    const hasVariants = Array.isArray(prod.variants) && prod.variants.length > 0;
+    const isVariable = prod.isVariable === true || (hasVariants && (prod.variants.length > 1 || prod.variants.some((v, _, arr) => v.price !== arr[0].price)));
+
+    if (isVariable && hasVariants) {
+      setProductPricingMode('variable');
+      renderVariantRows(prod.variants);
+    } else {
+      setProductPricingMode('simple');
+      if (hasVariants) {
+        renderVariantRows(prod.variants);
+      } else {
+        renderVariantRows([]);
+      }
     }
   } else {
     if (titleEl) titleEl.textContent = 'Add New Product to Catalog';
@@ -3745,15 +4007,17 @@ function openProductModal(productId = null) {
     if (badgeInput) badgeInput.value = 'New Arrival';
     if (priceInput) priceInput.value = '';
     if (oldPriceInput) oldPriceInput.value = '';
-    if (stockInput) stockInput.value = 15;
     if (sizesInput) sizesInput.value = 'M, L, XL, XXL';
     if (imgUrlInput) imgUrlInput.value = 'assets/images/jacket_cyber.jpg';
     if (taglineInput) taglineInput.value = '';
     if (descInput) descInput.value = '';
 
     if (previewBox) {
-      previewBox.innerHTML = `<img src="assets/images/jacket_cyber.jpg" alt="Preview">`;
+      previewBox.innerHTML = `<img src="assets/images/jacket_cyber.jpg" alt="Preview" style="width: 100%; height: 100%; object-fit: cover;">`;
     }
+
+    setProductPricingMode('simple');
+    renderVariantRows([]);
   }
 
   modal.classList.add('open');
@@ -3782,7 +4046,7 @@ function updateProductImagePreview(url) {
   const previewBox = document.getElementById('productModalImgPreview');
   if (!previewBox) return;
   if (url && url.trim()) {
-    previewBox.innerHTML = `<img src="${url.trim()}" alt="Preview" onerror="this.onerror=null; this.src='assets/images/jacket_cyber.jpg'">`;
+    previewBox.innerHTML = `<img src="${url.trim()}" alt="Preview" onerror="this.onerror=null; this.src='assets/images/jacket_cyber.jpg'" style="width: 100%; height: 100%; object-fit: cover;">`;
   } else {
     previewBox.innerHTML = `<i class="fas fa-image" style="color: var(--text-muted); font-size: 1.5rem;"></i>`;
   }
@@ -3795,13 +4059,40 @@ function handleProductFormSubmit(e) {
   const name = document.getElementById('prodNameInput')?.value.trim();
   const category = document.getElementById('prodCategorySelect')?.value || 'jackets';
   const badge = document.getElementById('prodBadgeInput')?.value.trim();
-  const price = Number(document.getElementById('prodPriceInput')?.value || 0);
-  const oldPrice = Number(document.getElementById('prodOldPriceInput')?.value || 0);
-  const stockCount = Number(document.getElementById('prodStockInput')?.value || 10);
-  const sizes = document.getElementById('prodSizesInput')?.value.trim() || 'Standard';
+  const mode = currentProductPricingMode;
   const img = document.getElementById('prodImageUrlInput')?.value.trim() || 'assets/images/jacket_cyber.jpg';
   const tagline = document.getElementById('prodTaglineInput')?.value.trim();
   const desc = document.getElementById('prodDescInput')?.value.trim();
+
+  let price = 0;
+  let oldPrice = 0;
+  let sizes = '';
+  let variants = [];
+  let isVariable = false;
+
+  if (mode === 'variable') {
+    variants = getVariantRowsData();
+    if (variants.length === 0) {
+      showToast('Please add at least one size variant with a price.', 'warning');
+      return;
+    }
+    isVariable = true;
+    const validPrices = variants.map(v => v.price).filter(p => p > 0);
+    price = validPrices.length > 0 ? Math.min(...validPrices) : 0;
+    oldPrice = variants[0]?.oldPrice || 0;
+    sizes = variants.map(v => v.size).join(', ');
+  } else {
+    price = Number(document.getElementById('prodPriceInput')?.value || 0);
+    oldPrice = Number(document.getElementById('prodOldPriceInput')?.value || 0);
+    sizes = document.getElementById('prodSizesInput')?.value.trim() || 'Standard';
+    isVariable = false;
+    const sizesArr = sizes.split(',').map(s => s.trim()).filter(Boolean);
+    variants = sizesArr.map(s => ({
+      size: s,
+      price,
+      oldPrice: oldPrice || (price > 0 ? Math.round(price * 1.25) : 0)
+    }));
+  }
 
   const adminCats = getAdminCategories();
   const matchedCat = adminCats.find(c => c.id === category);
@@ -3813,17 +4104,20 @@ function handleProductFormSubmit(e) {
     // Edit existing product
     const idx = products.findIndex(p => String(p.id) === String(id));
     if (idx !== -1) {
+      const existing = products[idx];
       products[idx] = {
-        ...products[idx],
+        ...existing,
         name,
         category,
         categoryLabel: resolvedCategoryLabel,
         badge,
         price,
         oldPrice: oldPrice || (price > 0 ? Math.round(price * 1.25) : 0),
-        stockCount,
-        inStock: stockCount > 0,
+        inStock: existing.inStock !== false,
+        stockCount: 99,
+        isVariable,
         sizes,
+        variants,
         img,
         tagline,
         desc
@@ -3842,9 +4136,11 @@ function handleProductFormSubmit(e) {
       badge: badge || 'New Arrival',
       price,
       oldPrice: oldPrice || (price > 0 ? Math.round(price * 1.25) : 0),
-      stockCount,
-      inStock: stockCount > 0,
+      inStock: true,
+      stockCount: 99,
+      isVariable,
       sizes,
+      variants,
       img,
       images: [img],
       tagline: tagline || 'High-Performance Motorcycle Gear',

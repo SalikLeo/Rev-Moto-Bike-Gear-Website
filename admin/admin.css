@@ -2448,3 +2448,113 @@ body, button, input, select, textarea, table, th, td {
   border-color: #fca5a5;
   transform: translateY(-1px);
 }
+
+
+/* ═══ PRODUCT MODAL MODERNIZATION & VARIANT BUILDER ═══════════════ */
+.pricing-mode-switch {
+  display: inline-flex;
+  background: #f1f5f9;
+  padding: 3px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  gap: 3px;
+}
+
+.mode-switch-btn {
+  padding: 6px 14px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #64748b;
+  background: transparent;
+  border: none;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: inherit;
+}
+
+.mode-switch-btn:hover {
+  color: #0f172a;
+}
+
+.mode-switch-btn.active {
+  background: #ffffff;
+  color: #2563eb;
+  font-weight: 700;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.quick-chip-btn {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+}
+
+.quick-chip-btn:hover {
+  background: #e2e8f0;
+  color: #1e293b;
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+}
+
+.variant-row {
+  display: grid;
+  grid-template-columns: 2fr 1.3fr 1.3fr 44px;
+  gap: 8px;
+  padding: 8px 12px;
+  align-items: center;
+  border-bottom: 1px solid #f1f5f9;
+  background: #ffffff;
+  transition: background 0.15s ease;
+}
+
+.variant-row:last-child {
+  border-bottom: none;
+}
+
+.variant-row:hover {
+  background: #f8fafc;
+}
+
+.btn-var-delete {
+  width: 32px;
+  height: 32px;
+  border-radius: 7px;
+  border: 1px solid #fecaca;
+  background: #fee2e2;
+  color: #ef4444;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-size: 0.8rem;
+}
+
+.btn-var-delete:hover {
+  background: #fecaca;
+  color: #dc2626;
+  border-color: #fca5a5;
+  transform: scale(1.05);
+}
+
+.prod-form-card {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.prod-form-card:focus-within {
+  border-color: #bfdbfe !important;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.06) !important;
+}

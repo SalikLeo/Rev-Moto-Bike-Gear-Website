@@ -316,11 +316,11 @@
 
         <div class="metric-card">
           <div class="metric-label">
-            <span>Total In-Stock Units</span>
+            <span>Available In Stock</span>
             <div class="metric-icon-wrap dispatched" style="background: rgba(16,185,129,0.1); color: #10b981;"><i class="fas fa-cubes"></i></div>
           </div>
           <div class="metric-value" id="prodMetricUnits">0</div>
-          <div class="metric-sub">Combined stock across sizes</div>
+          <div class="metric-sub">Catalog products ready to order</div>
         </div>
 
         <div class="metric-card">
@@ -929,97 +929,210 @@
 
   <!-- ═══ PRODUCT UPLOAD & EDIT MODAL ═════════════════════════════════ -->
   <div class="admin-modal-overlay" id="productModal" onclick="if(event.target===this) closeProductModal()">
-    <div class="admin-modal-content" style="max-width: 580px;">
-      <div class="admin-modal-header" style="padding: 14px 18px;">
-        <div class="admin-modal-title" style="font-size: 1.05rem;">
-          <i class="fas fa-vest text-cyan"></i>
-          <span id="productModalTitle">Add New Product</span>
+    <div class="admin-modal-content" style="max-width: 680px; max-height: 90vh; display: flex; flex-direction: column; border-radius: 16px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25);">
+      <!-- Header -->
+      <div class="admin-modal-header" style="padding: 16px 22px; border-bottom: 1.5px solid #e2e8f0; background: #ffffff;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(37,99,235,0.08); display: flex; align-items: center; justify-content: center; color: var(--accent-blue); font-size: 1.15rem;">
+            <i class="fas fa-vest"></i>
+          </div>
+          <div>
+            <div class="admin-modal-title" id="productModalTitle" style="font-size: 1.12rem; font-weight: 800; color: #0f172a; margin-bottom: 2px;">
+              Edit Product
+            </div>
+            <div style="font-size: 0.76rem; color: #64748b; font-weight: 500;">
+              Configure product details, pricing model, and media assets
+            </div>
+          </div>
         </div>
         <button class="admin-modal-close" onclick="closeProductModal()" title="Close"><i class="fas fa-times"></i></button>
       </div>
 
-      <div class="admin-modal-body" style="padding: 18px 20px;">
+      <!-- Scrollable Body -->
+      <div class="admin-modal-body" style="padding: 20px 22px; overflow-y: auto; flex: 1; background: #fafbfc;">
         <form id="productForm" onsubmit="handleProductFormSubmit(event)">
           <input type="hidden" id="editingProductId" value="">
+          <input type="hidden" id="prodPricingType" value="simple">
 
-          <div class="form-group" style="margin-bottom: 12px;">
-            <label class="form-label" for="prodNameInput">Product Name *</label>
-            <input type="text" id="prodNameInput" class="admin-search-input" style="width: 100%;" placeholder="e.g. Armored Cyber Riding Jacket" required>
-          </div>
-
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
-            <div class="form-group">
-              <label class="form-label" for="prodCategorySelect">Category *</label>
-              <select id="prodCategorySelect" class="form-control-select" style="width: 100%;" required>
-                <option value="jackets">Riding Jackets</option>
-                <option value="gloves">Motorcycle Gloves</option>
-                <option value="packs">Bags &amp; Packs</option>
-                <option value="masks">Face Masks &amp; Balaclavas</option>
-                <option value="apparel">Apparel &amp; Accessories</option>
-              </select>
+          <!-- Section 1: General Info Card -->
+          <div class="prod-form-card" style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 16px 18px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+            <div style="font-size: 0.76rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #475569; margin-bottom: 14px; display: flex; align-items: center; gap: 6px;">
+              <i class="fas fa-info-circle" style="color: #2563eb;"></i>
+              <span>General Information</span>
             </div>
 
-            <div class="form-group">
-              <label class="form-label" for="prodBadgeInput">Badge / Tag (Optional)</label>
-              <input type="text" id="prodBadgeInput" class="admin-search-input" style="width: 100%;" placeholder="e.g. Flagship Drop, New Arrival">
-            </div>
-          </div>
-
-          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 12px;">
-            <div class="form-group">
-              <label class="form-label" for="prodPriceInput">Price (PKR) *</label>
-              <input type="number" id="prodPriceInput" class="admin-search-input" style="width: 100%;" placeholder="14500" min="0" required>
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label class="form-label" for="prodNameInput" style="font-weight: 700; font-size: 0.8rem; color: #334155; margin-bottom: 6px; display: block;">
+                Product Name <span style="color: #ef4444;">*</span>
+              </label>
+              <input type="text" id="prodNameInput" class="admin-search-input" style="width: 100%; height: 40px; font-size: 0.88rem;" placeholder="e.g. Armored Cyber Riding Jacket" required>
             </div>
 
-            <div class="form-group">
-              <label class="form-label" for="prodOldPriceInput">Old Price (PKR)</label>
-              <input type="number" id="prodOldPriceInput" class="admin-search-input" style="width: 100%;" placeholder="18000" min="0">
-            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+              <div class="form-group">
+                <label class="form-label" for="prodCategorySelect" style="font-weight: 700; font-size: 0.8rem; color: #334155; margin-bottom: 6px; display: block;">
+                  Category <span style="color: #ef4444;">*</span>
+                </label>
+                <select id="prodCategorySelect" class="form-control-select" style="width: 100%; height: 40px; font-size: 0.86rem;" required>
+                  <!-- Populated dynamically -->
+                </select>
+              </div>
 
-            <div class="form-group">
-              <label class="form-label" for="prodStockInput">Stock Units *</label>
-              <input type="number" id="prodStockInput" class="admin-search-input" style="width: 100%;" placeholder="15" min="0" required>
+              <div class="form-group">
+                <label class="form-label" for="prodBadgeInput" style="font-weight: 700; font-size: 0.8rem; color: #334155; margin-bottom: 6px; display: block;">
+                  Badge / Tag <span style="font-size: 0.72rem; color: #94a3b8; font-weight: normal;">(Optional)</span>
+                </label>
+                <input type="text" id="prodBadgeInput" class="admin-search-input" style="width: 100%; height: 40px; font-size: 0.86rem;" placeholder="e.g. Flagship Drop, New Arrival">
+              </div>
             </div>
           </div>
 
-          <div class="form-group" style="margin-bottom: 12px;">
-            <label class="form-label" for="prodSizesInput">Available Sizes (Comma-separated)</label>
-            <input type="text" id="prodSizesInput" class="admin-search-input" style="width: 100%;" placeholder="M (38-40\"), L (41-43\"), XL (44-46\")" value="M, L, XL, XXL">
+          <!-- Section 2: Pricing & Variation Configuration Card -->
+          <div class="prod-form-card" style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 16px 18px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 8px;">
+              <div style="font-size: 0.76rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #475569; display: flex; align-items: center; gap: 6px;">
+                <i class="fas fa-tag" style="color: #2563eb;"></i>
+                <span>Pricing &amp; Variations</span>
+              </div>
+
+              <!-- Segmented Switcher Pill -->
+              <div class="pricing-mode-switch" style="display: inline-flex; background: #f1f5f9; padding: 3px; border-radius: 10px; border: 1px solid #e2e8f0;">
+                <button type="button" class="mode-switch-btn active" id="btnModeSimple" onclick="setProductPricingMode('simple')">
+                  <i class="fas fa-receipt"></i> Simple Product
+                </button>
+                <button type="button" class="mode-switch-btn" id="btnModeVariable" onclick="setProductPricingMode('variable')">
+                  <i class="fas fa-layer-group"></i> Variation Product
+                </button>
+              </div>
+            </div>
+
+            <!-- MODE A: Simple Product Section -->
+            <div id="simplePricingSection">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                <div class="form-group">
+                  <label class="form-label" for="prodPriceInput" style="font-weight: 700; font-size: 0.8rem; color: #334155; margin-bottom: 6px; display: block;">
+                    Selling Price (PKR) <span style="color: #ef4444;">*</span>
+                  </label>
+                  <div style="position: relative;">
+                    <span style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-weight: 700; color: #94a3b8; font-size: 0.82rem;">Rs.</span>
+                    <input type="number" id="prodPriceInput" class="admin-search-input" style="width: 100%; height: 40px; padding-left: 40px; font-size: 0.92rem; font-weight: 700; color: #0f172a;" placeholder="14500" min="0">
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="prodOldPriceInput" style="font-weight: 700; font-size: 0.8rem; color: #334155; margin-bottom: 6px; display: block;">
+                    Old / Strikethrough Price (PKR) <span style="font-size: 0.72rem; color: #94a3b8; font-weight: normal;">(Optional)</span>
+                  </label>
+                  <div style="position: relative;">
+                    <span style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-weight: 700; color: #94a3b8; font-size: 0.82rem;">Rs.</span>
+                    <input type="number" id="prodOldPriceInput" class="admin-search-input" style="width: 100%; height: 40px; padding-left: 40px; font-size: 0.92rem;" placeholder="18000" min="0">
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                  <label class="form-label" for="prodSizesInput" style="font-weight: 700; font-size: 0.8rem; color: #334155;">
+                    Available Sizes (Comma-separated)
+                  </label>
+                  <div style="display: flex; gap: 4px;">
+                    <button type="button" class="quick-chip-btn" onclick="applySimpleSizesPreset('M, L, XL, XXL')">M-XXL</button>
+                    <button type="button" class="quick-chip-btn" onclick="applySimpleSizesPreset('S, M, L, XL')">S-XL</button>
+                    <button type="button" class="quick-chip-btn" onclick="applySimpleSizesPreset('Universal / One-Size')">One Size</button>
+                  </div>
+                </div>
+                <input type="text" id="prodSizesInput" class="admin-search-input" style="width: 100%; height: 40px; font-size: 0.86rem;" placeholder="e.g. M, L, XL, XXL or Universal">
+              </div>
+            </div>
+
+            <!-- MODE B: Variable Product Section (Different Prices per Size) -->
+            <div id="variablePricingSection" style="display: none;">
+              <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 10px 14px; margin-bottom: 12px; font-size: 0.78rem; color: #1e40af; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-info-circle" style="color: #2563eb; font-size: 0.9rem;"></i>
+                <span>Set different prices for different sizes. Customers will see real-time price updates when selecting sizes.</span>
+              </div>
+
+              <!-- Quick Presets -->
+              <div style="display: flex; gap: 6px; align-items: center; margin-bottom: 12px; flex-wrap: wrap;">
+                <span style="font-size: 0.72rem; font-weight: 700; color: #64748b; text-transform: uppercase;">Quick Presets:</span>
+                <button type="button" class="quick-chip-btn" onclick="loadVariantPreset('jackets')">+ Jackets (M, L, XL, XXL)</button>
+                <button type="button" class="quick-chip-btn" onclick="loadVariantPreset('gloves')">+ Gloves (M, L, XL)</button>
+                <button type="button" class="quick-chip-btn" onclick="loadVariantPreset('packs')">+ Bags (14L, 18L, 24L)</button>
+                <button type="button" class="quick-chip-btn" onclick="loadVariantPreset('masks')">+ Masks (Standard, Pro)</button>
+              </div>
+
+              <!-- Variants Container Table -->
+              <div style="border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; margin-bottom: 10px;">
+                <div style="display: grid; grid-template-columns: 2fr 1.3fr 1.3fr 44px; background: #f8fafc; padding: 8px 12px; font-size: 0.74rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.04em; border-bottom: 1px solid #e2e8f0;">
+                  <div>Size / Option Name *</div>
+                  <div>Selling Price (PKR) *</div>
+                  <div>Old Price (PKR)</div>
+                  <div style="text-align: center;">Action</div>
+                </div>
+
+                <div id="variantRowsContainer" style="max-height: 220px; overflow-y: auto; background: #ffffff;">
+                  <!-- Dynamic variant rows populated by admin.js -->
+                </div>
+              </div>
+
+              <button type="button" class="btn-admin" onclick="addEmptyVariantRow()" style="height: 34px; padding: 0 12px; font-size: 0.78rem; font-weight: 700; background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                <i class="fas fa-plus"></i> Add Size Variant Row
+              </button>
+            </div>
           </div>
 
-          <!-- Product Image Upload / URL with Live Preview -->
-          <div class="form-group" style="margin-bottom: 14px;">
-            <label class="form-label">Product Image *</label>
-            <div style="display: flex; gap: 12px; align-items: flex-start;">
-              <div class="product-image-preview-box" id="productModalImgPreview">
-                <i class="fas fa-image" style="color: var(--text-muted); font-size: 1.5rem;"></i>
+          <!-- Section 3: Media & Imagery Card -->
+          <div class="prod-form-card" style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 16px 18px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+            <div style="font-size: 0.76rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #475569; margin-bottom: 14px; display: flex; align-items: center; gap: 6px;">
+              <i class="fas fa-image" style="color: #2563eb;"></i>
+              <span>Product Image</span>
+            </div>
+
+            <div style="display: flex; gap: 14px; align-items: flex-start;">
+              <div class="product-image-preview-box" id="productModalImgPreview" style="width: 76px; height: 76px; min-width: 76px; border-radius: 10px; border: 1.5px solid #e2e8f0; background: #f8fafc; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-image" style="color: #94a3b8; font-size: 1.6rem;"></i>
               </div>
               <div style="flex: 1;">
                 <input type="file" id="prodImageFileInput" accept="image/*" style="display: none;" onchange="handleProductImageFile(event)">
-                <button type="button" class="btn-admin btn-admin-subtle" onclick="document.getElementById('prodImageFileInput').click()" style="margin-bottom: 6px; font-size: 0.78rem;">
-                  <i class="fas fa-upload"></i> Upload Image from Device
-                </button>
-                <input type="text" id="prodImageUrlInput" class="admin-search-input" style="width: 100%; font-size: 0.8rem;" placeholder="Or paste image URL (e.g. assets/images/jacket.webp)" oninput="updateProductImagePreview(this.value)">
+                <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                  <button type="button" class="btn-admin btn-admin-subtle" onclick="document.getElementById('prodImageFileInput').click()" style="height: 34px; font-size: 0.78rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+                    <i class="fas fa-cloud-upload-alt"></i> Upload from Device
+                  </button>
+                </div>
+                <input type="text" id="prodImageUrlInput" class="admin-search-input" style="width: 100%; height: 38px; font-size: 0.82rem;" placeholder="Or paste image URL (e.g. assets/images/jacket_cyber.jpg)" oninput="updateProductImagePreview(this.value)">
               </div>
             </div>
           </div>
 
-          <div class="form-group" style="margin-bottom: 12px;">
-            <label class="form-label" for="prodTaglineInput">Tagline / Key Features</label>
-            <input type="text" id="prodTaglineInput" class="admin-search-input" style="width: 100%;" placeholder="e.g. Molded Carbon Armor Plates · High-Flow Airflow Mesh">
+          <!-- Section 4: Specifications & Marketing Card -->
+          <div class="prod-form-card" style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 16px 18px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+            <div style="font-size: 0.76rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #475569; margin-bottom: 14px; display: flex; align-items: center; gap: 6px;">
+              <i class="fas fa-align-left" style="color: #2563eb;"></i>
+              <span>Details &amp; Specifications</span>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label class="form-label" for="prodTaglineInput" style="font-weight: 700; font-size: 0.8rem; color: #334155; margin-bottom: 6px; display: block;">
+                Tagline / Key Features
+              </label>
+              <input type="text" id="prodTaglineInput" class="admin-search-input" style="width: 100%; height: 38px; font-size: 0.86rem;" placeholder="e.g. Molded Carbon Armor Plates · High-Flow Airflow Mesh · 360° Reflective">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="prodDescInput" style="font-weight: 700; font-size: 0.8rem; color: #334155; margin-bottom: 6px; display: block;">
+                Product Description
+              </label>
+              <textarea id="prodDescInput" class="admin-search-input" style="width: 100%; font-size: 0.86rem; line-height: 1.5; padding: 10px 12px;" rows="3" placeholder="Full product details, safety specifications, and riding fit..."></textarea>
+            </div>
           </div>
 
-          <div class="form-group" style="margin-bottom: 18px;">
-            <label class="form-label" for="prodDescInput">Product Description</label>
-            <textarea id="prodDescInput" class="admin-search-input" style="width: 100%;" rows="3" placeholder="Full product details, safety specifications, and riding fit..."></textarea>
-          </div>
-
-          <div style="display: flex; justify-content: flex-end; gap: 10px;">
-            <button type="button" class="btn-admin btn-admin-subtle" onclick="closeProductModal()" style="height: 40px; padding: 0 18px;">
+          <!-- Actions -->
+          <div style="display: flex; justify-content: flex-end; gap: 10px; padding-top: 14px; border-top: 1px solid #e2e8f0;">
+            <button type="button" class="btn-admin btn-admin-subtle" onclick="closeProductModal()" style="height: 42px; padding: 0 20px; font-weight: 600;">
               Cancel
             </button>
-            <button type="submit" class="btn-admin btn-admin-primary" style="height: 40px; padding: 0 22px;">
-              <i class="fas fa-save"></i> Save Product
+            <button type="submit" class="btn-admin btn-admin-primary" style="height: 42px; padding: 0 26px; font-weight: 700; font-size: 0.88rem; box-shadow: 0 4px 12px rgba(37,99,235,0.25);">
+              <i class="fas fa-save" style="margin-right: 6px;"></i> Save Product
             </button>
           </div>
         </form>

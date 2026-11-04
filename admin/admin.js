@@ -1061,8 +1061,8 @@ function renderDesktopTable() {
             <a href="tel:${phoneClean}" class="btn-admin btn-call-sm" style="padding: 6px 10px; font-size: 0.76rem;" title="Call Customer">
               <i class="fas fa-phone"></i>
             </a>
-            <button class="btn-admin btn-admin-subtle" style="padding: 6px 10px; font-size: 0.76rem;" onclick="openOrderModal('${order.id}')" title="Manage Order">
-              <i class="fas fa-sliders"></i>
+            <button class="btn-admin btn-admin-subtle" style="padding: 6px 10px; font-size: 0.76rem;" onclick="openOrderModal('${order.id}')" title="View Order Details">
+              <i class="fas fa-eye"></i>
             </button>
           </div>
         </td>
@@ -1135,7 +1135,7 @@ function renderMobileCards() {
             <i class="fas fa-phone"></i> Call
           </a>
           <button class="btn-admin btn-admin-subtle" onclick="openOrderModal('${order.id}')">
-            <i class="fas fa-sliders"></i> Edit
+            <i class="fas fa-eye"></i> View
           </button>
         </div>
       </div>

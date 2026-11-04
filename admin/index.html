@@ -701,14 +701,11 @@
         </div>
 
         <!-- Action Buttons -->
-        <div style="display: flex; gap: 10px; margin-top: 22px; flex-wrap: wrap;">
-          <button class="btn-admin btn-admin-primary" style="flex: 1.4; height: 42px;" onclick="saveOrderChanges()">
+        <div style="display: flex; gap: 10px; margin-top: 22px;">
+          <button class="btn-admin btn-admin-primary" style="flex: 1; height: 42px;" onclick="saveOrderChanges()">
             <i class="fas fa-save"></i> Save Changes
           </button>
-          <button class="btn-admin btn-admin-subtle" style="flex: 1; height: 42px;" onclick="openReceiptModal(currentSelectedOrder ? currentSelectedOrder.id : null)">
-            <i class="fas fa-receipt"></i> 80mm Receipt
-          </button>
-          <button class="btn-admin btn-admin-subtle" style="height: 42px; color: #ef4444;" onclick="deleteOrder()" title="Delete Order">
+          <button class="btn-admin btn-admin-subtle" style="width: 42px; height: 42px; color: #ef4444; flex-shrink: 0; padding: 0; display: inline-flex; align-items: center; justify-content: center;" onclick="deleteOrder()" title="Delete Order">
             <i class="fas fa-trash"></i>
           </button>
         </div>
@@ -872,7 +869,7 @@
     }
   </style>
 
-  <script src="admin.js?v=3.0"></script>
+  <script src="admin.js?v=3.1"></script>
 
   <!-- ═══ PRODUCT UPLOAD & EDIT MODAL ═════════════════════════════════ -->
   <div class="admin-modal-overlay" id="productModal" onclick="if(event.target===this) closeProductModal()">

@@ -1757,9 +1757,131 @@ button.status-badge:active {
 }
 
 .qs-status-opt.selected {
-  border-color: var(--accent-blue);
-  background: #eff6ff;
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+  border-color: var(--accent-blue) !important;
+  background: #eff6ff !important;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.22), 0 4px 14px rgba(37, 99, 235, 0.12) !important;
+}
+
+/* Prominent highlight for current active order status */
+.qs-status-opt.is-current {
+  border-width: 2px;
+  position: relative;
+}
+
+.qs-status-opt.is-current.current-pending {
+  border-color: #f59e0b;
+  background: linear-gradient(135deg, #ffffff 45%, #fffbeb 100%);
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.16);
+}
+
+.qs-status-opt.is-current.current-confirmed {
+  border-color: #2563eb;
+  background: linear-gradient(135deg, #ffffff 45%, #eff6ff 100%);
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.18);
+}
+
+.qs-status-opt.is-current.current-dispatched {
+  border-color: #9333ea;
+  background: linear-gradient(135deg, #ffffff 45%, #faf5ff 100%);
+  box-shadow: 0 4px 14px rgba(147, 51, 234, 0.16);
+}
+
+.qs-status-opt.is-current.current-delivered {
+  border-color: #10b981;
+  background: linear-gradient(135deg, #ffffff 45%, #f0fdf4 100%);
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.18);
+}
+
+.qs-status-opt.is-current.current-cancelled {
+  border-color: #ef4444;
+  background: linear-gradient(135deg, #ffffff 45%, #fef2f2 100%);
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.16);
+}
+
+.qs-current-tag {
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 2.5px 8px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  line-height: 1.2;
+}
+
+.qs-status-opt.current-pending .qs-current-tag {
+  background: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+.qs-status-opt.current-confirmed .qs-current-tag {
+  background: #dbeafe;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+
+.qs-status-opt.current-dispatched .qs-current-tag {
+  background: #f3e8ff;
+  color: #7e22ce;
+  border: 1px solid #e9d5ff;
+}
+
+.qs-status-opt.current-delivered .qs-current-tag {
+  background: #d1fae5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.qs-status-opt.current-cancelled .qs-current-tag {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+.qs-opt-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.qs-active-pill {
+  font-size: 0.67rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.qs-status-opt.current-pending .qs-active-pill {
+  color: #b45309;
+  background: rgba(245, 158, 11, 0.14);
+}
+
+.qs-status-opt.current-confirmed .qs-active-pill {
+  color: #1d4ed8;
+  background: rgba(37, 99, 235, 0.14);
+}
+
+.qs-status-opt.current-dispatched .qs-active-pill {
+  color: #7e22ce;
+  background: rgba(147, 51, 234, 0.14);
+}
+
+.qs-status-opt.current-delivered .qs-active-pill {
+  color: #047857;
+  background: rgba(16, 185, 129, 0.14);
+}
+
+.qs-status-opt.current-cancelled .qs-active-pill {
+  color: #b91c1c;
+  background: rgba(239, 68, 68, 0.14);
 }
 
 .qs-opt-left {

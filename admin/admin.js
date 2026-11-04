@@ -2031,22 +2031,27 @@ function renderQuickStatusOptions(currentStatus) {
   listEl.innerHTML = STATUS_DEFINITIONS.map(st => {
     const isCurrent = st.id === currentStatus;
     const isSelected = qsSelectedStatus === st.id;
+    const currentClass = isCurrent ? `is-current current-${st.id}` : '';
+    const selectedClass = isSelected ? 'selected' : '';
     return `
-      <button type="button" class="qs-status-opt ${isSelected ? 'selected' : ''}" onclick="selectQuickStatusOption('${st.id}')">
+      <button type="button" class="qs-status-opt ${currentClass} ${selectedClass}" onclick="selectQuickStatusOption('${st.id}')">
         <div class="qs-opt-left">
           <div class="qs-opt-icon" style="background: ${st.iconBg}; color: ${st.iconColor};">
             <i class="fas ${st.icon} fa-fw"></i>
           </div>
           <div>
-            <div class="qs-opt-title" style="display: flex; align-items: center; gap: 6px;">
+            <div class="qs-opt-title" style="display: flex; align-items: center; gap: 8px;">
               <span>${st.label}</span>
-              ${isCurrent ? '<span style="font-size: 0.65rem; background: #f1f5f9; color: #64748b; padding: 2px 6px; border-radius: 4px; font-weight: 700; text-transform: uppercase;">Current</span>' : ''}
+              ${isCurrent ? `<span class="qs-current-tag"><i class="fas fa-check-circle"></i> Current Status</span>` : ''}
             </div>
             <div class="qs-opt-desc">${st.desc}</div>
           </div>
         </div>
-        <div class="qs-opt-check">
-          <i class="fas fa-circle-check"></i>
+        <div class="qs-opt-right">
+          ${isCurrent && !isSelected ? `<span class="qs-active-pill"><i class="fas fa-circle-dot"></i> Active</span>` : ''}
+          <div class="qs-opt-check">
+            <i class="fas fa-circle-check"></i>
+          </div>
         </div>
       </button>
     `;

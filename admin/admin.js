@@ -1352,7 +1352,18 @@ async function downloadReceiptImage() {
       scale: 2.5,
       backgroundColor: '#ffffff',
       useCORS: true,
-      logging: false
+      logging: false,
+      onclone: (clonedDoc) => {
+        const el = clonedDoc.getElementById('receiptPaper');
+        if (el) {
+          el.style.padding = '26px 20px 24px 20px';
+          el.style.margin = '0 auto';
+          el.style.boxSizing = 'border-box';
+          el.style.width = '380px';
+          el.style.maxWidth = '380px';
+          el.style.background = '#ffffff';
+        }
+      }
     });
 
     const a = document.createElement('a');

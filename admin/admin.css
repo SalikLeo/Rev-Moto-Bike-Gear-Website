@@ -1311,7 +1311,7 @@ body::before {
 .receipt-paper-scroll {
   flex: 1;
   overflow-y: auto;
-  padding: 24px 20px 14px;
+  padding: 4px 6px;
   background: #ffffff;
 }
 
@@ -1321,6 +1321,10 @@ body::before {
   font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   line-height: 1.4;
   margin: 0 auto;
+  padding: 26px 20px 24px 20px;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 380px;
 }
 
 .receipt-action-bar {

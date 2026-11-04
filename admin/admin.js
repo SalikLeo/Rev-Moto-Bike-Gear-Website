@@ -1033,13 +1033,25 @@ function renderDesktopTable() {
             <span class="customer-phone">${escapeHtml(order.phone || 'No phone')}</span>
           </div>
         </td>
-        <td style="max-width: 260px;">
-          <div style="font-size: 0.82rem; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${escapeHtml(itemsSummary)}">
-            ${escapeHtml(itemsSummary || 'Standard Order')}
+        <td style="min-width: 180px; max-width: 340px;">
+          <div style="display: flex; flex-direction: column; gap: 3px;">
+            ${(order.items && order.items.length > 0) ? order.items.map(it => `
+              <div style="font-size: 0.82rem; color: #0f172a; font-weight: 600; line-height: 1.35;">
+                <span>${escapeHtml(it.name)}</span>
+                <span style="color: #2563eb; font-weight: 700; font-size: 0.78rem;">(x${it.qty || 1})</span>
+                ${it.size ? `<span style="font-size: 0.72rem; color: #64748b; font-weight: 500;">· ${escapeHtml(it.size)}</span>` : ''}
+              </div>
+            `).join('') : `
+              <div style="font-size: 0.82rem; color: #0f172a; font-weight: 600;">
+                ${escapeHtml(itemsSummary || 'Standard Order')}
+              </div>
+            `}
           </div>
-          <div style="font-size: 0.74rem; color: var(--text-muted);">
-            ${order.items ? order.items.length : 1} item(s) • COD
-          </div>
+          ${(order.items && order.items.length > 1) ? `
+            <div style="font-size: 0.7rem; color: #64748b; margin-top: 3px; font-weight: 600;">
+              ${order.items.reduce((sum, it) => sum + (Number(it.qty) || 1), 0)} items total
+            </div>
+          ` : ''}
         </td>
         <td>
           <span class="order-price-val">${formatPKR(order.total_amount)}</span>

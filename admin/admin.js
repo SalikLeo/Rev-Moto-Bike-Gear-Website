@@ -1245,7 +1245,7 @@ function openReceiptModal(orderId) {
       <h2 style="font-size: 21px; font-weight: 800; letter-spacing: 0.5px; margin: 0; color: #000;">REV MOTO</h2>
       <div style="font-size: 10.5px; font-weight: 700; text-transform: uppercase; margin-top: 3px; letter-spacing: 0.5px; color: #111;">PREMIUM MOTORCYCLE GEAR &amp; PROTECTION</div>
       <div style="font-size: 11px; color: #222; margin-top: 4px;">Sialkot Manufacturing District, Punjab, Pakistan</div>
-      <div style="font-size: 11px; color: #222; margin-top: 2px;">Phone: +92 337 424 9450</div>
+      <div style="font-size: 11px; color: #222; margin-top: 2px;">Phone: 0337-4249450</div>
       <div style="margin-top: 8px;">
         <span style="display: inline-block; border: 1.5px solid #000; padding: 3px 14px; font-weight: 800; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #000;">
           ${escapeHtml(order.payment_method || 'CASH ON DELIVERY')}

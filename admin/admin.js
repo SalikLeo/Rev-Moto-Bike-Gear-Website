@@ -1,3 +1,25 @@
+function formatProductBadge(badge) {
+  if (!badge) return '';
+  const b = badge.toLowerCase();
+  let bg = '#eff6ff', color = '#1d4ed8', border = '#bfdbfe';
+  if (b.includes('flagship') || b.includes('cyber')) {
+    bg = '#eff6ff'; color = '#1d4ed8'; border = '#bfdbfe';
+  } else if (b.includes('carbon') || b.includes('knuckle')) {
+    bg = '#ecfeff'; color = '#0e7490'; border = '#a5f3fc';
+  } else if (b.includes('18l') || b.includes('modular') || b.includes('bag')) {
+    bg = '#fffbeb'; color = '#b45309'; border = '#fde68a';
+  } else if (b.includes('ce') || b.includes('hip') || b.includes('knee')) {
+    bg = '#f5f3ff'; color = '#6d28d9'; border = '#ddd6fe';
+  } else if (b.includes('fog') || b.includes('vent') || b.includes('mask')) {
+    bg = '#ecfdf5'; color = '#047857'; border = '#a7f3d0';
+  } else if (b.includes('short') || b.includes('titanium')) {
+    bg = '#fdf2f8'; color = '#be185d'; border = '#fbcfe8';
+  } else if (b.includes('quick') || b.includes('dry') || b.includes('tee')) {
+    bg = '#fff7ed'; color = '#c2410c'; border = '#fed7aa';
+  }
+  return `<span style="font-size: 0.65rem; background: ${bg}; color: ${color}; border: 1px solid ${border}; padding: 2px 7px; border-radius: 5px; font-weight: 700; margin-left: 6px; display: inline-block;">${escapeHtml(badge)}</span>`;
+}
+
 function resolveAdminImgPath(src) {
   if (!src) return '../assets/images/logo.png';
   if (src.startsWith('http://') || src.startsWith('https://') || src.startsWith('data:') || src.startsWith('../')) {
@@ -3288,7 +3310,7 @@ function renderProductsView() {
             </td>
             <td>
               <strong style="color: var(--text-pure); font-size: 0.88rem;">${escapeHtml(p.name)}</strong>
-              ${p.badge ? `<span style="font-size: 0.65rem; background: #eff6ff; color: #2563eb; padding: 2px 6px; border-radius: 4px; font-weight: 700; margin-left: 6px;">${escapeHtml(p.badge)}</span>` : ''}
+              ${formatProductBadge(p.badge)}
               <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 2px;">${escapeHtml(p.tagline || '')}</div>
             </td>
             <td>
@@ -3311,10 +3333,10 @@ function renderProductsView() {
             </td>
             <td style="text-align: right;">
               <div style="display: flex; gap: 6px; justify-content: flex-end;">
-                <button class="btn-admin btn-admin-subtle" style="padding: 6px 10px; font-size: 0.76rem;" onclick="openProductModal('${escapeHtml(p.id)}')" title="Edit Product">
-                  <i class="fas fa-edit text-cyan"></i> Edit
+                <button class="btn-table-edit" onclick="openProductModal('${escapeHtml(p.id)}')" title="Edit Product">
+                  <i class="fas fa-edit"></i> Edit
                 </button>
-                <button class="btn-admin btn-admin-subtle" style="padding: 6px 10px; font-size: 0.76rem; color: #ef4444;" onclick="deleteProduct('${escapeHtml(p.id)}')" title="Delete Product">
+                <button class="btn-table-delete" onclick="deleteProduct('${escapeHtml(p.id)}')" title="Delete Product">
                   <i class="fas fa-trash"></i>
                 </button>
               </div>

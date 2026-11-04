@@ -1584,7 +1584,9 @@
   backface-visibility: hidden;
 }
 
-/* ── Page Header Sections (Contact & About) Top Spacing ── */
+/* ── Page Header Sections (Checkout, Cart, Contact & About) Top Spacing ── */
+.checkout-section,
+.cart-page-section,
 .contact-main-section {
   padding: 140px 0 100px;
 }
@@ -1593,12 +1595,19 @@
   padding: 140px 0 90px;
 }
 
+.checkout-header-wrap,
+.cart-header-wrap {
+  margin-bottom: 28px;
+}
+
 .contact-header-wrap {
   margin-bottom: 40px;
   max-width: 620px;
 }
 
 @media (max-width: 991px) {
+  .checkout-section,
+  .cart-page-section,
   .contact-main-section,
   .about-main-section {
     padding: 85px 0 50px !important;
@@ -1606,15 +1615,30 @@
   .contact-header-wrap {
     margin-bottom: 24px;
   }
+  .checkout-header-wrap,
+  .cart-header-wrap {
+    margin-bottom: 20px;
+  }
 }
 
 @media (max-width: 768px) {
+  .checkout-section,
+  .cart-page-section,
   .contact-main-section,
   .about-main-section {
     padding: 78px 0 40px !important;
   }
   .contact-support-card {
     padding: 22px 18px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .checkout-section,
+  .cart-page-section,
+  .contact-main-section,
+  .about-main-section {
+    padding: 75px 0 35px !important;
   }
 }
 

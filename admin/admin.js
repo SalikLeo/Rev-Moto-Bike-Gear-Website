@@ -342,6 +342,24 @@ function formatPKR(val) {
   return 'Rs. ' + num.toLocaleString('en-PK');
 }
 
+function formatOrderDateTime(isoString) {
+  if (!isoString) return '—';
+  try {
+    const d = new Date(isoString);
+    if (isNaN(d.getTime())) return String(isoString);
+    return d.toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    });
+  } catch (e) {
+    return String(isoString);
+  }
+}
+
 function formatTimeAgo(isoString) {
   if (!isoString) return '';
   const diff = Date.now() - new Date(isoString).getTime();
@@ -1007,7 +1025,7 @@ function renderDesktopTable() {
       <tr>
         <td>
           <a class="order-id-link" onclick="openOrderModal('${order.id}')">#${order.id}</a>
-          <div style="font-size: 0.72rem; color: var(--text-muted);">${formatTimeAgo(order.created_at)}</div>
+          <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 2px; white-space: nowrap;">${formatOrderDateTime(order.created_at)}</div>
         </td>
         <td>
           <div class="customer-meta-row">
@@ -1081,7 +1099,7 @@ function renderMobileCards() {
         <div class="m-order-header">
           <div>
             <span class="m-order-id" onclick="openOrderModal('${order.id}')">#${order.id}</span>
-            <span class="m-order-time">• ${formatTimeAgo(order.created_at)}</span>
+            <span class="m-order-time">• ${formatOrderDateTime(order.created_at)}</span>
           </div>
           <button type="button" class="status-badge ${order.status || 'pending'} status-badge-btn" onclick="openQuickStatusModal('${order.id}')" title="Click to change status">
             ${order.status || 'pending'}
@@ -2325,7 +2343,7 @@ function renderCustomersView() {
               <strong style="color: var(--accent-blue); font-size: 0.88rem;">${formatPKR(c.totalSpent)}</strong>
             </td>
             <td>
-              <span style="font-size: 0.78rem; color: var(--text-secondary);">${formatTimeAgo(c.lastOrderDate.toISOString())}</span>
+              <span style="font-size: 0.76rem; color: var(--text-secondary);">${formatOrderDateTime(c.lastOrderDate)}</span>
             </td>
             <td style="text-align: right;">
               <button class="btn-admin btn-admin-subtle" style="padding: 6px 10px; font-size: 0.76rem;" onclick="viewCustomerOrders('${escapeHtml(c.name)}')" title="Filter orders for this rider">
@@ -3088,7 +3106,7 @@ function renderSalesView() {
               </div>
             </td>
             <td>
-              <span style="font-size: 0.76rem; color: var(--text-secondary);">${formatTimeAgo(item.lastSoldAt)}</span>
+              <span style="font-size: 0.76rem; color: var(--text-secondary);">${formatOrderDateTime(item.lastSoldAt)}</span>
             </td>
           </tr>
         `;

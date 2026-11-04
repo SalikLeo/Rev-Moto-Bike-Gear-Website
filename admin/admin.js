@@ -477,6 +477,55 @@ function setupRealtimeSubscription() {
   }
 }
 
+// ── INVOICE NUMBER SEQUENCING & NORMALIZATION ──────────────
+function getNextInvoiceId(orders) {
+  let maxNum = 0;
+  (orders || []).forEach(o => {
+    if (o && o.id) {
+      const match = String(o.id).match(/^INV-(\d+)$/i);
+      if (match) {
+        const n = parseInt(match[1], 10);
+        if (!isNaN(n) && n > maxNum) maxNum = n;
+      }
+    }
+  });
+  return 'INV-' + (maxNum + 1);
+}
+
+function normalizeInvoiceNumbers(orders) {
+  if (!Array.isArray(orders) || orders.length === 0) return orders;
+
+  const needsMigration = orders.some(o => !o.id || !String(o.id).startsWith('INV-'));
+  if (!needsMigration) return orders;
+
+  // Clone array and sort chronologically ascending (earliest order gets INV-1)
+  const sorted = [...orders].sort((a, b) => {
+    const da = new Date(a.created_at || 0).getTime();
+    const db = new Date(b.created_at || 0).getTime();
+    return da - db;
+  });
+
+  sorted.forEach((order, index) => {
+    if (!order.legacy_id) {
+      order.legacy_id = order.id;
+    }
+    order.id = 'INV-' + (index + 1);
+  });
+
+  // Re-sort descending (newest order first for UI)
+  sorted.sort((a, b) => {
+    const da = new Date(a.created_at || 0).getTime();
+    const db = new Date(b.created_at || 0).getTime();
+    return db - da;
+  });
+
+  try {
+    localStorage.setItem('rm_orders', JSON.stringify(sorted));
+  } catch (e) {}
+
+  return sorted;
+}
+
 async function fetchOrders() {
   if (supabaseClient) {
     try {
@@ -498,14 +547,15 @@ async function fetchOrders() {
   const stored = localStorage.getItem('rm_orders');
   if (stored) {
     try {
-      ordersList = JSON.parse(stored);
-      if (!Array.isArray(ordersList) || ordersList.length < 5) {
+      const parsed = JSON.parse(stored);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        ordersList = normalizeInvoiceNumbers(parsed);
+      } else {
         ordersList = DEFAULT_SAMPLE_ORDERS;
         saveLocalOrders(ordersList);
-      } else {
-        ordersList = normalizeInvoiceNumbers(ordersList);
       }
     } catch (e) {
+      console.error('Failed to parse rm_orders from localStorage:', e);
       ordersList = DEFAULT_SAMPLE_ORDERS;
       saveLocalOrders(ordersList);
     }
@@ -1407,7 +1457,7 @@ async function saveOrderChanges() {
     }
   }
 
-  const idx = ordersList.findIndex(o => String(o.id) === String(targetId));
+  const idx = ordersList.findIndex(o => String(o.id) === String(targetId) || (o.legacy_id && String(o.legacy_id) === String(targetId)));
   if (idx !== -1) {
     ordersList[idx].status = newStatus;
     saveLocalOrders(ordersList);
@@ -1432,7 +1482,7 @@ async function deleteOrder() {
     }
   }
 
-  ordersList = ordersList.filter(o => String(o.id) !== String(targetId));
+  ordersList = ordersList.filter(o => String(o.id) !== String(targetId) && (!o.legacy_id || String(o.legacy_id) !== String(targetId)));
   saveLocalOrders(ordersList);
 
   showToast(`Order #${targetId} deleted.`, 'info');
@@ -2322,7 +2372,7 @@ async function executeQuickStatusChange() {
     }
   }
 
-  const idx = ordersList.findIndex(o => String(o.id) === String(targetId));
+  const idx = ordersList.findIndex(o => String(o.id) === String(targetId) || (o.legacy_id && String(o.legacy_id) === String(targetId)));
   if (idx !== -1) {
     ordersList[idx].status = newStatus;
     saveLocalOrders(ordersList);

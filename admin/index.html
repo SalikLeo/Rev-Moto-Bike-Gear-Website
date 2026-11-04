@@ -21,8 +21,11 @@
   <!-- Supabase JS Client v2 CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+  <!-- html2canvas for 80mm Receipt Image Generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
   <!-- Admin Portal CSS -->
-  <link rel="stylesheet" href="admin.css?v=1.3">
+  <link rel="stylesheet" href="admin.css?v=1.4">
 </head>
 <body>
 
@@ -136,12 +139,34 @@
         <!-- Rendered by admin.js -->
       </div>
 
-      <!-- Quick Search -->
-      <div class="search-input-wrapper">
-        <i class="fas fa-search"></i>
-        <input type="text" id="adminSearchInput" class="admin-search-input" placeholder="Search Order #, customer, phone, city..." autocomplete="off">
+      <!-- Controls Right Group: Time Filter & Search -->
+      <div class="controls-right-group">
+        <!-- Time Filter Dropdown (Monthly, Annual, etc.) -->
+        <div class="time-filter-wrapper">
+          <i class="fas fa-calendar-alt"></i>
+          <select id="timeFilterSelect" class="time-filter-select" onchange="handleTimeFilterChange(this.value)" title="Filter orders by time period">
+            <option value="all">All Time</option>
+            <option value="today">Today</option>
+            <option value="yesterday">Yesterday</option>
+            <option value="this_week">This Week</option>
+            <option value="this_month">This Month</option>
+            <option value="last_month">Last Month</option>
+            <option value="this_year">This Year (Annual)</option>
+            <option value="last_year">Last Year</option>
+            <option value="custom">Specific Month...</option>
+          </select>
+          <input type="month" id="customMonthInput" class="custom-month-input" style="display: none;" onchange="handleCustomMonthChange(this.value)" title="Choose specific year and month">
+        </div>
+
+        <!-- Quick Search -->
+        <div class="search-input-wrapper">
+          <i class="fas fa-search"></i>
+          <input type="text" id="adminSearchInput" class="admin-search-input" placeholder="Search Order #, customer, phone, city..." autocomplete="off">
+        </div>
       </div>
     </section>
+
+    <div id="ordersAnchor"></div>
 
     <!-- ── DESKTOP ORDERS TABLE (Visible on > 860px) ── -->
     <section class="desktop-table-container">
@@ -166,6 +191,11 @@
     <section class="mobile-orders-container" id="mobileOrdersContainer">
       <!-- Rendered by admin.js -->
     </section>
+
+    <!-- ── PAGINATION CONTROLS ── -->
+    <div class="pagination-wrapper" id="paginationWrapper">
+      <!-- Rendered by admin.js -->
+    </div>
 
   </main>
 
@@ -230,8 +260,8 @@
           <button class="btn-admin btn-admin-primary" style="flex: 1.4; height: 42px;" onclick="saveOrderChanges()">
             <i class="fas fa-save"></i> Save Changes
           </button>
-          <button class="btn-admin btn-admin-subtle" style="flex: 1; height: 42px;" onclick="printPackingSlip()">
-            <i class="fas fa-print"></i> Packing Slip
+          <button class="btn-admin btn-admin-subtle" style="flex: 1; height: 42px;" onclick="openReceiptModal(currentSelectedOrder ? currentSelectedOrder.id : null)">
+            <i class="fas fa-receipt"></i> 80mm Receipt
           </button>
           <button class="btn-admin btn-admin-subtle" style="height: 42px; color: #ef4444;" onclick="deleteOrder()" title="Delete Order">
             <i class="fas fa-trash"></i>
@@ -292,6 +322,33 @@
     </div>
   </div>
 
+  <!-- ═══ 80MM THERMAL RECEIPT MODAL ════════════════════════════════ -->
+  <div class="admin-modal-overlay" id="receiptModal" onclick="if(event.target===this) closeReceiptModal()">
+    <div class="receipt-modal-wrapper">
+      <button class="receipt-close-btn" onclick="closeReceiptModal()" aria-label="Close Receipt"><i class="fas fa-times"></i></button>
+
+      <!-- 80mm thermal paper printable area -->
+      <div class="receipt-paper-scroll">
+        <div class="receipt-paper" id="receiptPaper">
+          <!-- Rendered dynamically by admin.js -->
+        </div>
+      </div>
+
+      <!-- Action buttons matching reference image: DOWNLOAD, WHATSAPP, PRINT -->
+      <div class="receipt-action-bar">
+        <button class="btn-receipt btn-receipt-download" onclick="downloadReceiptImage()" title="Download as Image">
+          <i class="fas fa-download"></i> DOWNLOAD
+        </button>
+        <button class="btn-receipt btn-receipt-whatsapp" onclick="shareReceiptWhatsApp()" title="Send Receipt on WhatsApp">
+          <i class="fab fa-whatsapp"></i> WHATSAPP
+        </button>
+        <button class="btn-receipt btn-receipt-print" onclick="printThermalReceipt()" title="Print on 80mm Thermal Printer">
+          <i class="fas fa-print"></i> PRINT
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- ═══ TOAST NOTIFICATION ═════════════════════════════════════════ -->
   <div id="adminToast" class="admin-toast"></div>
 
@@ -301,6 +358,6 @@
     }
   </style>
 
-  <script src="admin.js?v=1.3"></script>
+  <script src="admin.js?v=1.4"></script>
 </body>
 </html>

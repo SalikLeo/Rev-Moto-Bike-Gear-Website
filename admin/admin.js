@@ -858,7 +858,7 @@ function renderFilterTabs() {
   ];
 
   container.innerHTML = filters.map(f => `
-    <button class="filter-pill-btn ${activeFilter === f.key ? 'active' : ''}" onclick="setFilter('${f.key}', this)">
+    <button class="filter-pill-btn status-${f.key} ${activeFilter === f.key ? 'active' : ''}" onclick="setFilter('${f.key}', this)">
       ${f.label}
       <span class="filter-count-badge">${counts[f.key] || 0}</span>
     </button>

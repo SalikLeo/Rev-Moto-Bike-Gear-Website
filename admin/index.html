@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Rev Moto — Order Management Admin Portal</title>
+  <meta name="description" content="Modern responsive order management portal for Rev Moto. Manage customer orders, track COD deliveries, and connect with riders.">
+  <meta name="theme-color" content="#080c14">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="../assets/images/logo.png">
+
+  <!-- Google Fonts: Space Grotesk & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- Supabase JS Client v2 CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- Admin Portal CSS -->
+  <link rel="stylesheet" href="admin.css?v=1.0">
+</head>
+<body>
+
+  <!-- ═══ TOP ADMIN NAVBAR ════════════════════════════════════════════ -->
+  <header class="admin-navbar">
+    <div class="admin-nav-container">
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <a href="index.html" class="admin-brand">
+          <img src="../assets/images/logo.png" alt="REV MOTO" class="admin-logo-img">
+          <div class="admin-brand-text">
+            REV<span>MOTO</span>
+            <span class="admin-badge-pill">ADMIN</span>
+          </div>
+        </a>
+      </div>
+
+      <div class="admin-nav-actions">
+        <!-- Live / Demo Indicator -->
+        <div id="connectionStatusPill" class="status-indicator demo" onclick="openSupabaseModal()" title="Click to configure Supabase database">
+          <span class="status-dot"></span> Local Storage (Demo)
+        </div>
+
+        <!-- Add Test Order -->
+        <button class="btn-admin btn-admin-subtle" onclick="simulateTestOrder()" title="Simulate a new incoming customer order">
+          <i class="fas fa-plus"></i> <span class="hide-on-mobile">Test Order</span>
+        </button>
+
+        <!-- Sound Alert Toggle -->
+        <button class="admin-icon-btn active" id="soundToggleBtn" onclick="toggleSound()" title="Toggle Order Sound Chime">
+          <i class="fas fa-volume-up"></i>
+        </button>
+
+        <!-- Supabase Settings -->
+        <button class="admin-icon-btn" onclick="openSupabaseModal()" title="Supabase Database Settings">
+          <i class="fas fa-database"></i>
+        </button>
+
+        <!-- Back to Storefront Link -->
+        <a href="../index.html" class="admin-icon-btn" title="View Customer Storefront" target="_blank">
+          <i class="fas fa-external-link-alt"></i>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══ MAIN DASHBOARD CONTENT ═════════════════════════════════════ -->
+  <main class="admin-main">
+
+    <!-- Supabase Setup Banner (Hidden once connected) -->
+    <div class="setup-banner" id="supabaseSetupBanner">
+      <div class="setup-banner-text">
+        <i class="fas fa-bolt"></i>
+        <div>
+          <strong>Running in Local Storage Mode</strong> — Realtime orders are currently stored in your browser. Connect free <strong>Supabase PostgreSQL</strong> to sync live orders across all devices.
+        </div>
+      </div>
+      <div class="setup-banner-actions">
+        <button class="btn-admin btn-admin-primary" onclick="openSupabaseModal()">
+          <i class="fas fa-plug"></i> Connect Supabase
+        </button>
+      </div>
+    </div>
+
+    <!-- ── METRICS OVERVIEW CARDS ── -->
+    <section class="metrics-grid">
+      <!-- Total Revenue -->
+      <div class="metric-card">
+        <div class="metric-label">
+          <span>Total COD Volume</span>
+          <div class="metric-icon-wrap rev"><i class="fas fa-coins"></i></div>
+        </div>
+        <div class="metric-value" id="metricRevenueVal">Rs. 0</div>
+        <div class="metric-sub">Confirmed &amp; Delivered Orders</div>
+      </div>
+
+      <!-- Total Orders -->
+      <div class="metric-card">
+        <div class="metric-label">
+          <span>Total Orders</span>
+          <div class="metric-icon-wrap orders"><i class="fas fa-boxes-stacked"></i></div>
+        </div>
+        <div class="metric-value" id="metricOrdersVal">0</div>
+        <div class="metric-sub">All-time order count</div>
+      </div>
+
+      <!-- Pending Confirmation -->
+      <div class="metric-card">
+        <div class="metric-label">
+          <span>Pending Confirmation</span>
+          <div class="metric-icon-wrap pending"><i class="fas fa-clock"></i></div>
+        </div>
+        <div class="metric-value" id="metricPendingVal">0</div>
+        <div class="metric-sub">Requires WhatsApp/Call check</div>
+      </div>
+
+      <!-- Dispatched / In Transit -->
+      <div class="metric-card">
+        <div class="metric-label">
+          <span>Dispatched / In Transit</span>
+          <div class="metric-icon-wrap dispatched"><i class="fas fa-truck-fast"></i></div>
+        </div>
+        <div class="metric-value" id="metricDispatchedVal">0</div>
+        <div class="metric-sub">Booked with Courier</div>
+      </div>
+    </section>
+
+    <!-- ── FILTER CONTROLS & SEARCH ── -->
+    <section class="controls-bar">
+      <!-- Status Filter Tabs -->
+      <div class="filter-tabs-track" id="filterTabsTrack">
+        <!-- Rendered by admin.js -->
+      </div>
+
+      <!-- Quick Search -->
+      <div class="search-input-wrapper">
+        <i class="fas fa-search"></i>
+        <input type="text" id="adminSearchInput" class="admin-search-input" placeholder="Search Order #, customer, phone, city..." autocomplete="off">
+      </div>
+    </section>
+
+    <!-- ── DESKTOP ORDERS TABLE (Visible on > 860px) ── -->
+    <section class="desktop-table-container">
+      <table class="admin-orders-table">
+        <thead>
+          <tr>
+            <th>Order # / Date</th>
+            <th>Customer</th>
+            <th>Items</th>
+            <th>Amount (COD)</th>
+            <th>Status</th>
+            <th style="text-align: right;">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="desktopOrdersTableBody">
+          <!-- Rendered by admin.js -->
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ── MOBILE ORDERS CARD LIST (Visible on <= 860px) ── -->
+    <section class="mobile-orders-container" id="mobileOrdersContainer">
+      <!-- Rendered by admin.js -->
+    </section>
+
+  </main>
+
+  <!-- ═══ ORDER DETAIL & COURIER MANAGEMENT MODAL ════════════════════ -->
+  <div class="admin-modal-overlay" id="orderDetailModal" onclick="if(event.target===this) closeOrderModal()">
+    <div class="admin-modal-content">
+      <div class="admin-modal-header">
+        <div class="admin-modal-title">
+          <i class="fas fa-file-invoice text-cyan"></i>
+          <span>Order Details <span id="modalOrderId" style="color: var(--accent-cyan);"></span></span>
+        </div>
+        <button class="admin-modal-close" onclick="closeOrderModal()"><i class="fas fa-times"></i></button>
+      </div>
+
+      <div class="admin-modal-body">
+        <!-- Customer & Delivery Summary -->
+        <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 14px; margin-bottom: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
+            <strong style="font-size: 1.05rem; color: var(--text-pure);" id="modalCustomerName">—</strong>
+            <span style="font-size: 0.78rem; color: var(--text-muted);" id="modalPaymentMethod">Cash on Delivery</span>
+          </div>
+          <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 4px;">
+            <i class="fas fa-phone" style="width: 18px; color: var(--accent-cyan);"></i> <span id="modalPhone">—</span>
+          </div>
+          <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 4px;">
+            <i class="fas fa-envelope" style="width: 18px; color: var(--accent-cyan);"></i> <span id="modalEmail">—</span>
+          </div>
+          <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 6px;">
+            <i class="fas fa-map-marker-alt" style="width: 18px; color: var(--accent-cyan);"></i> <span id="modalAddress">—</span>
+          </div>
+          <div style="font-size: 0.8rem; color: var(--text-muted); font-style: italic; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 6px; margin-top: 6px;">
+            <i class="fas fa-comment-dots"></i> <span id="modalNotes">No notes.</span>
+          </div>
+        </div>
+
+        <!-- Ordered Items -->
+        <div class="modal-section-title"><i class="fas fa-vest"></i> Items in this Order</div>
+        <div class="order-items-detail-list" id="modalItemsList">
+          <!-- Rendered by admin.js -->
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 18px; padding: 10px 14px; background: rgba(37,99,235,0.08); border: 1px solid rgba(37,99,235,0.25); border-radius: var(--radius-sm);">
+          <span style="font-size: 0.88rem; font-weight: 700; color: var(--text-secondary);">Total Collectible (COD):</span>
+          <span style="font-family: var(--font-display); font-size: 1.35rem; font-weight: 800; color: var(--accent-cyan);" id="modalTotal">Rs. 0</span>
+        </div>
+
+        <!-- Order Workflow & Status -->
+        <div class="modal-section-title"><i class="fas fa-tasks"></i> Update Order Status</div>
+        <div class="form-group">
+          <label class="form-label" for="orderStatusSelect">Pipeline Status</label>
+          <select id="orderStatusSelect" class="form-control-select">
+            <option value="pending">⏳ Pending Confirmation (Call Required)</option>
+            <option value="confirmed">📞 Call Confirmed (Ready to Pack)</option>
+            <option value="dispatched">🚚 Dispatched / In Transit (With Courier)</option>
+            <option value="delivered">✅ Delivered &amp; Paid (Completed)</option>
+            <option value="cancelled">❌ Cancelled / Returned</option>
+          </select>
+        </div>
+
+        <!-- Courier Booking Info -->
+        <div class="modal-section-title" style="margin-top: 16px;"><i class="fas fa-shipping-fast"></i> Courier Logistics</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label class="form-label" for="orderCourierSelect">Courier Partner</label>
+            <select id="orderCourierSelect" class="form-control-select">
+              <option value="">Select Courier...</option>
+              <option value="TCS Express">TCS Express</option>
+              <option value="Leopard Courier">Leopard Courier</option>
+              <option value="Trax Logistics">Trax Logistics</option>
+              <option value="Call Courier">Call Courier</option>
+              <option value="M&amp;P">M&amp;P Courier</option>
+              <option value="Local Sialkot Rider">Local Sialkot Rider</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="orderTrackingInput">Tracking Number / CN</label>
+            <input type="text" id="orderTrackingInput" class="form-control-input" placeholder="e.g. 77489201">
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div style="display: flex; gap: 10px; margin-top: 22px; flex-wrap: wrap;">
+          <button class="btn-admin btn-admin-primary" style="flex: 1.4; height: 42px;" onclick="saveOrderChanges()">
+            <i class="fas fa-save"></i> Save Changes
+          </button>
+          <button class="btn-admin btn-admin-subtle" style="flex: 1; height: 42px;" onclick="printPackingSlip()">
+            <i class="fas fa-print"></i> Packing Slip
+          </button>
+          <button class="btn-admin btn-admin-subtle" style="height: 42px; color: #ef4444;" onclick="deleteOrder()" title="Delete Order">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SUPABASE DATABASE CONFIG MODAL ═════════════════════════════ -->
+  <div class="admin-modal-overlay" id="supabaseConfigModal" onclick="if(event.target===this) closeSupabaseModal()">
+    <div class="admin-modal-content">
+      <div class="admin-modal-header">
+        <div class="admin-modal-title">
+          <i class="fas fa-database text-cyan"></i>
+          <span>Supabase Database Setup</span>
+        </div>
+        <button class="admin-modal-close" onclick="closeSupabaseModal()"><i class="fas fa-times"></i></button>
+      </div>
+
+      <div class="admin-modal-body">
+        <p style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px;">
+          Connect your free <a href="https://supabase.com" target="_blank" rel="noopener" style="color: var(--accent-cyan); font-weight: 700;">Supabase</a> project. Once connected, customer orders from the storefront will arrive in real time across all devices.
+        </p>
+
+        <div class="form-group">
+          <label class="form-label" for="cfgSupabaseUrl">Supabase Project URL</label>
+          <input type="text" id="cfgSupabaseUrl" class="form-control-input" placeholder="https://xyzcompany.supabase.co">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="cfgSupabaseAnon">Supabase Anon Public API Key</label>
+          <input type="password" id="cfgSupabaseAnon" class="form-control-input" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
+        </div>
+
+        <!-- Quick 1-Click SQL Setup -->
+        <div style="background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 14px; margin: 18px 0;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <span style="font-size: 0.78rem; font-weight: 800; text-transform: uppercase; color: var(--accent-cyan);">Database Table Schema</span>
+            <button class="btn-admin btn-admin-subtle" style="padding: 4px 10px; font-size: 0.75rem;" onclick="copySqlSchema()">
+              <i class="fas fa-copy"></i> Copy SQL
+            </button>
+          </div>
+          <div style="font-size: 0.78rem; color: var(--text-muted); line-height: 1.5;">
+            In your Supabase project, go to <strong>SQL Editor</strong> &rarr; <strong>New Query</strong>, paste this SQL and click <strong>Run</strong>.
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+          <button class="btn-admin btn-admin-primary" style="flex: 1; height: 42px;" onclick="saveSupabaseConfig()">
+            <i class="fas fa-check"></i> Save &amp; Connect
+          </button>
+          <button class="btn-admin btn-admin-subtle" style="height: 42px;" onclick="closeSupabaseModal()">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ TOAST NOTIFICATION ═════════════════════════════════════════ -->
+  <div id="adminToast" class="admin-toast"></div>
+
+  <style>
+    @media (max-width: 600px) {
+      .hide-on-mobile { display: none !important; }
+    }
+  </style>
+
+  <script src="admin.js?v=1.0"></script>
+</body>
+</html>

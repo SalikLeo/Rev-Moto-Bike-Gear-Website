@@ -256,6 +256,8 @@
             <a href="privacy.html">Privacy</a>
             <span style="color: rgba(255, 255, 255, 0.2);">&bull;</span>
             <a href="contact.html">Support</a>
+            <span style="color: rgba(255, 255, 255, 0.2);">&bull;</span>
+            <a href="admin/" style="opacity: 0.65;"><i class="fas fa-lock" style="font-size: 0.72rem; margin-right: 4px;"></i>Admin</a>
           </div>
         </div>
       </div>

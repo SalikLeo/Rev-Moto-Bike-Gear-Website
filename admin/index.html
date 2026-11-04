@@ -342,17 +342,19 @@
           </div>
 
           <div class="status-filters" id="prodCategoryPills">
+            <!-- Dynamically populated from getAdminCategories() -->
             <button class="filter-tab active" onclick="filterProductsByCategory('all', this)">All</button>
-            <button class="filter-tab" onclick="filterProductsByCategory('jackets', this)">Jackets</button>
-            <button class="filter-tab" onclick="filterProductsByCategory('gloves', this)">Gloves</button>
-            <button class="filter-tab" onclick="filterProductsByCategory('packs', this)">Bags</button>
-            <button class="filter-tab" onclick="filterProductsByCategory('masks', this)">Masks</button>
           </div>
         </div>
 
-        <button class="btn-admin btn-admin-primary" style="height: 36px; padding: 0 14px;" onclick="openProductModal()" title="Add a new product to store catalog">
-          <i class="fas fa-plus"></i> Add New Product
-        </button>
+        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+          <button type="button" class="btn-admin" style="height: 36px; padding: 0 13px; font-weight: 700; background: #eff6ff; color: #2563eb; border: 1.5px solid #bfdbfe; font-size: 0.82rem; border-radius: 8px; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; transition: all 0.2s ease;" onclick="openCategoryManagerModal()" title="Manage store gear categories">
+            <i class="fas fa-tags"></i> Manage Categories
+          </button>
+          <button type="button" class="btn-admin btn-admin-primary" style="height: 36px; padding: 0 14px;" onclick="openProductModal()" title="Add a new product to store catalog">
+            <i class="fas fa-plus"></i> Add New Product
+          </button>
+        </div>
       </div>
 
       <!-- Desktop Products Table -->
@@ -869,7 +871,61 @@
     }
   </style>
 
-  <script src="admin.js?v=3.1"></script>
+  <script src="admin.js?v=3.2"></script>
+
+  
+  <!-- ═══ CATEGORY MANAGEMENT MODAL ═══════════════════════════════════ -->
+  <div class="admin-modal-overlay" id="categoryManagerModal" onclick="if(event.target===this) closeCategoryManagerModal()">
+    <div class="admin-modal-content" style="max-width: 520px;">
+      <div class="admin-modal-header" style="padding: 14px 18px;">
+        <div class="admin-modal-title" style="font-size: 1.05rem;">
+          <i class="fas fa-tags" style="color: var(--accent-blue);"></i>
+          <span>Manage Gear Categories</span>
+        </div>
+        <button class="admin-modal-close" onclick="closeCategoryManagerModal()" title="Close"><i class="fas fa-times"></i></button>
+      </div>
+
+      <div class="admin-modal-body" style="padding: 18px 20px;">
+        <!-- Add New Category Form Box -->
+        <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: var(--radius-sm); padding: 14px; margin-bottom: 16px;">
+          <div style="font-size: 0.76rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); margin-bottom: 10px;">
+            <i class="fas fa-plus-circle" style="color: var(--accent-blue);"></i> Add New Category
+          </div>
+          <form id="addCategoryForm" onsubmit="handleCreateCategory(event)">
+            <div style="display: grid; grid-template-columns: 1.4fr 1fr; gap: 10px; margin-bottom: 10px;">
+              <div>
+                <label style="font-size: 0.74rem; font-weight: 700; color: var(--text-secondary); display: block; margin-bottom: 4px;">Category Full Name *</label>
+                <input type="text" id="newCatLabelInput" class="admin-search-input" placeholder="e.g. Helmets &amp; Visors" style="width: 100%;" required oninput="autoSuggestCatSlug()">
+              </div>
+              <div>
+                <label style="font-size: 0.74rem; font-weight: 700; color: var(--text-secondary); display: block; margin-bottom: 4px;">Pill Label (Short) *</label>
+                <input type="text" id="newCatShortInput" class="admin-search-input" placeholder="e.g. Helmets" style="width: 100%;" required>
+              </div>
+            </div>
+            <button type="submit" class="btn-admin btn-admin-primary" style="height: 38px; width: 100%; font-weight: 700;">
+              <i class="fas fa-plus"></i> Add Category
+            </button>
+          </form>
+        </div>
+
+        <!-- Categories List -->
+        <div style="font-size: 0.76rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+          <span>Active Categories (<span id="catManagerCount">0</span>)</span>
+          <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 500; text-transform: none;">Manage pills &amp; catalog tags</span>
+        </div>
+
+        <div id="categoryManagerList" style="display: flex; flex-direction: column; gap: 8px; max-height: 280px; overflow-y: auto;">
+          <!-- Dynamically populated by admin.js -->
+        </div>
+      </div>
+
+      <div style="padding: 12px 18px; border-top: 1px solid var(--border-subtle); background: #f8fafc; text-align: right;">
+        <button type="button" class="btn-admin btn-admin-primary" onclick="closeCategoryManagerModal()" style="height: 36px; padding: 0 18px;">
+          Done
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- ═══ PRODUCT UPLOAD & EDIT MODAL ═════════════════════════════════ -->
   <div class="admin-modal-overlay" id="productModal" onclick="if(event.target===this) closeProductModal()">

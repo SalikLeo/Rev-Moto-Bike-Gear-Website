@@ -3158,6 +3158,248 @@ function handleSalesSortChange() {
 }
 
 // ═══════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
+// CATEGORY MANAGEMENT DATA LAYER & ACTIONS
+// ═══════════════════════════════════════════════════════════════
+const DEFAULT_CATEGORIES = [
+  { id: 'jackets', label: 'Riding Jackets', shortName: 'Jackets' },
+  { id: 'gloves', label: 'Motorcycle Gloves', shortName: 'Gloves' },
+  { id: 'packs', label: 'Bags & Packs', shortName: 'Bags' },
+  { id: 'masks', label: 'Face Masks & Balaclavas', shortName: 'Masks' },
+  { id: 'apparel', label: 'Apparel & Accessories', shortName: 'Apparel' }
+];
+
+function getAdminCategories() {
+  try {
+    const raw = localStorage.getItem('revmoto_catalog_categories');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch (e) {}
+
+  localStorage.setItem('revmoto_catalog_categories', JSON.stringify(DEFAULT_CATEGORIES));
+  return DEFAULT_CATEGORIES;
+}
+
+function saveAdminCategories(cats) {
+  localStorage.setItem('revmoto_catalog_categories', JSON.stringify(cats));
+  renderCategoryPills();
+  populateProductCategorySelect();
+  renderProductsView();
+}
+
+function renderCategoryPills() {
+  const container = document.getElementById('prodCategoryPills');
+  if (!container) return;
+
+  const cats = getAdminCategories();
+  const isAll = activeProductCategoryFilter === 'all';
+
+  let html = `<button class="filter-tab ${isAll ? 'active' : ''}" onclick="filterProductsByCategory('all', this)">All</button>`;
+  cats.forEach(c => {
+    const isActive = activeProductCategoryFilter === c.id;
+    html += `<button class="filter-tab ${isActive ? 'active' : ''}" onclick="filterProductsByCategory('${escapeHtml(c.id)}', this)">${escapeHtml(c.shortName || c.label)}</button>`;
+  });
+
+  container.innerHTML = html;
+}
+
+function populateProductCategorySelect(selectedId = '') {
+  const select = document.getElementById('prodCategorySelect');
+  if (!select) return;
+
+  const cats = getAdminCategories();
+  select.innerHTML = cats.map(c => `
+    <option value="${escapeHtml(c.id)}" ${c.id === selectedId ? 'selected' : ''}>
+      ${escapeHtml(c.label)}
+    </option>
+  `).join('');
+}
+
+function openCategoryManagerModal() {
+  const modal = document.getElementById('categoryManagerModal');
+  if (!modal) return;
+
+  renderCategoryManagerList();
+  modal.classList.add('open');
+}
+
+function closeCategoryManagerModal() {
+  const modal = document.getElementById('categoryManagerModal');
+  if (modal) modal.classList.remove('open');
+}
+
+function autoSuggestCatSlug() {
+  const labelInput = document.getElementById('newCatLabelInput');
+  const shortInput = document.getElementById('newCatShortInput');
+  if (!labelInput || !shortInput) return;
+
+  if (!shortInput.dataset.touched) {
+    const parts = labelInput.value.trim().split(/\s+/);
+    shortInput.value = parts[0] || '';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const shortInput = document.getElementById('newCatShortInput');
+  if (shortInput) {
+    shortInput.addEventListener('input', () => {
+      shortInput.dataset.touched = 'true';
+    });
+  }
+});
+
+function handleCreateCategory(e) {
+  e.preventDefault();
+  const label = document.getElementById('newCatLabelInput')?.value.trim();
+  const shortName = document.getElementById('newCatShortInput')?.value.trim();
+
+  if (!label || !shortName) {
+    showToast('Please enter both category name and short pill label', 'warning');
+    return;
+  }
+
+  const slug = label.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || ('cat-' + Date.now());
+  const cats = getAdminCategories();
+
+  if (cats.some(c => c.id === slug || c.label.toLowerCase() === label.toLowerCase())) {
+    showToast('A category with this name already exists', 'warning');
+    return;
+  }
+
+  cats.push({
+    id: slug,
+    label,
+    shortName
+  });
+
+  saveAdminCategories(cats);
+  renderCategoryManagerList();
+
+  // Reset form
+  const form = document.getElementById('addCategoryForm');
+  if (form) form.reset();
+  const sInput = document.getElementById('newCatShortInput');
+  if (sInput) delete sInput.dataset.touched;
+
+  showToast(`Category "${label}" created successfully!`, 'success');
+}
+
+function renderCategoryManagerList() {
+  const container = document.getElementById('categoryManagerList');
+  const countEl = document.getElementById('catManagerCount');
+  if (!container) return;
+
+  const cats = getAdminCategories();
+  const products = getAdminProducts();
+  if (countEl) countEl.textContent = cats.length;
+
+  if (cats.length === 0) {
+    container.innerHTML = `<div style="text-align: center; padding: 20px; color: var(--text-muted); font-size: 0.84rem;">No categories defined.</div>`;
+    return;
+  }
+
+  container.innerHTML = cats.map(c => {
+    const prodCount = products.filter(p => p.category === c.id).length;
+    return `
+      <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 8px; gap: 10px;">
+        <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+          <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(37,99,235,0.08); color: #2563eb; display: flex; align-items: center; justify-content: center; font-size: 0.88rem; flex-shrink: 0;">
+            <i class="fas fa-folder"></i>
+          </div>
+          <div style="min-width: 0;">
+            <div style="font-weight: 700; color: var(--text-pure); font-size: 0.88rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+              ${escapeHtml(c.label)}
+            </div>
+            <div style="font-size: 0.72rem; color: var(--text-muted); display: flex; gap: 8px; align-items: center;">
+              <span style="background: #f1f5f9; padding: 1px 6px; border-radius: 4px; font-weight: 600;">Pill: ${escapeHtml(c.shortName)}</span>
+              <span>• ${prodCount} product${prodCount === 1 ? '' : 's'}</span>
+            </div>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
+          <button type="button" class="btn-table-edit" style="padding: 4px 8px; font-size: 0.72rem;" onclick="editCategoryName('${escapeHtml(c.id)}')" title="Rename Category">
+            <i class="fas fa-pen"></i> Edit
+          </button>
+          <button type="button" class="btn-table-delete" style="padding: 4px 8px; font-size: 0.72rem;" onclick="deleteCategory('${escapeHtml(c.id)}')" title="Delete Category">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function editCategoryName(catId) {
+  const cats = getAdminCategories();
+  const cat = cats.find(c => c.id === catId);
+  if (!cat) return;
+
+  const newLabel = prompt(`Edit full name for category "${cat.label}":`, cat.label);
+  if (!newLabel || !newLabel.trim()) return;
+
+  const newShort = prompt(`Edit filter pill short label (e.g. for button):`, cat.shortName || newLabel.trim().split(/\s+/)[0]);
+  if (!newShort || !newShort.trim()) return;
+
+  cat.label = newLabel.trim();
+  cat.shortName = newShort.trim();
+
+  // Also update existing products categoryLabel
+  const products = getAdminProducts();
+  let updatedAny = false;
+  products.forEach(p => {
+    if (p.category === catId) {
+      p.categoryLabel = cat.label;
+      updatedAny = true;
+    }
+  });
+
+  if (updatedAny) {
+    saveAdminProducts(products);
+  }
+
+  saveAdminCategories(cats);
+  renderCategoryManagerList();
+  showToast(`Category updated to "${cat.label}"!`, 'success');
+}
+
+function deleteCategory(catId) {
+  const cats = getAdminCategories();
+  const cat = cats.find(c => c.id === catId);
+  if (!cat) return;
+
+  if (cats.length <= 1) {
+    showToast('Store catalog must have at least one category', 'warning');
+    return;
+  }
+
+  const products = getAdminProducts();
+  const assigned = products.filter(p => p.category === catId);
+
+  if (assigned.length > 0) {
+    const fallbackCat = cats.find(c => c.id !== catId);
+    const confirmMsg = `There are ${assigned.length} product(s) in "${cat.label}".
+
+Deleting will move them to "${fallbackCat.label}". Are you sure?`;
+    if (!confirm(confirmMsg)) return;
+
+    assigned.forEach(p => {
+      p.category = fallbackCat.id;
+      p.categoryLabel = fallbackCat.label;
+    });
+    saveAdminProducts(products);
+  } else {
+    if (!confirm(`Delete category "${cat.label}"?`)) return;
+  }
+
+  const updatedCats = cats.filter(c => c.id !== catId);
+  saveAdminCategories(updatedCats);
+  renderCategoryManagerList();
+  showToast(`Category "${cat.label}" deleted`, 'info');
+}
+
+
 // PRODUCTS & CATALOG MANAGEMENT ENGINE
 // ═══════════════════════════════════════════════════════════════
 const DEFAULT_CATALOG_PRODUCTS = [
@@ -3290,6 +3532,7 @@ function saveAdminProducts(products) {
 }
 
 function renderProductsView() {
+  renderCategoryPills();
   const products = getAdminProducts();
 
   // Metrics
@@ -3455,6 +3698,7 @@ function deleteProduct(productId) {
 
 // ── PRODUCT MODAL CONTROLLER ──
 function openProductModal(productId = null) {
+  populateProductCategorySelect();
   const modal = document.getElementById('productModal');
   if (!modal) return;
 
@@ -3559,13 +3803,9 @@ function handleProductFormSubmit(e) {
   const tagline = document.getElementById('prodTaglineInput')?.value.trim();
   const desc = document.getElementById('prodDescInput')?.value.trim();
 
-  const categoryLabels = {
-    jackets: 'Riding Jackets',
-    gloves: 'Motorcycle Gloves',
-    packs: 'Bags & Packs',
-    masks: 'Face Masks & Balaclavas',
-    apparel: 'Apparel & Accessories'
-  };
+  const adminCats = getAdminCategories();
+  const matchedCat = adminCats.find(c => c.id === category);
+  const resolvedCategoryLabel = matchedCat ? matchedCat.label : (category.charAt(0).toUpperCase() + category.slice(1));
 
   const products = getAdminProducts();
 
@@ -3577,7 +3817,7 @@ function handleProductFormSubmit(e) {
         ...products[idx],
         name,
         category,
-        categoryLabel: categoryLabels[category] || category,
+        categoryLabel: resolvedCategoryLabel,
         badge,
         price,
         oldPrice: oldPrice || (price > 0 ? Math.round(price * 1.25) : 0),
@@ -3598,7 +3838,7 @@ function handleProductFormSubmit(e) {
       name,
       slug: name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
       category,
-      categoryLabel: categoryLabels[category] || category,
+      categoryLabel: resolvedCategoryLabel,
       badge: badge || 'New Arrival',
       price,
       oldPrice: oldPrice || (price > 0 ? Math.round(price * 1.25) : 0),

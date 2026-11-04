@@ -116,13 +116,7 @@
 
 
 
-              <div class="form-field" style="margin-top: 16px;">
 
-                <label for="coEmail">Email Address (For Tracking & Invoice) *</label>
-
-                <input type="email" id="coEmail" placeholder="you@domain.com" required>
-
-              </div>
 
 
 
@@ -455,7 +449,7 @@
 
       const phone = document.getElementById('coPhone').value.trim();
 
-      const email = document.getElementById('coEmail').value.trim();
+      const email = document.getElementById('coEmail') ? document.getElementById('coEmail').value.trim() : '';
 
       const address = document.getElementById('coAddress').value.trim();
 
@@ -643,7 +637,7 @@
 
         `*Phone:* ${order.phone}\n` +
 
-        `*Email:* ${order.email}\n` +
+        (order.email ? `*Email:* ${order.email}\n` : '') +
 
         `*Delivery Address:* ${order.address}\n` +
 

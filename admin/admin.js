@@ -1,22 +1,28 @@
 /**
  * ==========================================================================
  * REV MOTO — Modern Responsive Admin Engine (Supabase + Local Fallback)
- * Includes: Time Filters (Monthly/Annual), Pagination, 80mm Thermal Receipt
+ * Includes: Period Time Filters (Daily / Monthly / Annual / All),
+ *           Pagination, and 80mm Thermal Paper Receipt (POS)
  * ==========================================================================
  */
 
 // Global State
 let supabaseClient = null;
 let ordersList = [];
-let activeFilter = 'all';
-let activeTimeFilter = 'all'; // 'all', 'today', 'yesterday', 'this_week', 'this_month', 'last_month', 'this_year', 'last_year', 'custom'
-let customMonthValue = '';
+let activeFilter = 'all'; // status filter: 'all' | 'pending' | 'confirmed' | 'dispatched' | 'delivered' | 'cancelled'
+let periodMode = 'daily'; // 'daily' | 'monthly' | 'annual' | 'all'
+let periodDate = new Date(); // active filter date reference
 let searchQuery = '';
 let soundEnabled = true;
 let currentSelectedOrder = null;
 let currentReceiptOrder = null;
 let currentPage = 1;
 let pageSize = 10;
+
+const MONTH_NAMES = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'
+];
 
 // Dynamic Date Helpers for Sample Orders
 const NOW = new Date();
@@ -29,7 +35,7 @@ const timeAgo = (mins = 0, hours = 0, days = 0, months = 0) => {
   return d.toISOString();
 };
 
-// Initial Sample Orders for Rev Moto (Spread over Today, This Week, This Month, Last Month, Earlier This Year)
+// Initial Sample Orders for Rev Moto
 const DEFAULT_SAMPLE_ORDERS = [
   // ── TODAY'S ORDERS ──
   {
@@ -127,7 +133,7 @@ const DEFAULT_SAMPLE_ORDERS = [
     created_at: timeAgo(0, 16, 1, 0)
   },
 
-  // ── THIS WEEK'S ORDERS ──
+  // ── EARLIER THIS WEEK / THIS MONTH ──
   {
     id: 'RM-85310',
     customer_name: 'Danyal Baig',
@@ -183,8 +189,6 @@ const DEFAULT_SAMPLE_ORDERS = [
     status: 'delivered',
     created_at: timeAgo(0, 0, 5, 0)
   },
-
-  // ── EARLIER THIS MONTH ──
   {
     id: 'RM-84950',
     customer_name: 'Zain Ul Abideen',
@@ -240,7 +244,7 @@ const DEFAULT_SAMPLE_ORDERS = [
     created_at: timeAgo(0, 0, 18, 0)
   },
 
-  // ── LAST MONTH ORDERS (October 2026) ──
+  // ── LAST MONTH (October 2026) ──
   {
     id: 'RM-83910',
     customer_name: 'Saad Rafique',
@@ -317,6 +321,20 @@ function formatTimeAgo(isoString) {
   return `${days}d ago`;
 }
 
+function formatDateMMDDYYYY(d) {
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  const y = d.getFullYear();
+  return `${m}/${day}/${y}`;
+}
+
+function formatDateYYYYMMDD(d) {
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  const y = d.getFullYear();
+  return `${y}-${m}-${day}`;
+}
+
 function formatReceiptDate(isoString) {
   const d = isoString ? new Date(isoString) : new Date();
   return d.toLocaleDateString('en-US', {
@@ -358,7 +376,7 @@ function playOrderChime() {
     osc2.start(ctx.currentTime + 0.12);
     osc2.stop(ctx.currentTime + 0.6);
   } catch (e) {
-    console.log('Audio chime not permitted before interaction.');
+    console.log('Audio chime not permitted before user interaction.');
   }
 }
 
@@ -430,7 +448,6 @@ async function fetchOrders() {
   if (stored) {
     try {
       ordersList = JSON.parse(stored);
-      // If user had fewer than 5 sample orders from earlier version, offer the full dataset
       if (!Array.isArray(ordersList) || ordersList.length < 5) {
         ordersList = DEFAULT_SAMPLE_ORDERS;
         saveLocalOrders(ordersList);
@@ -451,91 +468,237 @@ function saveLocalOrders(orders) {
   localStorage.setItem('rm_orders', JSON.stringify(orders));
 }
 
-// ── TIME FILTER LOGIC ──────────────────────────────────────
-function matchesTimeFilter(orderCreatedAt, timeFilter, customMonthVal) {
-  if (!timeFilter || timeFilter === 'all') return true;
+// ── PERIOD FILTER LOGIC (Daily / Monthly / Annual / All) ──
+function setPeriodMode(mode) {
+  periodMode = mode;
+
+  // Update segmented control buttons
+  ['daily', 'monthly', 'annual', 'all'].forEach(m => {
+    const btn = document.getElementById('btnPeriod' + m.charAt(0).toUpperCase() + m.slice(1));
+    if (btn) btn.classList.toggle('active', m === mode);
+  });
+
+  renderPeriodNavigator();
+  currentPage = 1;
+  renderDashboard();
+}
+
+function renderPeriodNavigator() {
+  const container = document.getElementById('periodNavigatorBox');
+  if (!container) return;
+
+  const currentYear = NOW.getFullYear();
+  const yearOptions = [currentYear - 2, currentYear - 1, currentYear, currentYear + 1]
+    .map(y => `<option value="${y}" ${y === periodDate.getFullYear() ? 'selected' : ''}>${y}</option>`)
+    .join('');
+
+  if (periodMode === 'daily') {
+    container.innerHTML = `
+      <button type="button" class="period-nav-arrow" onclick="stepPeriodDate(-1)" title="Previous Day">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+
+      <div class="period-date-display" onclick="openDailyPicker()" title="Click to pick a specific date">
+        <span>${formatDateMMDDYYYY(periodDate)}</span>
+        <i class="far fa-calendar-alt period-calendar-icon"></i>
+        <input type="date" id="hiddenDailyPicker" class="hidden-date-picker" value="${formatDateYYYYMMDD(periodDate)}" onchange="onDailyPickerChange(this.value)">
+      </div>
+
+      <button type="button" class="period-nav-arrow" onclick="stepPeriodDate(1)" title="Next Day">
+        <i class="fas fa-chevron-right"></i>
+      </button>
+
+      <button type="button" class="period-quick-btn" onclick="jumpToToday()" title="Jump to Today">
+        TODAY
+      </button>
+    `;
+    return;
+  }
+
+  if (periodMode === 'monthly') {
+    const monthOptions = MONTH_NAMES
+      .map((name, idx) => `<option value="${idx}" ${idx === periodDate.getMonth() ? 'selected' : ''}>${name}</option>`)
+      .join('');
+
+    container.innerHTML = `
+      <button type="button" class="period-nav-arrow" onclick="stepPeriodDate(-1)" title="Previous Month">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+
+      <div class="period-dropdowns-group">
+        <select class="period-select" id="periodMonthSelect" onchange="onMonthSelectChange(Number(this.value))">
+          ${monthOptions}
+        </select>
+        <select class="period-select" id="periodYearSelect" onchange="onYearSelectChange(Number(this.value))">
+          ${yearOptions}
+        </select>
+      </div>
+
+      <button type="button" class="period-nav-arrow" onclick="stepPeriodDate(1)" title="Next Month">
+        <i class="fas fa-chevron-right"></i>
+      </button>
+
+      <button type="button" class="period-quick-btn" onclick="jumpToCurrentMonth()" title="Jump to Current Month">
+        THIS MONTH
+      </button>
+    `;
+    return;
+  }
+
+  if (periodMode === 'annual') {
+    container.innerHTML = `
+      <button type="button" class="period-nav-arrow" onclick="stepPeriodDate(-1)" title="Previous Year">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+
+      <div class="period-dropdowns-group">
+        <select class="period-select" id="periodYearSelect" onchange="onYearSelectChange(Number(this.value))">
+          ${yearOptions}
+        </select>
+      </div>
+
+      <button type="button" class="period-nav-arrow" onclick="stepPeriodDate(1)" title="Next Year">
+        <i class="fas fa-chevron-right"></i>
+      </button>
+
+      <button type="button" class="period-quick-btn" onclick="jumpToCurrentYear()" title="Jump to Current Year">
+        THIS YEAR
+      </button>
+    `;
+    return;
+  }
+
+  // All mode
+  container.innerHTML = `
+    <div class="period-all-label">
+      <i class="fas fa-layer-group text-cyan"></i> Showing All History
+    </div>
+    <button type="button" class="period-quick-btn" onclick="setPeriodMode('daily')" title="Switch to Today">
+      TODAY
+    </button>
+  `;
+}
+
+function stepPeriodDate(delta) {
+  const d = new Date(periodDate.getTime());
+  if (periodMode === 'daily') {
+    d.setDate(d.getDate() + delta);
+  } else if (periodMode === 'monthly') {
+    d.setMonth(d.getMonth() + delta);
+  } else if (periodMode === 'annual') {
+    d.setFullYear(d.getFullYear() + delta);
+  }
+  periodDate = d;
+  renderPeriodNavigator();
+  currentPage = 1;
+  renderDashboard();
+}
+
+function jumpToToday() {
+  periodDate = new Date();
+  renderPeriodNavigator();
+  currentPage = 1;
+  renderDashboard();
+}
+
+function jumpToCurrentMonth() {
+  periodDate = new Date();
+  renderPeriodNavigator();
+  currentPage = 1;
+  renderDashboard();
+}
+
+function jumpToCurrentYear() {
+  periodDate = new Date();
+  renderPeriodNavigator();
+  currentPage = 1;
+  renderDashboard();
+}
+
+function openDailyPicker() {
+  const input = document.getElementById('hiddenDailyPicker');
+  if (input) {
+    if (typeof input.showPicker === 'function') {
+      try {
+        input.showPicker();
+      } catch (e) {
+        input.focus();
+      }
+    } else {
+      input.focus();
+    }
+  }
+}
+
+function onDailyPickerChange(val) {
+  if (!val) return;
+  const parts = val.split('-');
+  if (parts.length === 3) {
+    periodDate = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+    renderPeriodNavigator();
+    currentPage = 1;
+    renderDashboard();
+  }
+}
+
+function onMonthSelectChange(m) {
+  const d = new Date(periodDate.getTime());
+  d.setMonth(m);
+  periodDate = d;
+  renderPeriodNavigator();
+  currentPage = 1;
+  renderDashboard();
+}
+
+function onYearSelectChange(y) {
+  const d = new Date(periodDate.getTime());
+  d.setFullYear(y);
+  periodDate = d;
+  renderPeriodNavigator();
+  currentPage = 1;
+  renderDashboard();
+}
+
+function matchesPeriodFilter(orderCreatedAt) {
+  if (periodMode === 'all') return true;
   if (!orderCreatedAt) return false;
 
   const orderDate = new Date(orderCreatedAt);
-  const now = new Date();
 
-  const orderDay = new Date(orderDate.getFullYear(), orderDate.getMonth(), orderDate.getDate()).getTime();
-  const todayDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-  const oneDayMs = 24 * 60 * 60 * 1000;
-
-  switch (timeFilter) {
-    case 'today':
-      return orderDay === todayDay;
-
-    case 'yesterday':
-      return orderDay === (todayDay - oneDayMs);
-
-    case 'this_week':
-      return (todayDay - orderDay) <= (7 * oneDayMs) && (todayDay - orderDay) >= 0;
-
-    case 'this_month':
-      return orderDate.getFullYear() === now.getFullYear() && orderDate.getMonth() === now.getMonth();
-
-    case 'last_month': {
-      const lastMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-      return orderDate.getFullYear() === lastMonthDate.getFullYear() && orderDate.getMonth() === lastMonthDate.getMonth();
-    }
-
-    case 'this_year':
-      return orderDate.getFullYear() === now.getFullYear();
-
-    case 'last_year':
-      return orderDate.getFullYear() === (now.getFullYear() - 1);
-
-    case 'custom': {
-      if (!customMonthVal) return true;
-      const parts = customMonthVal.split('-');
-      if (parts.length < 2) return true;
-      const y = parseInt(parts[0], 10);
-      const m = parseInt(parts[1], 10);
-      return orderDate.getFullYear() === y && (orderDate.getMonth() + 1) === m;
-    }
-
-    default:
-      return true;
-  }
-}
-
-function handleTimeFilterChange(val) {
-  activeTimeFilter = val;
-  const customInput = document.getElementById('customMonthInput');
-  if (customInput) {
-    if (val === 'custom') {
-      customInput.style.display = 'inline-block';
-      if (!customInput.value) {
-        const ym = `${NOW.getFullYear()}-${String(NOW.getMonth() + 1).padStart(2, '0')}`;
-        customInput.value = ym;
-        customMonthValue = ym;
-      }
-    } else {
-      customInput.style.display = 'none';
-      customMonthValue = '';
-    }
+  if (periodMode === 'daily') {
+    return (
+      orderDate.getFullYear() === periodDate.getFullYear() &&
+      orderDate.getMonth() === periodDate.getMonth() &&
+      orderDate.getDate() === periodDate.getDate()
+    );
   }
 
-  currentPage = 1;
-  renderDashboard();
-}
+  if (periodMode === 'monthly') {
+    return (
+      orderDate.getFullYear() === periodDate.getFullYear() &&
+      orderDate.getMonth() === periodDate.getMonth()
+    );
+  }
 
-function handleCustomMonthChange(val) {
-  customMonthValue = val;
-  currentPage = 1;
-  renderDashboard();
+  if (periodMode === 'annual') {
+    return orderDate.getFullYear() === periodDate.getFullYear();
+  }
+
+  return true;
 }
 
 // ── FILTERING & RETRIEVAL ──────────────────────────────────
+function getPeriodFilteredOrders() {
+  return ordersList.filter(order => matchesPeriodFilter(order.created_at));
+}
+
 function getFilteredOrders() {
   return ordersList.filter(order => {
-    // 1. Time Filter
-    if (!matchesTimeFilter(order.created_at, activeTimeFilter, customMonthValue)) {
+    // 1. Period Date Filter
+    if (!matchesPeriodFilter(order.created_at)) {
       return false;
     }
-    // 2. Status Filter
+    // 2. Status Pipeline Filter
     if (activeFilter !== 'all' && order.status !== activeFilter) {
       return false;
     }
@@ -552,10 +715,6 @@ function getFilteredOrders() {
   });
 }
 
-function getTimeFilteredOrders() {
-  return ordersList.filter(order => matchesTimeFilter(order.created_at, activeTimeFilter, customMonthValue));
-}
-
 // ── DASHBOARD RENDERING ────────────────────────────────────
 function renderDashboard() {
   updateMetrics();
@@ -566,8 +725,8 @@ function renderDashboard() {
 }
 
 function updateMetrics() {
-  // Metrics calculate for the active time period
-  const scopedOrders = getTimeFilteredOrders();
+  // Metrics reflect the active Period (Daily, Monthly, Annual, or All)
+  const scopedOrders = getPeriodFilteredOrders();
   let totalRev = 0;
   let totalOrders = scopedOrders.length;
   let pendingCount = 0;
@@ -592,26 +751,25 @@ function updateMetrics() {
   if (penEl) penEl.textContent = pendingCount;
   if (disEl) disEl.textContent = dispatchedCount;
 
-  // Update subtitles to show current period
-  const labelMap = {
-    all: 'All-time volume',
-    today: "Today's volume",
-    yesterday: "Yesterday's volume",
-    this_week: "This week's volume",
-    this_month: "This month's volume",
-    last_month: "Last month's volume",
-    this_year: "2026 Annual volume",
-    last_year: "Last year's volume",
-    custom: `Period: ${customMonthValue}`
-  };
-  const subText = labelMap[activeTimeFilter] || 'Active period';
+  // Dynamic subtitle describing the selected period
+  let periodLabelText = '';
+  if (periodMode === 'daily') {
+    periodLabelText = `Volume for ${formatDateMMDDYYYY(periodDate)}`;
+  } else if (periodMode === 'monthly') {
+    periodLabelText = `Volume for ${MONTH_NAMES[periodDate.getMonth()]} ${periodDate.getFullYear()}`;
+  } else if (periodMode === 'annual') {
+    periodLabelText = `Annual Volume for ${periodDate.getFullYear()}`;
+  } else {
+    periodLabelText = 'All-time volume';
+  }
+
   const cards = document.querySelectorAll('.metrics-grid .metric-card .metric-sub');
-  if (cards && cards[0]) cards[0].textContent = subText;
-  if (cards && cards[1]) cards[1].textContent = `Filtered: ${totalOrders} orders`;
+  if (cards && cards[0]) cards[0].textContent = periodLabelText;
+  if (cards && cards[1]) cards[1].textContent = `Found ${totalOrders} order(s) in this period`;
 }
 
 function renderFilterTabs() {
-  const scopedOrders = getTimeFilteredOrders();
+  const scopedOrders = getPeriodFilteredOrders();
   const counts = {
     all: scopedOrders.length,
     pending: scopedOrders.filter(o => o.status === 'pending').length,
@@ -703,7 +861,7 @@ function renderPagination() {
 
   if (totalItems === 0) {
     container.innerHTML = `
-      <div class="pagination-info">No matching orders to paginate.</div>
+      <div class="pagination-info">No matching orders in this period.</div>
       <div class="page-size-selector">
         <span>Per page:</span>
         <select class="page-size-select" onchange="changePageSize(this.value)">
@@ -716,7 +874,6 @@ function renderPagination() {
     return;
   }
 
-  // Generate page numbers
   let pageButtonsHtml = '';
   const maxButtons = 5;
   let startPage = Math.max(1, currentPage - 2);
@@ -786,7 +943,7 @@ function renderDesktopTable() {
       <tr>
         <td colspan="6" style="text-align: center; padding: 40px; color: var(--text-muted);">
           <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 10px; display: block; opacity: 0.5;"></i>
-          No orders found matching the filter criteria.
+          No orders found for the selected period &amp; filters.
         </td>
       </tr>
     `;
@@ -859,7 +1016,7 @@ function renderMobileCards() {
     container.innerHTML = `
       <div style="text-align: center; padding: 40px 20px; background: var(--bg-card); border-radius: var(--radius-md); border: 1px solid var(--border-subtle); color: var(--text-muted);">
         <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 10px; display: block; opacity: 0.5;"></i>
-        No orders found matching the filter criteria.
+        No orders found for the selected period &amp; filters.
       </div>
     `;
     return;
@@ -1023,7 +1180,7 @@ async function deleteOrder() {
   renderDashboard();
 }
 
-// ── 80MM THERMAL RECEIPT SYSTEM ────────────────────────────
+// ── 80MM THERMAL RECEIPT SYSTEM (POS Format) ───────────────
 function openReceiptModal(orderId) {
   let order = null;
   if (orderId) {
@@ -1036,7 +1193,6 @@ function openReceiptModal(orderId) {
 
   currentReceiptOrder = order;
 
-  // Build the receipt matching the exact visual formatting of the reference 80mm image
   const receiptEl = document.getElementById('receiptPaper');
   if (!receiptEl) return;
 
@@ -1419,6 +1575,7 @@ function escapeHtml(str) {
 
 // ── INITIALIZATION ─────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
+  renderPeriodNavigator();
   initSupabase();
   fetchOrders();
 

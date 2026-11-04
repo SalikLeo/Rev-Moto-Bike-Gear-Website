@@ -488,71 +488,191 @@ body::before {
   color: #1d4ed8;
 }
 
-.controls-right-group {
+/* ── PERIOD FILTER BAR ────────────────────────────────────── */
+.period-filter-bar {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 10px 16px;
+  margin-bottom: 12px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  flex: 1;
-  justify-content: flex-end;
-  min-width: 0;
+  justify-content: space-between;
+  gap: 16px;
+  box-shadow: var(--shadow-card);
 }
 
-/* Time Filter Dropdown */
-.time-filter-wrapper {
+.period-filter-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.period-label {
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #8da0b8;
+  text-transform: uppercase;
+}
+
+.period-segmented-control {
+  background: #eef2f6;
+  padding: 3px;
+  border-radius: 9px;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.period-segment-btn {
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 5px 13px;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+
+.period-segment-btn:hover {
+  color: #0f172a;
+}
+
+.period-segment-btn.active {
+  background: #ffffff;
+  color: #0f172a;
+  font-weight: 700;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1);
+}
+
+.period-navigator-box {
+  background: #ffffff;
+  border: 1px solid #dbe2ea;
+  border-radius: 9px;
+  padding: 3px 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+}
+
+.period-nav-arrow {
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-size: 0.76rem;
+  padding: 4px 6px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.period-nav-arrow:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.period-date-display {
   position: relative;
-  min-width: 175px;
-  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: #0f172a;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 6px;
+  transition: background 0.15s ease;
 }
 
-.time-filter-wrapper i {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--primary-blue);
+.period-date-display:hover {
+  background: #f8fafc;
+}
+
+.period-calendar-icon {
+  color: #64748b;
   font-size: 0.85rem;
+}
+
+.hidden-date-picker {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
   pointer-events: none;
 }
 
-.time-filter-select {
-  width: 100%;
-  height: 38px;
-  background: #f8fafc;
-  border: 1px solid var(--border-medium);
-  border-radius: var(--radius-pill);
-  padding: 0 14px 0 32px;
-  color: var(--text-pure);
+.period-dropdowns-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.period-select {
+  border: 1px solid transparent;
+  background: transparent;
   font-family: var(--font-body);
-  font-size: 0.82rem;
-  font-weight: 600;
-  outline: none;
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: #0f172a;
   cursor: pointer;
-  transition: all 0.2s ease;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  padding-right: 28px;
-}
-
-.time-filter-select:focus {
-  border-color: var(--primary-blue);
-  background-color: #ffffff;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
-}
-
-.custom-month-input {
-  height: 38px;
-  background: #ffffff;
-  border: 1.5px solid var(--primary-blue);
-  border-radius: var(--radius-pill);
-  padding: 0 12px;
-  font-size: 0.82rem;
-  font-family: var(--font-body);
-  font-weight: 600;
-  color: var(--text-pure);
   outline: none;
-  margin-left: 6px;
+  padding: 3px 18px 3px 6px;
+  border-radius: 6px;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 4px center;
+  transition: all 0.15s ease;
+}
+
+.period-select:hover,
+.period-select:focus {
+  background-color: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.period-quick-btn {
+  background: #eef2f6;
+  border: 1px solid #e2e8f0;
+  color: #334155;
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.period-quick-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.period-all-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #475569;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px;
 }
 
 .search-input-wrapper {
@@ -1315,15 +1435,31 @@ body::before {
     padding: 6px 11px;
     font-size: 0.78rem;
   }
-  .controls-right-group {
+  .period-filter-bar {
     flex-direction: column;
     align-items: stretch;
-    gap: 8px;
-    width: 100%;
+    gap: 12px;
+    padding: 12px 14px;
   }
-  .time-filter-wrapper {
+  .period-filter-left {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .period-segmented-control {
     width: 100%;
-    min-width: 100%;
+    display: flex;
+    justify-content: space-between;
+  }
+  .period-segment-btn {
+    flex: 1;
+    text-align: center;
+    padding: 6px 4px;
+    font-size: 0.78rem;
+  }
+  .period-navigator-box {
+    width: 100%;
+    justify-content: space-between;
   }
   .search-input-wrapper {
     width: 100%;

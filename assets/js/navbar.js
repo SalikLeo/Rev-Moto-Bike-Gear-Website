@@ -34,10 +34,9 @@
 
         <!-- Right Quick Actions -->
         <div class="pill-actions">
-          <a href="shop.html?filter=wishlist" class="pill-action-btn" title="Saved Gear" aria-label="Saved Wishlist">
-            <i class="fas fa-heart" style="color: #2563eb;"></i>
-            <span class="wish-count-pill" style="font-size: 0.8rem; font-weight: 800; color: #0f172a;">0</span>
-          </a>
+          <button class="pill-action-btn pill-user-btn" id="navUserBtn" onclick="openUserProfileModal()" title="My Profile & Orders" aria-label="User Profile">
+            <i class="fas fa-user-circle" id="navUserIcon" style="font-size: 1.25rem; color: #2563eb;"></i>
+          </button>
 
           <button class="pill-action-btn pill-search-btn" onclick="openSearchModal()" title="Search Products" aria-label="Search Catalog">
             <i class="fas fa-search"></i>
@@ -80,6 +79,17 @@
         <button class="drawer-close-btn" onclick="closeMobileDrawer()"><i class="fas fa-times"></i></button>
       </div>
       <div class="cart-drawer-body">
+        <!-- Customer Profile Quick Access inside Menu -->
+        <div style="margin-bottom: 8px; margin-top: 2px;">
+          <button class="pill-link" style="width: 100%; text-align: left; padding: 10px 14px; font-size: 0.88rem; background: rgba(37,99,235,0.06); border: 1px solid rgba(37,99,235,0.18); border-radius: 8px; display: flex; align-items: center; justify-content: space-between; cursor: pointer;" onclick="closeMobileDrawer(); openUserProfileModal();">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <i class="fas fa-user-circle text-cyan" style="font-size: 1.25rem;"></i>
+              <span id="drawerUserName" style="font-weight: 700; color: var(--text-pure);">My Account &amp; Orders</span>
+            </div>
+            <i class="fas fa-chevron-right text-cyan" style="font-size: 0.72rem;"></i>
+          </button>
+        </div>
+
         <!-- Quick Search Bar inside Menu -->
         <div class="drawer-search-box" style="margin-bottom: 8px; margin-top: 2px;">
           <button class="drawer-search-trigger" onclick="closeMobileDrawer(); openSearchModal();" aria-label="Search Catalog">
@@ -520,4 +530,12 @@
       window.closeQuickView();
     }
   });
+
+  // Dynamically load user-profile.js engine if not already present
+  if (!document.querySelector('script[src*="user-profile.js"]')) {
+    const userScript = document.createElement('script');
+    userScript.src = 'assets/js/user-profile.js?v=1.0';
+    document.head.appendChild(userScript);
+  }
+
 })();

@@ -25,7 +25,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
   <!-- Admin Portal CSS -->
-  <link rel="stylesheet" href="admin.css?v=2.0">
+  <link rel="stylesheet" href="admin.css?v=2.1">
 </head>
 <body>
 
@@ -42,12 +42,23 @@
         </a>
       </div>
 
-      <div class="admin-nav-actions">
-        <!-- Live / Demo Indicator -->
-        <div id="connectionStatusPill" class="status-indicator demo" onclick="openSupabaseModal()" title="Click to configure Supabase database">
-          <span class="status-dot"></span> Local Storage (Demo)
-        </div>
+      <!-- Top Primary Admin Tabs -->
+      <nav class="admin-header-tabs" id="adminHeaderTabs">
+        <button type="button" class="admin-top-tab active" id="tabNavOrders" onclick="switchAdminView('orders')">
+          <i class="fas fa-boxes-stacked"></i> <span>Orders</span>
+        </button>
+        <button type="button" class="admin-top-tab" id="tabNavCustomers" onclick="switchAdminView('customers')">
+          <i class="fas fa-users"></i> <span>Customers</span>
+        </button>
+        <button type="button" class="admin-top-tab" id="tabNavReviews" onclick="switchAdminView('reviews')">
+          <i class="fas fa-star"></i> <span>Reviews</span>
+        </button>
+        <button type="button" class="admin-top-tab" id="tabNavSettings" onclick="switchAdminView('settings')">
+          <i class="fas fa-sliders"></i> <span>Settings</span>
+        </button>
+      </nav>
 
+      <div class="admin-nav-actions">
         <!-- Add Test Order -->
         <button class="btn-admin btn-admin-subtle" onclick="simulateTestOrder()" title="Simulate a new incoming customer order">
           <i class="fas fa-plus"></i> <span class="hide-on-mobile">Test Order</span>
@@ -56,11 +67,6 @@
         <!-- Sound Alert Toggle -->
         <button class="admin-icon-btn active" id="soundToggleBtn" onclick="toggleSound()" title="Toggle Order Sound Chime">
           <i class="fas fa-volume-up"></i>
-        </button>
-
-        <!-- Supabase Settings -->
-        <button class="admin-icon-btn" onclick="openSupabaseModal()" title="Supabase Database Settings">
-          <i class="fas fa-database"></i>
         </button>
 
         <!-- Back to Storefront Link -->
@@ -74,20 +80,10 @@
   <!-- ═══ MAIN DASHBOARD CONTENT ═════════════════════════════════════ -->
   <main class="admin-main">
 
-    <!-- Supabase Setup Banner (Hidden once connected) -->
-    <div class="setup-banner" id="supabaseSetupBanner">
-      <div class="setup-banner-text">
-        <i class="fas fa-bolt"></i>
-        <div>
-          <strong>Running in Local Storage Mode</strong> — Realtime orders are currently stored in your browser. Connect free <strong>Supabase PostgreSQL</strong> to sync live orders across all devices.
-        </div>
-      </div>
-      <div class="setup-banner-actions">
-        <button class="btn-admin btn-admin-primary" onclick="openSupabaseModal()">
-          <i class="fas fa-plug"></i> Connect Supabase
-        </button>
-      </div>
-    </div>
+    <!-- ════ ORDERS VIEW ═══════════════════════════════════════════ -->
+    <div id="ordersView" class="admin-tab-view active">
+
+
 
     <!-- ── METRICS OVERVIEW CARDS ── -->
     <section class="metrics-grid">
@@ -194,6 +190,280 @@
     <!-- ── PAGINATION CONTROLS ── -->
     <div class="pagination-wrapper" id="paginationWrapper">
       <!-- Rendered by admin.js -->
+    </div>
+
+      </div><!-- /#ordersView -->
+
+    <!-- ════ CUSTOMERS VIEW ═════════════════════════════════════════ -->
+    <div id="customersView" class="admin-tab-view" style="display: none;">
+      <!-- Customer Metrics Summary -->
+      <section class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-icon-wrap" style="background: rgba(37,99,235,0.1); color: #2563eb;">
+            <i class="fas fa-users"></i>
+          </div>
+          <div class="metric-info">
+            <span class="metric-label">Total Unique Customers</span>
+            <div class="metric-val" id="custMetricTotal">0</div>
+            <span class="metric-hint">Aggregated via customer history</span>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-icon-wrap" style="background: rgba(16,185,129,0.1); color: #10b981;">
+            <i class="fas fa-rotate"></i>
+          </div>
+          <div class="metric-info">
+            <span class="metric-label">Repeat Customers</span>
+            <div class="metric-val" id="custMetricRepeat">0</div>
+            <span class="metric-hint">Placed 2+ orders</span>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-icon-wrap" style="background: rgba(245,158,11,0.1); color: #f59e0b;">
+            <i class="fas fa-sack-dollar"></i>
+          </div>
+          <div class="metric-info">
+            <span class="metric-label">Average Customer LTV</span>
+            <div class="metric-val" id="custMetricAvgSpend">Rs. 0</div>
+            <span class="metric-hint">Average spend per rider</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Customer Search -->
+      <div class="admin-controls-card">
+        <div class="admin-search-wrapper" style="width: 100%; max-width: 480px;">
+          <i class="fas fa-search admin-search-icon"></i>
+          <input type="text" id="custSearchInput" class="admin-search-input" placeholder="Search customers by name, phone, email, address..." oninput="handleCustomerSearch()">
+        </div>
+      </div>
+
+      <!-- Desktop Customers Table -->
+      <div class="desktop-table-container">
+        <table class="admin-orders-table">
+          <thead>
+            <tr>
+              <th>Customer</th>
+              <th>Phone &amp; WhatsApp</th>
+              <th>Primary Delivery Address</th>
+              <th>Total Orders</th>
+              <th>Total Spent</th>
+              <th>Last Order</th>
+              <th style="text-align: right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="customersTableBody">
+            <!-- Rendered by admin.js -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Mobile Customers Cards -->
+      <div class="mobile-orders-container" id="mobileCustomersContainer">
+        <!-- Rendered by admin.js -->
+      </div>
+    </div>
+
+    <!-- ════ REVIEWS VIEW ═══════════════════════════════════════════ -->
+    <div id="reviewsView" class="admin-tab-view" style="display: none;">
+      <!-- Reviews Metrics Summary -->
+      <section class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-icon-wrap" style="background: rgba(245,158,11,0.1); color: #f59e0b;">
+            <i class="fas fa-star"></i>
+          </div>
+          <div class="metric-info">
+            <span class="metric-label">Average Store Rating</span>
+            <div class="metric-val" id="revMetricAvg">5.0 ★</div>
+            <span class="metric-hint">Based on verified rider reviews</span>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-icon-wrap" style="background: rgba(37,99,235,0.1); color: #2563eb;">
+            <i class="fas fa-comments"></i>
+          </div>
+          <div class="metric-info">
+            <span class="metric-label">Total Reviews</span>
+            <div class="metric-val" id="revMetricTotal">0</div>
+            <span class="metric-hint">Customer feedback received</span>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-icon-wrap" style="background: rgba(16,185,129,0.1); color: #10b981;">
+            <i class="fas fa-thumbs-up"></i>
+          </div>
+          <div class="metric-info">
+            <span class="metric-label">5-Star Satisfaction</span>
+            <div class="metric-val" id="revMetric5StarPct">100%</div>
+            <span class="metric-hint">Top satisfaction rating</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Rating Filters & Actions -->
+      <div class="admin-controls-card" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <div class="status-filters" id="reviewFilterTabs">
+          <button class="filter-tab active" onclick="filterReviewsByRating('all', this)">All Reviews <span class="badge-count" id="revCountAll">0</span></button>
+          <button class="filter-tab" onclick="filterReviewsByRating(5, this)">5 Stars <span class="badge-count" id="revCount5">0</span></button>
+          <button class="filter-tab" onclick="filterReviewsByRating(4, this)">4 Stars <span class="badge-count" id="revCount4">0</span></button>
+          <button class="filter-tab" onclick="filterReviewsByRating(3, this)">3 Stars &amp; Below <span class="badge-count" id="revCount3">0</span></button>
+        </div>
+
+        <button class="btn-admin btn-admin-subtle" onclick="simulateTestReview()" title="Add a sample customer review">
+          <i class="fas fa-plus"></i> Add Test Review
+        </button>
+      </div>
+
+      <!-- Desktop Reviews Table -->
+      <div class="desktop-table-container">
+        <table class="admin-orders-table">
+          <thead>
+            <tr>
+              <th style="width: 180px;">Customer &amp; Date</th>
+              <th style="width: 140px;">Rating</th>
+              <th>Customer Review &amp; Feedback</th>
+              <th style="width: 130px;">Order #</th>
+              <th style="width: 80px; text-align: right;">Action</th>
+            </tr>
+          </thead>
+          <tbody id="reviewsTableBody">
+            <!-- Rendered by admin.js -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Mobile Reviews Cards -->
+      <div class="mobile-orders-container" id="mobileReviewsContainer">
+        <!-- Rendered by admin.js -->
+      </div>
+    </div>
+
+    <!-- ════ SETTINGS VIEW (DELIVERY FEES, STORE STATUS, CONTACT) ═══ -->
+    <div id="settingsView" class="admin-tab-view" style="display: none;">
+      <div style="max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px;">
+        
+        <!-- Delivery & Shipping Configuration Card -->
+        <div class="settings-card">
+          <div class="settings-card-header">
+            <div class="settings-card-icon" style="background: rgba(37,99,235,0.1); color: #2563eb;">
+              <i class="fas fa-truck-fast"></i>
+            </div>
+            <div>
+              <h3 style="margin: 0; font-size: 1.05rem; font-weight: 800; color: var(--text-pure);">Delivery &amp; Courier Fees</h3>
+              <div style="font-size: 0.78rem; color: var(--text-muted);">Manage standard flat delivery fees applied at checkout nationwide across Pakistan.</div>
+            </div>
+          </div>
+
+          <div class="settings-card-body">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px;">
+              <div class="form-group">
+                <label class="form-label" for="settingDeliveryFee">Standard Flat Delivery Fee (PKR) *</label>
+                <div style="position: relative;">
+                  <span style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-weight: 700; color: var(--text-secondary); font-size: 0.85rem;">Rs.</span>
+                  <input type="number" id="settingDeliveryFee" class="admin-search-input" style="padding-left: 42px; width: 100%;" value="350" min="0" step="50">
+                </div>
+                <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 4px;">Applied to all orders at checkout across Pakistan.</div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="settingFreeDeliveryThreshold">Free Delivery Over Amount (PKR)</label>
+                <div style="position: relative;">
+                  <span style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-weight: 700; color: var(--text-secondary); font-size: 0.85rem;">Rs.</span>
+                  <input type="number" id="settingFreeDeliveryThreshold" class="admin-search-input" style="padding-left: 42px; width: 100%;" value="0" min="0" step="500">
+                </div>
+                <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 4px;">Set 0 to disable free delivery promotion.</div>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 14px;">
+              <label class="form-label" for="settingDeliveryTimeline">Delivery Timeline Label</label>
+              <input type="text" id="settingDeliveryTimeline" class="admin-search-input" style="width: 100%;" value="Standard Tracked Delivery (3–5 Days)">
+            </div>
+          </div>
+        </div>
+
+        <!-- Store Operational Status Card -->
+        <div class="settings-card">
+          <div class="settings-card-header">
+            <div class="settings-card-icon" style="background: rgba(16,185,129,0.1); color: #10b981;">
+              <i class="fas fa-store"></i>
+            </div>
+            <div>
+              <h3 style="margin: 0; font-size: 1.05rem; font-weight: 800; color: var(--text-pure);">Store Operating Status</h3>
+              <div style="font-size: 0.78rem; color: var(--text-muted);">Control whether the storefront is actively accepting new orders.</div>
+            </div>
+          </div>
+
+          <div class="settings-card-body">
+            <div style="display: flex; gap: 16px; margin-bottom: 12px; flex-wrap: wrap;">
+              <label style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.86rem; cursor: pointer;">
+                <input type="radio" name="storeStatusRadio" value="open" id="storeStatusOpen" checked>
+                <span>🟢 Store Open (Accepting Orders)</span>
+              </label>
+              <label style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.86rem; cursor: pointer;">
+                <input type="radio" name="storeStatusRadio" value="closed" id="storeStatusClosed">
+                <span>🔴 Store Closed (Temporarily Paused)</span>
+              </label>
+            </div>
+
+            <div class="form-group" id="closedNoticeGroup" style="display: none;">
+              <label class="form-label" for="settingClosedNotice">Closed Store Message</label>
+              <input type="text" id="settingClosedNotice" class="admin-search-input" style="width: 100%;" value="We are currently pausing new orders for inventory restocking. Resuming shortly!">
+            </div>
+          </div>
+        </div>
+
+        <!-- Store Contact Information Card -->
+        <div class="settings-card">
+          <div class="settings-card-header">
+            <div class="settings-card-icon" style="background: rgba(245,158,11,0.1); color: #f59e0b;">
+              <i class="fas fa-address-book"></i>
+            </div>
+            <div>
+              <h3 style="margin: 0; font-size: 1.05rem; font-weight: 800; color: var(--text-pure);">Contact &amp; Support Info</h3>
+              <div style="font-size: 0.78rem; color: var(--text-muted);">Displayed on receipts, headers, and order inquiries.</div>
+            </div>
+          </div>
+
+          <div class="settings-card-body">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px;">
+              <div class="form-group">
+                <label class="form-label" for="settingPhone">Customer Support Phone *</label>
+                <input type="text" id="settingPhone" class="admin-search-input" style="width: 100%;" value="0337-4249450">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="settingWhatsApp">Official WhatsApp (923...)</label>
+                <input type="text" id="settingWhatsApp" class="admin-search-input" style="width: 100%;" value="923374249450">
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-top: 14px;">
+              <div class="form-group">
+                <label class="form-label" for="settingEmail">Official Support Email</label>
+                <input type="email" id="settingEmail" class="admin-search-input" style="width: 100%;" value="revmoto.pk@gmail.com">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="settingAddress">Warehouse / Store Address</label>
+                <input type="text" id="settingAddress" class="admin-search-input" style="width: 100%;" value="Sialkot Manufacturing District, Punjab, Pakistan">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Save Button Bar -->
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
+          <button type="button" class="btn-admin btn-admin-primary" style="height: 42px; padding: 0 24px; font-size: 0.9rem;" onclick="saveStoreSettings()">
+            <i class="fas fa-save"></i> Save Settings
+          </button>
+        </div>
+
+      </div>
     </div>
 
   </main>
@@ -426,6 +696,6 @@
     }
   </style>
 
-  <script src="admin.js?v=2.1"></script>
+  <script src="admin.js?v=2.2"></script>
 </body>
 </html>

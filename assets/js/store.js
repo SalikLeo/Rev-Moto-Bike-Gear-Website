@@ -88,6 +88,33 @@ const RM_CONFIG = {
 };
 
 /* ── Flagship Products Catalog ── */
+
+// ── DYNAMIC STORE SETTINGS (LOADED FROM ADMIN SETTINGS) ──
+try {
+  const dynamicSettings = JSON.parse(localStorage.getItem('revmoto_store_settings') || '{}');
+  if (dynamicSettings.deliveryFee !== undefined && dynamicSettings.deliveryFee !== '') {
+    const fee = Number(dynamicSettings.deliveryFee);
+    RM_CONFIG.delivery.cost = fee;
+    RM_CONFIG.delivery.standard.price = fee;
+  }
+  if (dynamicSettings.deliveryLabel) {
+    RM_CONFIG.delivery.standard.label = dynamicSettings.deliveryLabel;
+  }
+  if (dynamicSettings.phone) {
+    RM_CONFIG.brand.phone = dynamicSettings.phone;
+    RM_CONFIG.brand.displayPhone = dynamicSettings.phone;
+  }
+  if (dynamicSettings.whatsapp) {
+    RM_CONFIG.whatsapp.number = String(dynamicSettings.whatsapp).replace(/\D/g, '');
+  }
+  if (dynamicSettings.email) {
+    RM_CONFIG.brand.email = dynamicSettings.email;
+  }
+  if (dynamicSettings.address) {
+    RM_CONFIG.brand.address = dynamicSettings.address;
+  }
+} catch (e) {}
+
 const MASTER_PRODUCTS = [
   {
     id: 'rm-cyber-jacket-01',

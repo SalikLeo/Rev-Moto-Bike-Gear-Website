@@ -354,7 +354,8 @@
 
   <script src="assets/js/smooth-scroll.js?v=4.4"></script>
 
-  <script src="assets/js/navbar.js?v=4.4"></script>
+  <script src="assets/js/user-profile.js?v=1.0"></script>
+  <script src="assets/js/navbar.js?v=4.5"></script>
 
   <script>
 
@@ -404,7 +405,7 @@
 
       const subtotal = getCartSubtotal();
 
-      const deliveryCost = 350; // Standard Flat Courier Delivery Across Pakistan
+      const deliveryCost = (typeof RM_CONFIG !== 'undefined' && RM_CONFIG.delivery && RM_CONFIG.delivery.cost !== undefined) ? RM_CONFIG.delivery.cost : 350;
 
 
 
@@ -466,7 +467,7 @@
 
       const subtotal = getCartSubtotal();
 
-      const deliveryCost = 350;
+      const deliveryCost = (typeof RM_CONFIG !== 'undefined' && RM_CONFIG.delivery && RM_CONFIG.delivery.cost !== undefined) ? RM_CONFIG.delivery.cost : 350;
 
       const grandTotal = subtotal + deliveryCost;
 
@@ -494,7 +495,7 @@
 
         deliveryLabel: 'Standard Tracked Delivery (3–5 Days)',
 
-        deliveryCost: 350,
+        deliveryCost: (typeof RM_CONFIG !== 'undefined' && RM_CONFIG.delivery && RM_CONFIG.delivery.cost !== undefined) ? RM_CONFIG.delivery.cost : 350,
 
         items: cart,
 
@@ -549,6 +550,22 @@
         const existingOrders = JSON.parse(localStorage.getItem('rm_orders') || '[]');
 
         existingOrders.unshift(orderRecord);
+        // Persist order to customer recent orders
+        try {
+          const myIds = JSON.parse(localStorage.getItem('revmoto_my_order_ids') || '[]');
+          if (!myIds.includes(orderId)) {
+            myIds.unshift(orderId);
+            localStorage.setItem('revmoto_my_order_ids', JSON.stringify(myIds));
+          }
+          // Save customer profile for future 1-click checkout
+          localStorage.setItem('revmoto_user_profile', JSON.stringify({
+            name: fullName,
+            phone: phone,
+            email: email,
+            address: address,
+            updatedAt: new Date().toISOString()
+          }));
+        } catch(e) {}
 
         localStorage.setItem('rm_orders', JSON.stringify(existingOrders));
 
@@ -665,6 +682,36 @@
 
 
     document.addEventListener('DOMContentLoaded', () => {
+
+    // Auto-fill checkout fields from saved User Profile
+    function autoFillCheckoutFromProfile() {
+      try {
+        const prof = JSON.parse(localStorage.getItem('revmoto_user_profile') || '{}');
+        const googleUser = JSON.parse(localStorage.getItem('revmoto_customer_user') || '{}');
+        
+        const nameField = document.getElementById('coFullName');
+        if (nameField && !nameField.value && (prof.name || googleUser.name)) {
+          nameField.value = prof.name || googleUser.name || '';
+        }
+
+        const phoneField = document.getElementById('coPhone');
+        if (phoneField && !phoneField.value && prof.phone) {
+          phoneField.value = prof.phone;
+        }
+
+        const emailField = document.getElementById('coEmail');
+        if (emailField && !emailField.value && (prof.email || googleUser.email)) {
+          emailField.value = prof.email || googleUser.email || '';
+        }
+
+        const addrField = document.getElementById('coStreetAddress');
+        if (addrField && !addrField.value && prof.address) {
+          addrField.value = prof.address;
+        }
+      } catch(e) {}
+    }
+    autoFillCheckoutFromProfile();
+
 
       initCheckout();
 

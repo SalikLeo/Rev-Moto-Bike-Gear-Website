@@ -1771,3 +1771,107 @@ button.status-badge:active {
   text-align: center;
   margin-top: 8px;
 }
+
+
+/* ═══════════════════════════════════════════════════════════════
+   ADMIN DASHBOARD — Top Header Tabs & Multi-View Styling
+   ═══════════════════════════════════════════════════════════════ */
+
+.admin-header-tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+}
+
+.admin-top-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.16s ease;
+  white-space: nowrap;
+}
+
+.admin-top-tab:hover {
+  color: var(--text-pure);
+  background: rgba(255, 255, 255, 0.65);
+}
+
+.admin-top-tab.active {
+  background: #ffffff;
+  color: var(--accent-blue);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+@media (max-width: 920px) {
+  .admin-nav-container {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .admin-header-tabs {
+    order: 3;
+    width: 100%;
+    justify-content: space-around;
+  }
+  .admin-top-tab {
+    padding: 6px 10px;
+    font-size: 0.78rem;
+    flex: 1;
+    justify-content: center;
+  }
+}
+
+/* Settings View Cards */
+.settings-card {
+  background: #ffffff;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+.settings-card-header {
+  padding: 16px 20px;
+  background: #f8fafc;
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.settings-card-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.settings-card-body {
+  padding: 20px;
+}
+
+/* Hide inactive admin views */
+.admin-tab-view {
+  animation: viewFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes viewFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}

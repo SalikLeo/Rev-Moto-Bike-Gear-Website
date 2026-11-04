@@ -382,29 +382,18 @@ function playOrderChime() {
 
 // ── SUPABASE CONNECTION & SYNC ──────────────────────────────
 function initSupabase() {
-  const statusEl = document.getElementById('connectionStatusPill');
-  const bannerEl = document.getElementById('setupBanner');
-  if (!statusEl) return false;
-
   const url = localStorage.getItem('rm_supabase_url');
   const key = localStorage.getItem('rm_supabase_anon_key');
 
   if (url && key && window.supabase) {
     try {
       supabaseClient = window.supabase.createClient(url.trim(), key.trim());
-      statusEl.className = 'status-indicator live';
-      statusEl.innerHTML = '<span class="status-dot pulse"></span> Supabase Connected (Live)';
-      if (bannerEl) bannerEl.style.display = 'none';
       setupRealtimeSubscription();
       return true;
     } catch (err) {
-      console.error('Supabase init error:', err);
+      console.warn('Supabase silent init:', err);
     }
   }
-
-  statusEl.className = 'status-indicator demo';
-  statusEl.innerHTML = '<span class="status-dot"></span> Local Storage (Demo Mode)';
-  if (bannerEl) bannerEl.style.display = 'flex';
   return false;
 }
 
@@ -1841,3 +1830,515 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }, 30000);
 });
+
+
+// ═══════════════════════════════════════════════════════════════
+// MULTI-VIEW ADMIN TAB CONTROLLER (Orders / Customers / Reviews / Settings)
+// ═══════════════════════════════════════════════════════════════
+let currentAdminView = 'orders';
+
+function switchAdminView(viewName) {
+  currentAdminView = viewName;
+
+  // Update top header tab classes
+  document.querySelectorAll('.admin-top-tab').forEach(tab => tab.classList.remove('active'));
+  const activeTabBtn = document.getElementById('tabNav' + viewName.charAt(0).toUpperCase() + viewName.slice(1));
+  if (activeTabBtn) activeTabBtn.classList.add('active');
+
+  // Show/Hide view panels
+  const views = ['orders', 'customers', 'reviews', 'settings'];
+  views.forEach(v => {
+    const el = document.getElementById(v + 'View');
+    if (el) {
+      el.style.display = (v === viewName) ? 'block' : 'none';
+    }
+  });
+
+  if (viewName === 'orders') {
+    renderDashboard();
+  } else if (viewName === 'customers') {
+    renderCustomersView();
+  } else if (viewName === 'reviews') {
+    renderReviewsView();
+  } else if (viewName === 'settings') {
+    loadStoreSettings();
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CUSTOMERS MANAGEMENT VIEW
+// ═══════════════════════════════════════════════════════════════
+let customerSearchQuery = '';
+
+function getAggregatedCustomers() {
+  const map = new Map();
+
+  ordersList.forEach(o => {
+    if (!o) return;
+    const rawPhone = String(o.phone || '').trim();
+    const cleanPhone = rawPhone.replace(/\D/g, '');
+    const rawEmail = String(o.email || '').trim().toLowerCase();
+    const rawName = String(o.customer_name || 'Rider').trim();
+
+    let key = cleanPhone;
+    if (!key && rawEmail) key = rawEmail;
+    if (!key) key = rawName.toLowerCase();
+    if (!key) return;
+
+    const amount = Number(o.total_amount) || 0;
+    const orderDate = o.created_at ? new Date(o.created_at) : new Date(0);
+
+    if (!map.has(key)) {
+      map.set(key, {
+        id: key,
+        name: rawName,
+        phone: rawPhone,
+        cleanPhone,
+        email: rawEmail,
+        address: o.address || 'Standard Delivery',
+        city: o.city || 'Pakistan',
+        ordersCount: 1,
+        totalSpent: (o.status !== 'cancelled') ? amount : 0,
+        lastOrderDate: orderDate,
+        orders: [o]
+      });
+    } else {
+      const c = map.get(key);
+      c.ordersCount += 1;
+      if (o.status !== 'cancelled') c.totalSpent += amount;
+      if (orderDate > c.lastOrderDate) {
+        c.lastOrderDate = orderDate;
+        if (o.address) c.address = o.address;
+        if (o.city) c.city = o.city;
+      }
+      c.orders.push(o);
+    }
+  });
+
+  return Array.from(map.values()).sort((a, b) => b.lastOrderDate - a.lastOrderDate);
+}
+
+function renderCustomersView() {
+  const customers = getAggregatedCustomers();
+
+  // Metrics
+  const totalCust = customers.length;
+  const repeatCust = customers.filter(c => c.ordersCount > 1).length;
+  const totalSpentAll = customers.reduce((sum, c) => sum + c.totalSpent, 0);
+  const avgSpend = totalCust > 0 ? Math.round(totalSpentAll / totalCust) : 0;
+
+  const totalEl = document.getElementById('custMetricTotal');
+  if (totalEl) totalEl.textContent = totalCust;
+
+  const repeatEl = document.getElementById('custMetricRepeat');
+  if (repeatEl) repeatEl.textContent = repeatCust;
+
+  const avgEl = document.getElementById('custMetricAvgSpend');
+  if (avgEl) avgEl.textContent = formatPKR(avgSpend);
+
+  // Filter
+  const filtered = customers.filter(c => {
+    if (!customerSearchQuery) return true;
+    const q = customerSearchQuery.toLowerCase();
+    return (
+      c.name.toLowerCase().includes(q) ||
+      c.phone.includes(q) ||
+      c.email.toLowerCase().includes(q) ||
+      c.address.toLowerCase().includes(q) ||
+      c.city.toLowerCase().includes(q)
+    );
+  });
+
+  // Table Body
+  const tbody = document.getElementById('customersTableBody');
+  if (tbody) {
+    if (filtered.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 32px; color: var(--text-muted);">No customers found matching search.</td></tr>`;
+    } else {
+      tbody.innerHTML = filtered.map(c => {
+        const phoneDigits = c.cleanPhone.startsWith('0') ? '92' + c.cleanPhone.substring(1) : c.cleanPhone;
+        const waLink = c.cleanPhone ? `https://wa.me/${phoneDigits}?text=Hello%20${encodeURIComponent(c.name)}%2C%20Rev%20Moto%20Customer%20Care` : '#';
+        const callLink = c.cleanPhone ? `tel:${c.cleanPhone}` : '#';
+
+        return `
+          <tr>
+            <td>
+              <strong style="color: var(--text-pure); font-size: 0.88rem;">${escapeHtml(c.name)}</strong>
+              ${c.email ? `<div style="font-size: 0.74rem; color: var(--text-muted);">${escapeHtml(c.email)}</div>` : ''}
+            </td>
+            <td>
+              <div style="font-size: 0.82rem; font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">
+                ${escapeHtml(c.phone || 'No phone')}
+              </div>
+              <div style="display: flex; gap: 4px;">
+                <a href="${waLink}" target="_blank" rel="noopener" class="btn-admin btn-whatsapp-sm" style="padding: 4px 8px; font-size: 0.7rem;">
+                  <i class="fab fa-whatsapp"></i> WA
+                </a>
+                <a href="${callLink}" class="btn-admin btn-call-sm" style="padding: 4px 8px; font-size: 0.7rem;">
+                  <i class="fas fa-phone"></i> Call
+                </a>
+              </div>
+            </td>
+            <td>
+              <div style="font-size: 0.82rem; color: var(--text-primary); max-width: 260px; line-height: 1.35;">
+                ${escapeHtml(c.address)}
+              </div>
+              <div style="font-size: 0.72rem; color: var(--text-muted);">${escapeHtml(c.city)}</div>
+            </td>
+            <td>
+              <span class="status-badge confirmed" style="font-size: 0.68rem;">
+                ${c.ordersCount} ${c.ordersCount === 1 ? 'Order' : 'Orders'}
+              </span>
+            </td>
+            <td>
+              <strong style="color: var(--accent-blue); font-size: 0.88rem;">${formatPKR(c.totalSpent)}</strong>
+            </td>
+            <td>
+              <span style="font-size: 0.78rem; color: var(--text-secondary);">${formatTimeAgo(c.lastOrderDate.toISOString())}</span>
+            </td>
+            <td style="text-align: right;">
+              <button class="btn-admin btn-admin-subtle" style="padding: 6px 10px; font-size: 0.76rem;" onclick="viewCustomerOrders('${escapeHtml(c.name)}')" title="Filter orders for this rider">
+                <i class="fas fa-list text-cyan"></i> Orders
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+  }
+
+  // Mobile Cards
+  const mobileContainer = document.getElementById('mobileCustomersContainer');
+  if (mobileContainer) {
+    if (filtered.length === 0) {
+      mobileContainer.innerHTML = `<div style="text-align:center; padding: 30px; color: var(--text-muted);">No customers found.</div>`;
+    } else {
+      mobileContainer.innerHTML = filtered.map(c => `
+        <div class="mobile-order-card">
+          <div class="m-order-header">
+            <div>
+              <strong style="font-size: 0.95rem; color: var(--text-pure);">${escapeHtml(c.name)}</strong>
+              <div style="font-size: 0.74rem; color: var(--text-muted);">${escapeHtml(c.phone)}</div>
+            </div>
+            <span class="status-badge confirmed">${c.ordersCount} Orders</span>
+          </div>
+          <div style="padding: 8px 0; font-size: 0.8rem; color: var(--text-secondary); border-top: 1px dashed var(--border-subtle); margin: 6px 0;">
+            ${escapeHtml(c.address)} • ${escapeHtml(c.city)}
+          </div>
+          <div class="m-order-actions">
+            <div>
+              <span style="font-size: 0.72rem; color: var(--text-muted); display: block;">Total Spend:</span>
+              <strong style="color: var(--accent-blue); font-size: 0.95rem;">${formatPKR(c.totalSpent)}</strong>
+            </div>
+            <button class="btn-admin btn-admin-primary" style="padding: 6px 12px; font-size: 0.78rem;" onclick="viewCustomerOrders('${escapeHtml(c.name)}')">
+              View Orders
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+  }
+}
+
+function handleCustomerSearch() {
+  customerSearchQuery = document.getElementById('custSearchInput')?.value || '';
+  renderCustomersView();
+}
+
+function viewCustomerOrders(customerName) {
+  switchAdminView('orders');
+  const searchInput = document.getElementById('adminSearchInput');
+  if (searchInput) {
+    searchInput.value = customerName;
+    searchQuery = customerName.toLowerCase();
+    activeFilter = 'all';
+    periodMode = 'all';
+    renderDashboard();
+    showToast(`Filtering orders for "${customerName}"`, 'info');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// REVIEWS MANAGEMENT VIEW
+// ═══════════════════════════════════════════════════════════════
+let activeReviewFilter = 'all';
+
+function getAdminReviews() {
+  try {
+    const raw = localStorage.getItem('revmoto_reviews');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch (e) {}
+
+  const defaults = [
+    {
+      id: 'rev-1',
+      orderId: 'RM-85623',
+      customerName: 'Shahid Afridi',
+      rating: 5,
+      comment: 'The Armored Mesh Riding Jacket is top tier! Ventilation is amazing on highway rides in Islamabad heat, and CE armor fits snugly.',
+      date: 'Nov 4, 2026, 2:37 PM'
+    },
+    {
+      id: 'rev-2',
+      orderId: 'RM-85619',
+      customerName: 'Kamran Akmal',
+      rating: 5,
+      comment: 'Carbon knuckle gloves fit like a glove! Fast 3-day delivery to Islamabad and clean COD packaging.',
+      date: 'Nov 4, 2026, 1:15 PM'
+    },
+    {
+      id: 'rev-3',
+      orderId: 'RM-85590',
+      customerName: 'Bilal Haider',
+      rating: 5,
+      comment: 'Touring pants kept me completely dry during heavy rain. Material and stitching quality is 10/10.',
+      date: 'Nov 4, 2026, 11:40 AM'
+    },
+    {
+      id: 'rev-4',
+      orderId: 'RM-85480',
+      customerName: 'Usman Tariq',
+      rating: 4,
+      comment: 'Magnetic tank bag has very strong grip even at 120 km/h. Clear mobile touch window works perfectly.',
+      date: 'Nov 3, 2026, 6:20 PM'
+    },
+    {
+      id: 'rev-5',
+      orderId: 'RM-85412',
+      customerName: 'Zain Ali',
+      rating: 5,
+      comment: 'Thermal windproof balaclava cuts cold wind completely on morning commutes. Great customer service.',
+      date: 'Nov 3, 2026, 2:10 PM'
+    }
+  ];
+
+  localStorage.setItem('revmoto_reviews', JSON.stringify(defaults));
+  return defaults;
+}
+
+function renderReviewsView() {
+  const reviews = getAdminReviews();
+
+  // Metrics
+  const total = reviews.length;
+  const sumRatings = reviews.reduce((sum, r) => sum + (Number(r.rating) || 5), 0);
+  const avg = total > 0 ? (sumRatings / total).toFixed(1) : '5.0';
+  const fiveStars = reviews.filter(r => Number(r.rating) === 5).length;
+  const fourStars = reviews.filter(r => Number(r.rating) === 4).length;
+  const threeBelow = reviews.filter(r => Number(r.rating) <= 3).length;
+  const satisfactionPct = total > 0 ? Math.round(((fiveStars + fourStars) / total) * 100) : 100;
+
+  const avgEl = document.getElementById('revMetricAvg');
+  if (avgEl) avgEl.textContent = `${avg} ★`;
+
+  const totalEl = document.getElementById('revMetricTotal');
+  if (totalEl) totalEl.textContent = total;
+
+  const pctEl = document.getElementById('revMetric5StarPct');
+  if (pctEl) pctEl.textContent = `${satisfactionPct}%`;
+
+  const countAll = document.getElementById('revCountAll');
+  if (countAll) countAll.textContent = total;
+
+  const count5 = document.getElementById('revCount5');
+  if (count5) count5.textContent = fiveStars;
+
+  const count4 = document.getElementById('revCount4');
+  if (count4) count4.textContent = fourStars;
+
+  const count3 = document.getElementById('revCount3');
+  if (count3) count3.textContent = threeBelow;
+
+  // Filter
+  const filtered = reviews.filter(r => {
+    const rate = Number(r.rating) || 5;
+    if (activeReviewFilter === 'all') return true;
+    if (activeReviewFilter === 5) return rate === 5;
+    if (activeReviewFilter === 4) return rate === 4;
+    if (activeReviewFilter === 3) return rate <= 3;
+    return true;
+  });
+
+  // Table
+  const tbody = document.getElementById('reviewsTableBody');
+  if (tbody) {
+    if (filtered.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 32px; color: var(--text-muted);">No reviews found for this rating filter.</td></tr>`;
+    } else {
+      tbody.innerHTML = filtered.map(r => `
+        <tr>
+          <td>
+            <strong style="color: var(--text-pure); font-size: 0.88rem;">${escapeHtml(r.customerName || 'Verified Rider')}</strong>
+            <div style="font-size: 0.74rem; color: var(--text-muted);">${escapeHtml(r.date || 'Recent')}</div>
+          </td>
+          <td>
+            <div style="color: #f59e0b; font-size: 0.82rem;">
+              ${Array(Number(r.rating) || 5).fill('<i class="fas fa-star"></i>').join('')}
+            </div>
+            <span style="font-size: 0.72rem; font-weight: 700; color: var(--text-secondary);">${r.rating} Out of 5</span>
+          </td>
+          <td>
+            <div style="font-size: 0.82rem; color: var(--text-pure); line-height: 1.45;">
+              ${escapeHtml(r.comment || '')}
+            </div>
+          </td>
+          <td>
+            ${r.orderId ? `<span class="order-id-badge" onclick="viewCustomerOrders('${escapeHtml(r.customerName)}')" style="cursor: pointer;">#${escapeHtml(r.orderId)}</span>` : '<span style="color: var(--text-muted); font-size: 0.76rem;">General Store</span>'}
+          </td>
+          <td style="text-align: right;">
+            <button class="btn-admin btn-admin-subtle" style="padding: 6px 10px; color: #ef4444;" onclick="deleteAdminReview('${escapeHtml(r.id)}')" title="Delete Review">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+  }
+
+  // Mobile Cards
+  const mobileContainer = document.getElementById('mobileReviewsContainer');
+  if (mobileContainer) {
+    if (filtered.length === 0) {
+      mobileContainer.innerHTML = `<div style="text-align: center; padding: 30px; color: var(--text-muted);">No reviews found.</div>`;
+    } else {
+      mobileContainer.innerHTML = filtered.map(r => `
+        <div class="mobile-order-card">
+          <div class="m-order-header">
+            <div>
+              <strong style="color: var(--text-pure); font-size: 0.9rem;">${escapeHtml(r.customerName || 'Rider')}</strong>
+              <span style="font-size: 0.72rem; color: var(--text-muted); margin-left: 6px;">${escapeHtml(r.date || 'Recent')}</span>
+            </div>
+            <div style="color: #f59e0b; font-size: 0.8rem;">
+              ${Array(Number(r.rating) || 5).fill('<i class="fas fa-star"></i>').join('')}
+            </div>
+          </div>
+          <p style="margin: 8px 0; font-size: 0.82rem; color: var(--text-primary); line-height: 1.4;">
+            ${escapeHtml(r.comment || '')}
+          </p>
+          <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed var(--border-subtle); padding-top: 6px;">
+            <span style="font-size: 0.72rem; color: var(--text-muted);">${r.orderId ? 'Order #' + r.orderId : 'Store Review'}</span>
+            <button class="btn-admin btn-admin-subtle" style="padding: 4px 8px; color: #ef4444; font-size: 0.75rem;" onclick="deleteAdminReview('${escapeHtml(r.id)}')">
+              <i class="fas fa-trash"></i> Delete
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+  }
+}
+
+function filterReviewsByRating(rating, btn) {
+  activeReviewFilter = rating;
+  document.querySelectorAll('#reviewFilterTabs .filter-tab').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderReviewsView();
+}
+
+function deleteAdminReview(reviewId) {
+  if (!confirm('Are you sure you want to delete this customer review?')) return;
+  const reviews = getAdminReviews().filter(r => String(r.id) !== String(reviewId));
+  localStorage.setItem('revmoto_reviews', JSON.stringify(reviews));
+  showToast('Customer review deleted.', 'info');
+  renderReviewsView();
+}
+
+function simulateTestReview() {
+  const riders = ['Haris Rauf', 'Shaheen Afridi', 'Naseem Shah', 'Fakhar Zaman', 'Babar Azam'];
+  const comments = [
+    'Amazing armor fit! Saved my elbow during a track slide. Incredibly durable Kevlar lining.',
+    'Fast delivery to Lahore in 2 days. The carbon knuckle gloves look and feel high end.',
+    'Rain suit kept me completely warm on the northern bypass ride. Worth every rupee.',
+    'Super breathable summer riding jacket. Great airflow and solid back protector.'
+  ];
+  const name = riders[Math.floor(Math.random() * riders.length)];
+  const comment = comments[Math.floor(Math.random() * comments.length)];
+  const reviews = getAdminReviews();
+  reviews.unshift({
+    id: 'rev-' + Date.now(),
+    orderId: 'RM-' + Math.floor(85000 + Math.random() * 1000),
+    customerName: name,
+    rating: 5,
+    comment: comment,
+    date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ', ' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+  });
+  localStorage.setItem('revmoto_reviews', JSON.stringify(reviews));
+  showToast(`Added test review from ${name}`, 'love');
+  renderReviewsView();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// STORE SETTINGS MANAGEMENT (DELIVERY FEES, STATUS, CONTACT)
+// ═══════════════════════════════════════════════════════════════
+function loadStoreSettings() {
+  try {
+    const raw = localStorage.getItem('revmoto_store_settings');
+    const settings = raw ? JSON.parse(raw) : {};
+
+    const feeEl = document.getElementById('settingDeliveryFee');
+    if (feeEl) feeEl.value = (settings.deliveryFee !== undefined) ? settings.deliveryFee : 350;
+
+    const freeThreshEl = document.getElementById('settingFreeDeliveryThreshold');
+    if (freeThreshEl) freeThreshEl.value = settings.freeDeliveryThreshold || 0;
+
+    const timelineEl = document.getElementById('settingDeliveryTimeline');
+    if (timelineEl) timelineEl.value = settings.deliveryLabel || 'Standard Tracked Delivery (3–5 Days)';
+
+    const phoneEl = document.getElementById('settingPhone');
+    if (phoneEl) phoneEl.value = settings.phone || '0337-4249450';
+
+    const waEl = document.getElementById('settingWhatsApp');
+    if (waEl) waEl.value = settings.whatsapp || '923374249450';
+
+    const emailEl = document.getElementById('settingEmail');
+    if (emailEl) emailEl.value = settings.email || 'revmoto.pk@gmail.com';
+
+    const addrEl = document.getElementById('settingAddress');
+    if (addrEl) addrEl.value = settings.address || 'Sialkot Manufacturing District, Punjab, Pakistan';
+
+    const isClosed = settings.isStoreClosed === true;
+    const openRadio = document.getElementById('storeStatusOpen');
+    const closedRadio = document.getElementById('storeStatusClosed');
+    if (openRadio && closedRadio) {
+      openRadio.checked = !isClosed;
+      closedRadio.checked = isClosed;
+    }
+
+    const closedNoticeGroup = document.getElementById('closedNoticeGroup');
+    if (closedNoticeGroup) {
+      closedNoticeGroup.style.display = isClosed ? 'block' : 'none';
+    }
+  } catch (e) {
+    console.error('Error loading store settings:', e);
+  }
+}
+
+function saveStoreSettings() {
+  const deliveryFee = Number(document.getElementById('settingDeliveryFee')?.value || 350);
+  const freeThreshold = Number(document.getElementById('settingFreeDeliveryThreshold')?.value || 0);
+  const deliveryLabel = document.getElementById('settingDeliveryTimeline')?.value || 'Standard Tracked Delivery (3–5 Days)';
+  const phone = document.getElementById('settingPhone')?.value || '0337-4249450';
+  const whatsapp = document.getElementById('settingWhatsApp')?.value || '923374249450';
+  const email = document.getElementById('settingEmail')?.value || 'revmoto.pk@gmail.com';
+  const address = document.getElementById('settingAddress')?.value || 'Sialkot Manufacturing District, Punjab, Pakistan';
+  const isStoreClosed = document.getElementById('storeStatusClosed')?.checked === true;
+  const closedNotice = document.getElementById('settingClosedNotice')?.value || '';
+
+  const settingsObj = {
+    deliveryFee,
+    freeDeliveryThreshold: freeThreshold,
+    deliveryLabel,
+    phone,
+    whatsapp,
+    email,
+    address,
+    isStoreClosed,
+    closedNotice,
+    updatedAt: new Date().toISOString()
+  };
+
+  localStorage.setItem('revmoto_store_settings', JSON.stringify(settingsObj));
+  showToast(`Settings saved! Standard delivery fee set to Rs. ${deliveryFee}`, 'success');
+}

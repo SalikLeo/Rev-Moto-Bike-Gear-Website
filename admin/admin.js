@@ -1,3 +1,14 @@
+function resolveAdminImgPath(src) {
+  if (!src) return '../assets/images/logo.png';
+  if (src.startsWith('http://') || src.startsWith('https://') || src.startsWith('data:') || src.startsWith('../')) {
+    return src;
+  }
+  if (src.startsWith('/')) {
+    return '..' + src;
+  }
+  return '../' + src;
+}
+
 /**
  * ==========================================================================
  * REV MOTO — Modern Responsive Admin Engine (Supabase + Local Fallback)
@@ -1974,7 +1985,7 @@ function renderCustomersView() {
           <tr>
             <td>
               <strong style="color: var(--text-pure); font-size: 0.88rem;">${escapeHtml(c.name)}</strong>
-              ${c.email ? `<div style="font-size: 0.74rem; color: var(--text-muted);">${escapeHtml(c.email)}</div>` : ''}
+              
             </td>
             <td>
               <div style="font-size: 0.82rem; font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">
@@ -2370,143 +2381,82 @@ function setSalesPeriod(mode, btn) {
   renderSalesView();
 }
 
-function renderSalesPeriodNavigator() {
-  const navWrap = document.getElementById('salesDateNavWrap');
-  if (!navWrap) return;
-
-  if (salesPeriodMode === 'all') {
-    navWrap.innerHTML = `
-      <div class="date-navigator" style="padding: 4px 10px; font-weight: 700; color: var(--text-secondary); font-size: 0.78rem;">
-        All Time Sales History
-      </div>
-    `;
-    return;
-  }
-
-  const isCurrent = isSalesCurrentPeriod();
-  let labelHtml = '';
-
-  if (salesPeriodMode === 'daily') {
-    const y = salesPeriodDate.getFullYear();
-    const m = String(salesPeriodDate.getMonth() + 1).padStart(2, '0');
-    const d = String(salesPeriodDate.getDate()).padStart(2, '0');
-    const inputVal = `${y}-${m}-${d}`;
-    const displayStr = `${m}/${d}/${y}`;
-
-    labelHtml = `
-      <label class="date-display-label" for="salesNativeDatePicker">
-        <span class="date-text">${displayStr}</span>
-        <i class="fas fa-calendar-alt calendar-icon"></i>
-      </label>
-      <input type="date" id="salesNativeDatePicker" class="native-date-hidden" value="${inputVal}" onchange="handleSalesNativeDateChange(this.value)">
-    `;
-  } else if (salesPeriodMode === 'monthly') {
-    const curYear = salesPeriodDate.getFullYear();
-    const curMonth = salesPeriodDate.getMonth();
-    const curMonthName = MONTH_NAMES[curMonth];
-
-    labelHtml = `
-      <div class="custom-dropdown-wrap">
-        <button type="button" class="dropdown-trigger" onclick="toggleSalesDropdown('salesMonthDropdown', event)">
-          <span>${curMonthName}</span> <i class="fas fa-chevron-down caret-icon"></i>
-        </button>
-        <div class="dropdown-menu-list" id="salesMonthDropdown">
-          ${MONTH_NAMES.map((name, idx) => `
-            <div class="dropdown-menu-item ${idx === curMonth ? 'selected' : ''}" onclick="selectSalesMonth(${idx})">
-              ${name}
-            </div>
-          `).join('')}
-        </div>
-      </div>
-
-      <div class="custom-dropdown-wrap">
-        <button type="button" class="dropdown-trigger" onclick="toggleSalesDropdown('salesYearDropdown', event)">
-          <span>${curYear}</span> <i class="fas fa-chevron-down caret-icon"></i>
-        </button>
-        <div class="dropdown-menu-list" id="salesYearDropdown">
-          ${[curYear - 2, curYear - 1, curYear, curYear + 1].map(yr => `
-            <div class="dropdown-menu-item ${yr === curYear ? 'selected' : ''}" onclick="selectSalesYear(${yr})">
-              ${yr}
-            </div>
-          `).join('')}
-        </div>
-      </div>
-    `;
-  } else if (salesPeriodMode === 'annual') {
-    const curYear = salesPeriodDate.getFullYear();
-    labelHtml = `
-      <div class="custom-dropdown-wrap">
-        <button type="button" class="dropdown-trigger" onclick="toggleSalesDropdown('salesAnnualDropdown', event)">
-          <span>${curYear}</span> <i class="fas fa-chevron-down caret-icon"></i>
-        </button>
-        <div class="dropdown-menu-list" id="salesAnnualDropdown">
-          ${[curYear - 2, curYear - 1, curYear, curYear + 1].map(yr => `
-            <div class="dropdown-menu-item ${yr === curYear ? 'selected' : ''}" onclick="selectSalesYear(${yr})">
-              ${yr}
-            </div>
-          `).join('')}
-        </div>
-      </div>
-    `;
-  }
-
-  const quickJumpLabel = salesPeriodMode === 'daily' ? 'TODAY' : (salesPeriodMode === 'monthly' ? 'THIS MONTH' : 'THIS YEAR');
-
-  navWrap.innerHTML = `
-    <div class="date-navigator">
-      <button type="button" class="nav-arrow-btn" onclick="shiftSalesPeriod(-1)" title="Previous">
-        <i class="fas fa-chevron-left"></i>
-      </button>
-
-      ${labelHtml}
-
-      <button type="button" class="nav-arrow-btn" onclick="shiftSalesPeriod(1)" title="Next">
-        <i class="fas fa-chevron-right"></i>
-      </button>
-
-      <button type="button" class="btn-today-pill" onclick="resetSalesPeriodToCurrent()">
-        ${quickJumpLabel}
-      </button>
-
-      ${!isCurrent ? `
-        <button type="button" class="btn-reset-cross" onclick="resetSalesPeriodToCurrent()" title="Reset to current ${salesPeriodMode}">
-          <i class="fas fa-times"></i>
-        </button>
-      ` : ''}
-    </div>
-  `;
-}
-
 function isSalesCurrentPeriod() {
-  const now = new Date();
+  if (salesPeriodMode === 'all') return false;
   if (salesPeriodMode === 'daily') {
-    return salesPeriodDate.toDateString() === now.toDateString();
+    return (
+      salesPeriodDate.getFullYear() === NOW.getFullYear() &&
+      salesPeriodDate.getMonth() === NOW.getMonth() &&
+      salesPeriodDate.getDate() === NOW.getDate()
+    );
   }
   if (salesPeriodMode === 'monthly') {
-    return salesPeriodDate.getFullYear() === now.getFullYear() && salesPeriodDate.getMonth() === now.getMonth();
+    return (
+      salesPeriodDate.getFullYear() === NOW.getFullYear() &&
+      salesPeriodDate.getMonth() === NOW.getMonth()
+    );
   }
   if (salesPeriodMode === 'annual') {
-    return salesPeriodDate.getFullYear() === now.getFullYear();
+    return salesPeriodDate.getFullYear() === NOW.getFullYear();
   }
   return true;
 }
 
-function shiftSalesPeriod(direction) {
-  const d = new Date(salesPeriodDate.getTime());
-  if (salesPeriodMode === 'daily') {
-    d.setDate(d.getDate() + direction);
-  } else if (salesPeriodMode === 'monthly') {
-    d.setMonth(d.getMonth() + direction);
-  } else if (salesPeriodMode === 'annual') {
-    d.setFullYear(d.getFullYear() + direction);
+function openSalesDailyPicker() {
+  const el = document.getElementById('salesNativeDatePicker');
+  if (el) {
+    if (typeof el.showPicker === 'function') {
+      try { el.showPicker(); return; } catch (e) {}
+    }
+    el.focus();
+    el.click();
   }
-  salesPeriodDate = d;
+}
+
+function jumpSalesToToday() {
+  salesPeriodDate = new Date();
   renderSalesPeriodNavigator();
   renderSalesView();
 }
 
-function resetSalesPeriodToCurrent() {
+function jumpSalesToCurrentMonth() {
   salesPeriodDate = new Date();
+  renderSalesPeriodNavigator();
+  renderSalesView();
+}
+
+function jumpSalesToCurrentYear() {
+  salesPeriodDate = new Date();
+  renderSalesPeriodNavigator();
+  renderSalesView();
+}
+
+function resetSalesToCurrentPeriod() {
+  setSalesPeriod('daily');
+  jumpSalesToToday();
+  showToast('Sales reset to current date (Today)', 'info');
+}
+
+function onSalesMonthSelectChange(m) {
+  salesPeriodDate.setMonth(m);
+  renderSalesPeriodNavigator();
+  renderSalesView();
+}
+
+function onSalesYearSelectChange(y) {
+  salesPeriodDate.setFullYear(y);
+  renderSalesPeriodNavigator();
+  renderSalesView();
+}
+
+function shiftSalesPeriod(direction) {
+  if (salesPeriodMode === 'daily') {
+    salesPeriodDate.setDate(salesPeriodDate.getDate() + direction);
+  } else if (salesPeriodMode === 'monthly') {
+    salesPeriodDate.setMonth(salesPeriodDate.getMonth() + direction);
+  } else if (salesPeriodMode === 'annual') {
+    salesPeriodDate.setFullYear(salesPeriodDate.getFullYear() + direction);
+  }
   renderSalesPeriodNavigator();
   renderSalesView();
 }
@@ -2521,28 +2471,126 @@ function handleSalesNativeDateChange(val) {
   }
 }
 
-function toggleSalesDropdown(id, e) {
-  if (e) e.stopPropagation();
-  const el = document.getElementById(id);
-  if (!el) return;
-  const isOpen = el.classList.contains('open');
-  document.querySelectorAll('.dropdown-menu-list').forEach(d => d.classList.remove('open'));
-  if (!isOpen) el.classList.add('open');
-}
-
-function selectSalesMonth(m) {
-  salesPeriodDate.setMonth(m);
-  document.querySelectorAll('.dropdown-menu-list').forEach(d => d.classList.remove('open'));
+function setSalesPeriod(mode, btn) {
+  salesPeriodMode = mode;
+  document.querySelectorAll('#salesPeriodSegmentedControl .period-segment-btn, #salesPeriodPills .period-pill').forEach(b => b.classList.remove('active'));
+  const targetBtn = btn || document.getElementById(`btnSalesPeriod${mode.charAt(0).toUpperCase() + mode.slice(1)}`);
+  if (targetBtn) targetBtn.classList.add('active');
   renderSalesPeriodNavigator();
   renderSalesView();
 }
 
-function selectSalesYear(y) {
-  salesPeriodDate.setFullYear(y);
-  document.querySelectorAll('.dropdown-menu-list').forEach(d => d.classList.remove('open'));
-  renderSalesPeriodNavigator();
-  renderSalesView();
+function renderSalesPeriodNavigator() {
+  const container = document.getElementById('salesPeriodNavigatorBox') || document.getElementById('salesDateNavWrap');
+  if (!container) return;
+
+  const currentYear = NOW.getFullYear();
+  const yearOptions = [currentYear - 2, currentYear - 1, currentYear, currentYear + 1]
+    .map(y => `<option value="${y}" ${y === salesPeriodDate.getFullYear() ? 'selected' : ''}>${y}</option>`)
+    .join('');
+
+  const isCurrent = isSalesCurrentPeriod();
+  const resetCrossBtn = !isCurrent ? `
+    <button type="button" class="period-reset-cross" onclick="resetSalesToCurrentPeriod()" title="Reset to current (Today)">
+      <i class="fas fa-times"></i>
+    </button>
+  ` : '';
+
+  if (salesPeriodMode === 'all') {
+    container.innerHTML = `
+      <div class="period-all-label">
+        <i class="fas fa-infinity"></i>
+        <span>All-Time Sales History</span>
+      </div>
+    `;
+    return;
+  }
+
+  if (salesPeriodMode === 'daily') {
+    const y = salesPeriodDate.getFullYear();
+    const m = String(salesPeriodDate.getMonth() + 1).padStart(2, '0');
+    const d = String(salesPeriodDate.getDate()).padStart(2, '0');
+    const inputVal = `${y}-${m}-${d}`;
+
+    container.innerHTML = `
+      <button type="button" class="period-nav-arrow" onclick="shiftSalesPeriod(-1)" title="Previous Day">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+
+      <div class="period-date-display" onclick="openSalesDailyPicker()" title="Click to pick a specific date">
+        <span>${formatDateMMDDYYYY(salesPeriodDate)}</span>
+        <i class="far fa-calendar-alt period-calendar-icon"></i>
+        <input type="date" id="salesNativeDatePicker" class="hidden-date-picker" value="${inputVal}" onchange="handleSalesNativeDateChange(this.value)">
+      </div>
+
+      <button type="button" class="period-nav-arrow" onclick="shiftSalesPeriod(1)" title="Next Day">
+        <i class="fas fa-chevron-right"></i>
+      </button>
+
+      <button type="button" class="period-quick-btn" onclick="jumpSalesToToday()" title="Jump to Today">
+        TODAY
+      </button>
+      ${resetCrossBtn}
+    `;
+    return;
+  }
+
+  if (salesPeriodMode === 'monthly') {
+    const monthOptions = MONTH_NAMES
+      .map((name, idx) => `<option value="${idx}" ${idx === salesPeriodDate.getMonth() ? 'selected' : ''}>${name}</option>`)
+      .join('');
+
+    container.innerHTML = `
+      <button type="button" class="period-nav-arrow" onclick="shiftSalesPeriod(-1)" title="Previous Month">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+
+      <div class="period-dropdowns-group">
+        <select class="period-select" id="salesPeriodMonthSelect" onchange="onSalesMonthSelectChange(Number(this.value))">
+          ${monthOptions}
+        </select>
+        <select class="period-select" id="salesPeriodYearSelect" onchange="onSalesYearSelectChange(Number(this.value))">
+          ${yearOptions}
+        </select>
+      </div>
+
+      <button type="button" class="period-nav-arrow" onclick="shiftSalesPeriod(1)" title="Next Month">
+        <i class="fas fa-chevron-right"></i>
+      </button>
+
+      <button type="button" class="period-quick-btn" onclick="jumpSalesToCurrentMonth()" title="Jump to Current Month">
+        THIS MONTH
+      </button>
+      ${resetCrossBtn}
+    `;
+    return;
+  }
+
+  if (salesPeriodMode === 'annual') {
+    container.innerHTML = `
+      <button type="button" class="period-nav-arrow" onclick="shiftSalesPeriod(-1)" title="Previous Year">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+
+      <div class="period-dropdowns-group">
+        <select class="period-select" id="salesPeriodYearSelect" onchange="onSalesYearSelectChange(Number(this.value))">
+          ${yearOptions}
+        </select>
+      </div>
+
+      <button type="button" class="period-nav-arrow" onclick="shiftSalesPeriod(1)" title="Next Year">
+        <i class="fas fa-chevron-right"></i>
+      </button>
+
+      <button type="button" class="period-quick-btn" onclick="jumpSalesToCurrentYear()" title="Jump to This Year">
+        THIS YEAR
+      </button>
+      ${resetCrossBtn}
+    `;
+    return;
+  }
 }
+
 
 function getFilteredSalesOrders() {
   if (salesPeriodMode === 'all') {
@@ -2585,10 +2633,25 @@ function aggregateItemSales(scopedOrders) {
       const size = it.size || 'Standard';
 
       if (!map[name]) {
-        // Find product image if available
-        const catalogProd = getAdminProducts().find(p => p.name.toLowerCase() === name.toLowerCase());
-        const img = catalogProd ? catalogProd.img : 'assets/images/jacket_cyber.jpg';
-        const category = catalogProd ? catalogProd.categoryLabel || catalogProd.category : 'Gear';
+        // Smart product image and category lookup
+        const lowerName = name.toLowerCase();
+        const catalogProd = getAdminProducts().find(p => {
+          const pName = p.name.toLowerCase();
+          return pName === lowerName || pName.includes(lowerName) || lowerName.includes(pName);
+        });
+
+        let img = catalogProd ? catalogProd.img : '';
+        if (!img) {
+          if (lowerName.includes('jacket')) img = 'assets/images/jacket_cyber.jpg';
+          else if (lowerName.includes('glove')) img = 'assets/images/gloves_carbon.jpg';
+          else if (lowerName.includes('pant')) img = 'assets/images/jacket.jpeg';
+          else if (lowerName.includes('bag') || lowerName.includes('pack')) img = 'assets/images/tankbag.jpeg';
+          else if (lowerName.includes('mask') || lowerName.includes('balaclava')) img = 'assets/images/halfmask.jpeg';
+          else if (lowerName.includes('tee') || lowerName.includes('shirt')) img = 'assets/images/tshirt.jpeg';
+          else img = 'assets/images/jacket_cyber.jpg';
+        }
+
+        const category = catalogProd ? catalogProd.categoryLabel || catalogProd.category : 'Motorcycle Gear';
 
         map[name] = {
           name,
@@ -2687,7 +2750,7 @@ function renderSalesView() {
             </td>
             <td>
               <div style="display: flex; align-items: center; gap: 10px;">
-                <img src="${item.image}" alt="${escapeHtml(item.name)}" class="product-table-img">
+                <img src="${resolveAdminImgPath(item.image)}" alt="${escapeHtml(item.name)}" class="product-table-img" onerror="this.onerror=null; this.src='../assets/images/logo.png';">
                 <div>
                   <strong style="color: var(--text-pure); font-size: 0.88rem;">${escapeHtml(item.name)}</strong>
                   <div style="font-size: 0.74rem; color: var(--text-muted);">${escapeHtml(item.category)}</div>
@@ -2933,7 +2996,7 @@ function renderProductsView() {
         return `
           <tr>
             <td>
-              <img src="${p.img}" alt="${escapeHtml(p.name)}" class="product-table-img">
+              <img src="${resolveAdminImgPath(p.img)}" alt="${escapeHtml(p.name)}" class="product-table-img" onerror="this.onerror=null; this.src='../assets/images/logo.png';">
             </td>
             <td>
               <strong style="color: var(--text-pure); font-size: 0.88rem;">${escapeHtml(p.name)}</strong>
@@ -2985,7 +3048,7 @@ function renderProductsView() {
         return `
           <div class="mobile-order-card">
             <div style="display: flex; gap: 12px; align-items: center;">
-              <img src="${p.img}" alt="${escapeHtml(p.name)}" class="product-table-img" style="width: 52px; height: 52px;">
+              <img src="${resolveAdminImgPath(p.img)}" alt="${escapeHtml(p.name)}" class="product-table-img" style="width: 52px; height: 52px;" onerror="this.onerror=null; this.src='../assets/images/logo.png';">
               <div style="flex: 1;">
                 <strong style="color: var(--text-pure); font-size: 0.92rem;">${escapeHtml(p.name)}</strong>
                 <div style="font-size: 0.75rem; color: var(--text-muted);">${escapeHtml(p.categoryLabel || p.category)}</div>
@@ -3095,7 +3158,7 @@ function openProductModal(productId = null) {
     if (descInput) descInput.value = prod.desc || '';
 
     if (previewBox) {
-      previewBox.innerHTML = prod.img ? `<img src="${prod.img}" alt="Preview">` : `<i class="fas fa-image" style="color: var(--text-muted); font-size: 1.5rem;"></i>`;
+      previewBox.innerHTML = prod.img ? `<img src="${resolveAdminImgPath(prod.img)}" alt="Preview" onerror="this.onerror=null; this.src='../assets/images/logo.png';">` : `<i class="fas fa-image" style="color: var(--text-muted); font-size: 1.5rem;"></i>`;
     }
   } else {
     if (titleEl) titleEl.textContent = 'Add New Product to Catalog';

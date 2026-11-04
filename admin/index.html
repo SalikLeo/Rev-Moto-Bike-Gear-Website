@@ -25,7 +25,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
   <!-- Admin Portal CSS -->
-  <link rel="stylesheet" href="admin.css?v=2.3">
+  <link rel="stylesheet" href="admin.css?v=2.5">
 </head>
 <body>
 
@@ -203,81 +203,74 @@
     <!-- ════ SALES VIEW (ITEM-WISE SALES & TIME FILTERS) ════════════ -->
     <div id="salesView" class="admin-tab-view" style="display: none;">
       <!-- Time Filters Bar for Sales -->
-      <div class="admin-controls-card" style="margin-bottom: 14px;">
-        <div class="filter-controls-row">
-          <div class="period-filter-group">
-            <span class="period-label">PERIOD</span>
-            <div class="period-pills" id="salesPeriodPills">
-              <button class="period-pill active" onclick="setSalesPeriod('daily', this)">Daily</button>
-              <button class="period-pill" onclick="setSalesPeriod('monthly', this)">Monthly</button>
-              <button class="period-pill" onclick="setSalesPeriod('annual', this)">Annual</button>
-              <button class="period-pill" onclick="setSalesPeriod('all', this)">All</button>
-            </div>
-            <!-- Dynamic Date Navigator for Sales -->
-            <div class="date-navigator-wrap" id="salesDateNavWrap">
-              <!-- Rendered by admin.js -->
-            </div>
+      <section class="period-filter-bar">
+        <div class="period-filter-left">
+          <span class="period-label">PERIOD</span>
+          
+          <!-- Segmented Mode Control -->
+          <div class="period-segmented-control" id="salesPeriodSegmentedControl">
+            <button type="button" class="period-segment-btn active" id="btnSalesPeriodDaily" onclick="setSalesPeriod('daily', this)">Daily</button>
+            <button type="button" class="period-segment-btn" id="btnSalesPeriodMonthly" onclick="setSalesPeriod('monthly', this)">Monthly</button>
+            <button type="button" class="period-segment-btn" id="btnSalesPeriodAnnual" onclick="setSalesPeriod('annual', this)">Annual</button>
+            <button type="button" class="period-segment-btn" id="btnSalesPeriodAll" onclick="setSalesPeriod('all', this)">All</button>
           </div>
 
-          <!-- Sales Search & Sort -->
-          <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
-            <div class="admin-search-wrapper" style="max-width: 260px;">
-              <i class="fas fa-search admin-search-icon"></i>
-              <input type="text" id="salesSearchInput" class="admin-search-input" placeholder="Search gear..." oninput="handleSalesSearch()">
-            </div>
-            <select id="salesSortSelect" class="form-control-select" style="height: 36px; padding: 0 10px; font-size: 0.78rem;" onchange="handleSalesSortChange()">
-              <option value="rev_desc">Highest Revenue</option>
-              <option value="qty_desc">Most Units Sold</option>
-              <option value="name_asc">Item Name (A–Z)</option>
-            </select>
+          <!-- Dynamic Date Navigator Box -->
+          <div class="period-navigator-box" id="salesPeriodNavigatorBox">
+            <!-- Rendered by admin.js -->
           </div>
         </div>
-      </div>
+
+        <!-- Sales Search & Sort -->
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+          <div class="search-input-wrapper" style="max-width: 240px;">
+            <i class="fas fa-search"></i>
+            <input type="text" id="salesSearchInput" class="admin-search-input" placeholder="Search gear..." oninput="handleSalesSearch()">
+          </div>
+          <select id="salesSortSelect" class="form-control-select" onchange="handleSalesSortChange()">
+            <option value="rev_desc">Highest Revenue</option>
+            <option value="qty_desc">Most Units Sold</option>
+            <option value="name_asc">Item Name (A–Z)</option>
+          </select>
+        </div>
+      </section>
 
       <!-- Sales Summary Metrics Cards -->
       <section class="metrics-grid">
         <div class="metric-card">
-          <div class="metric-icon-wrap" style="background: rgba(37,99,235,0.1); color: #2563eb;">
-            <i class="fas fa-boxes-packing"></i>
+          <div class="metric-label">
+            <span>Total Units Sold</span>
+            <div class="metric-icon-wrap orders" style="background: rgba(37,99,235,0.1); color: #2563eb;"><i class="fas fa-boxes-packing"></i></div>
           </div>
-          <div class="metric-info">
-            <span class="metric-label">Total Units Sold</span>
-            <div class="metric-val" id="salesMetricUnits">0</div>
-            <span class="metric-hint" id="salesMetricUnitsHint">In selected period</span>
-          </div>
+          <div class="metric-value" id="salesMetricUnits">0</div>
+          <div class="metric-sub" id="salesMetricUnitsHint">In selected period</div>
         </div>
 
         <div class="metric-card">
-          <div class="metric-icon-wrap" style="background: rgba(16,185,129,0.1); color: #10b981;">
-            <i class="fas fa-chart-line"></i>
+          <div class="metric-label">
+            <span>Gear Sales Revenue</span>
+            <div class="metric-icon-wrap rev" style="background: rgba(16,185,129,0.1); color: #10b981;"><i class="fas fa-chart-line"></i></div>
           </div>
-          <div class="metric-info">
-            <span class="metric-label">Gear Sales Revenue</span>
-            <div class="metric-val" id="salesMetricRevenue">Rs. 0</div>
-            <span class="metric-hint">Item sales total</span>
-          </div>
+          <div class="metric-value" id="salesMetricRevenue">Rs. 0</div>
+          <div class="metric-sub">Item sales total</div>
         </div>
 
         <div class="metric-card">
-          <div class="metric-icon-wrap" style="background: rgba(245,158,11,0.1); color: #f59e0b;">
-            <i class="fas fa-trophy"></i>
+          <div class="metric-label">
+            <span>Top Selling Gear</span>
+            <div class="metric-icon-wrap pending" style="background: rgba(245,158,11,0.1); color: #f59e0b;"><i class="fas fa-trophy"></i></div>
           </div>
-          <div class="metric-info">
-            <span class="metric-label">Top Selling Gear</span>
-            <div class="metric-val" id="salesMetricTopItem" style="font-size: 1.05rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">—</div>
-            <span class="metric-hint" id="salesMetricTopItemHint">Highest volume</span>
-          </div>
+          <div class="metric-value" id="salesMetricTopItem" style="font-size: 1.15rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">—</div>
+          <div class="metric-sub" id="salesMetricTopItemHint">Highest volume</div>
         </div>
 
         <div class="metric-card">
-          <div class="metric-icon-wrap" style="background: rgba(168,85,247,0.1); color: #a855f7;">
-            <i class="fas fa-tags"></i>
+          <div class="metric-label">
+            <span>Active SKUs Sold</span>
+            <div class="metric-icon-wrap dispatched" style="background: rgba(168,85,247,0.1); color: #a855f7;"><i class="fas fa-tags"></i></div>
           </div>
-          <div class="metric-info">
-            <span class="metric-label">Active SKUs Sold</span>
-            <div class="metric-val" id="salesMetricSkus">0</div>
-            <span class="metric-hint">Distinct products sold</span>
-          </div>
+          <div class="metric-value" id="salesMetricSkus">0</div>
+          <div class="metric-sub">Distinct products sold</div>
         </div>
       </section>
 
@@ -310,46 +303,40 @@
     <!-- ════ PRODUCTS VIEW (CATALOG & STOCK MANAGEMENT) ════════════ -->
     <div id="productsView" class="admin-tab-view" style="display: none;">
       <!-- Product Catalog Summary Metrics -->
-      <section class="metrics-grid">
+      <section class="metrics-grid" style="grid-template-columns: repeat(3, 1fr);">
         <div class="metric-card">
-          <div class="metric-icon-wrap" style="background: rgba(37,99,235,0.1); color: #2563eb;">
-            <i class="fas fa-vest"></i>
+          <div class="metric-label">
+            <span>Total Products</span>
+            <div class="metric-icon-wrap orders" style="background: rgba(37,99,235,0.1); color: #2563eb;"><i class="fas fa-vest"></i></div>
           </div>
-          <div class="metric-info">
-            <span class="metric-label">Total Products</span>
-            <div class="metric-val" id="prodMetricTotal">0</div>
-            <span class="metric-hint">Active gear items in catalog</span>
-          </div>
+          <div class="metric-value" id="prodMetricTotal">0</div>
+          <div class="metric-sub">Active gear items in catalog</div>
         </div>
 
         <div class="metric-card">
-          <div class="metric-icon-wrap" style="background: rgba(16,185,129,0.1); color: #10b981;">
-            <i class="fas fa-cubes"></i>
+          <div class="metric-label">
+            <span>Total In-Stock Units</span>
+            <div class="metric-icon-wrap dispatched" style="background: rgba(16,185,129,0.1); color: #10b981;"><i class="fas fa-cubes"></i></div>
           </div>
-          <div class="metric-info">
-            <span class="metric-label">Total In-Stock Units</span>
-            <div class="metric-val" id="prodMetricUnits">0</div>
-            <span class="metric-hint">Combined stock across sizes</span>
-          </div>
+          <div class="metric-value" id="prodMetricUnits">0</div>
+          <div class="metric-sub">Combined stock across sizes</div>
         </div>
 
         <div class="metric-card">
-          <div class="metric-icon-wrap" style="background: rgba(245,158,11,0.1); color: #f59e0b;">
-            <i class="fas fa-layer-group"></i>
+          <div class="metric-label">
+            <span>Gear Categories</span>
+            <div class="metric-icon-wrap pending" style="background: rgba(245,158,11,0.1); color: #f59e0b;"><i class="fas fa-layer-group"></i></div>
           </div>
-          <div class="metric-info">
-            <span class="metric-label">Gear Categories</span>
-            <div class="metric-val" id="prodMetricCategories">4</div>
-            <span class="metric-hint">Jackets, Gloves, Bags, Masks</span>
-          </div>
+          <div class="metric-value" id="prodMetricCategories">4</div>
+          <div class="metric-sub">Jackets, Gloves, Bags, Masks</div>
         </div>
       </section>
 
       <!-- Products Controls: Search, Category Filter & Add Product Button -->
-      <div class="admin-controls-card" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-          <div class="admin-search-wrapper" style="max-width: 260px;">
-            <i class="fas fa-search admin-search-icon"></i>
+      <div class="controls-bar" style="margin-bottom: 12px; gap: 12px; flex-wrap: wrap;">
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; flex: 1;">
+          <div class="search-input-wrapper" style="max-width: 260px;">
+            <i class="fas fa-search"></i>
             <input type="text" id="prodSearchInput" class="admin-search-input" placeholder="Search products..." oninput="handleProductSearch()">
           </div>
 
@@ -362,7 +349,7 @@
           </div>
         </div>
 
-        <button class="btn-admin btn-admin-primary" style="height: 38px;" onclick="openProductModal()" title="Add a new product to store catalog">
+        <button class="btn-admin btn-admin-primary" style="height: 36px; padding: 0 14px;" onclick="openProductModal()" title="Add a new product to store catalog">
           <i class="fas fa-plus"></i> Add New Product
         </button>
       </div>
@@ -397,46 +384,40 @@
     <!-- ════ CUSTOMERS VIEW ═════════════════════════════════════════ -->
     <div id="customersView" class="admin-tab-view" style="display: none;">
       <!-- Customer Metrics Summary -->
-      <section class="metrics-grid">
+      <section class="metrics-grid" style="grid-template-columns: repeat(3, 1fr);">
         <div class="metric-card">
-          <div class="metric-icon-wrap" style="background: rgba(37,99,235,0.1); color: #2563eb;">
-            <i class="fas fa-users"></i>
+          <div class="metric-label">
+            <span>Total Unique Customers</span>
+            <div class="metric-icon-wrap orders" style="background: rgba(37,99,235,0.1); color: #2563eb;"><i class="fas fa-users"></i></div>
           </div>
-          <div class="metric-info">
-            <span class="metric-label">Total Unique Customers</span>
-            <div class="metric-val" id="custMetricTotal">0</div>
-            <span class="metric-hint">Aggregated via customer history</span>
-          </div>
+          <div class="metric-value" id="custMetricTotal">0</div>
+          <div class="metric-sub">Aggregated via customer history</div>
         </div>
 
         <div class="metric-card">
-          <div class="metric-icon-wrap" style="background: rgba(16,185,129,0.1); color: #10b981;">
-            <i class="fas fa-rotate"></i>
+          <div class="metric-label">
+            <span>Repeat Customers</span>
+            <div class="metric-icon-wrap dispatched" style="background: rgba(16,185,129,0.1); color: #10b981;"><i class="fas fa-rotate"></i></div>
           </div>
-          <div class="metric-info">
-            <span class="metric-label">Repeat Customers</span>
-            <div class="metric-val" id="custMetricRepeat">0</div>
-            <span class="metric-hint">Placed 2+ orders</span>
-          </div>
+          <div class="metric-value" id="custMetricRepeat">0</div>
+          <div class="metric-sub">Placed 2+ orders</div>
         </div>
 
         <div class="metric-card">
-          <div class="metric-icon-wrap" style="background: rgba(245,158,11,0.1); color: #f59e0b;">
-            <i class="fas fa-sack-dollar"></i>
+          <div class="metric-label">
+            <span>Average Customer LTV</span>
+            <div class="metric-icon-wrap rev" style="background: rgba(245,158,11,0.1); color: #f59e0b;"><i class="fas fa-sack-dollar"></i></div>
           </div>
-          <div class="metric-info">
-            <span class="metric-label">Average Customer LTV</span>
-            <div class="metric-val" id="custMetricAvgSpend">Rs. 0</div>
-            <span class="metric-hint">Average spend per rider</span>
-          </div>
+          <div class="metric-value" id="custMetricAvgSpend">Rs. 0</div>
+          <div class="metric-sub">Average spend per rider</div>
         </div>
       </section>
 
       <!-- Customer Search -->
-      <div class="admin-controls-card">
-        <div class="admin-search-wrapper" style="width: 100%; max-width: 480px;">
-          <i class="fas fa-search admin-search-icon"></i>
-          <input type="text" id="custSearchInput" class="admin-search-input" placeholder="Search customers by name, phone, email, address..." oninput="handleCustomerSearch()">
+      <div class="controls-bar" style="margin-bottom: 12px;">
+        <div class="search-input-wrapper" style="width: 100%; max-width: 480px;">
+          <i class="fas fa-search"></i>
+          <input type="text" id="custSearchInput" class="admin-search-input" placeholder="Search customers by name, phone, address..." oninput="handleCustomerSearch()">
         </div>
       </div>
 
@@ -469,43 +450,37 @@
     <!-- ════ REVIEWS VIEW ═══════════════════════════════════════════ -->
     <div id="reviewsView" class="admin-tab-view" style="display: none;">
       <!-- Reviews Metrics Summary -->
-      <section class="metrics-grid">
+      <section class="metrics-grid" style="grid-template-columns: repeat(3, 1fr);">
         <div class="metric-card">
-          <div class="metric-icon-wrap" style="background: rgba(245,158,11,0.1); color: #f59e0b;">
-            <i class="fas fa-star"></i>
+          <div class="metric-label">
+            <span>Average Store Rating</span>
+            <div class="metric-icon-wrap pending" style="background: rgba(245,158,11,0.1); color: #f59e0b;"><i class="fas fa-star"></i></div>
           </div>
-          <div class="metric-info">
-            <span class="metric-label">Average Store Rating</span>
-            <div class="metric-val" id="revMetricAvg">5.0 ★</div>
-            <span class="metric-hint">Based on verified rider reviews</span>
-          </div>
+          <div class="metric-value" id="revMetricAvg">5.0 ★</div>
+          <div class="metric-sub">Based on verified rider reviews</div>
         </div>
 
         <div class="metric-card">
-          <div class="metric-icon-wrap" style="background: rgba(37,99,235,0.1); color: #2563eb;">
-            <i class="fas fa-comments"></i>
+          <div class="metric-label">
+            <span>Total Reviews</span>
+            <div class="metric-icon-wrap orders" style="background: rgba(37,99,235,0.1); color: #2563eb;"><i class="fas fa-comments"></i></div>
           </div>
-          <div class="metric-info">
-            <span class="metric-label">Total Reviews</span>
-            <div class="metric-val" id="revMetricTotal">0</div>
-            <span class="metric-hint">Customer feedback received</span>
-          </div>
+          <div class="metric-value" id="revMetricTotal">0</div>
+          <div class="metric-sub">Customer feedback received</div>
         </div>
 
         <div class="metric-card">
-          <div class="metric-icon-wrap" style="background: rgba(16,185,129,0.1); color: #10b981;">
-            <i class="fas fa-thumbs-up"></i>
+          <div class="metric-label">
+            <span>5-Star Satisfaction</span>
+            <div class="metric-icon-wrap dispatched" style="background: rgba(16,185,129,0.1); color: #10b981;"><i class="fas fa-thumbs-up"></i></div>
           </div>
-          <div class="metric-info">
-            <span class="metric-label">5-Star Satisfaction</span>
-            <div class="metric-val" id="revMetric5StarPct">100%</div>
-            <span class="metric-hint">Top satisfaction rating</span>
-          </div>
+          <div class="metric-value" id="revMetric5StarPct">100%</div>
+          <div class="metric-sub">Top satisfaction rating</div>
         </div>
       </section>
 
       <!-- Rating Filters & Actions -->
-      <div class="admin-controls-card" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+      <div class="controls-bar" style="margin-bottom: 12px; gap: 12px; flex-wrap: wrap;">
         <div class="status-filters" id="reviewFilterTabs">
           <button class="filter-tab active" onclick="filterReviewsByRating('all', this)">All Reviews <span class="badge-count" id="revCountAll">0</span></button>
           <button class="filter-tab" onclick="filterReviewsByRating(5, this)">5 Stars <span class="badge-count" id="revCount5">0</span></button>
@@ -513,7 +488,7 @@
           <button class="filter-tab" onclick="filterReviewsByRating(3, this)">3 Stars &amp; Below <span class="badge-count" id="revCount3">0</span></button>
         </div>
 
-        <button class="btn-admin btn-admin-subtle" onclick="simulateTestReview()" title="Add a sample customer review">
+        <button class="btn-admin btn-admin-subtle" style="height: 36px; padding: 0 14px;" onclick="simulateTestReview()" title="Add a sample customer review">
           <i class="fas fa-plus"></i> Add Test Review
         </button>
       </div>
@@ -896,7 +871,7 @@
     }
   </style>
 
-  <script src="admin.js?v=2.4"></script>
+  <script src="admin.js?v=2.5"></script>
 
   <!-- ═══ PRODUCT UPLOAD & EDIT MODAL ═════════════════════════════════ -->
   <div class="admin-modal-overlay" id="productModal" onclick="if(event.target===this) closeProductModal()">

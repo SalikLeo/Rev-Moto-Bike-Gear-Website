@@ -649,193 +649,209 @@ body::before {
   border-radius: 4px;
 }
 
-/* Base Filter Pill */
+/* Base Filter Pill — High Prominence, Clean & Highly Readable */
 .filter-pill-btn {
   background: #ffffff;
-  border: 1px solid #cbd5e1;
+  border: 1.5px solid #cbd5e1;
   color: var(--text-secondary);
-  padding: 4px 11px;
+  padding: 5px 13px;
   border-radius: var(--radius-pill);
   font-family: var(--font-body);
-  font-size: 0.76rem;
-  font-weight: 600;
+  font-size: 0.85rem;
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   white-space: nowrap;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
   flex-shrink: 0 !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.filter-pill-btn:hover {
+  transform: translateY(-1px);
 }
 
 .filter-count-badge {
-  font-size: 0.64rem;
-  padding: 1px 6px;
+  font-size: 0.74rem;
+  padding: 2px 8px;
+  min-width: 22px;
   border-radius: var(--radius-pill);
-  font-weight: 700;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  line-height: 1.25;
   transition: all 0.2s ease;
 }
 
-/* 1. All Orders - Light Sky */
+/* 1. All Orders - Crisp Slate/Navy */
 .filter-pill-btn.status-all {
-  background: #f8fafc;
+  background: #ffffff;
   border-color: #cbd5e1;
-  color: #334155;
+  color: #1e293b;
 }
 .filter-pill-btn.status-all .filter-count-badge {
-  background: #e2e8f0;
-  color: #475569;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: #0f172a;
 }
 .filter-pill-btn.status-all:hover {
-  background: #eff6ff;
-  border-color: #93c5fd;
-  color: #1d4ed8;
+  background: #f8fafc;
+  border-color: #94a3b8;
+  color: #0f172a;
 }
 .filter-pill-btn.status-all.active {
   background: #eff6ff;
-  border-color: #3b82f6;
+  border-color: #2563eb;
   color: #1d4ed8;
-  font-weight: 700;
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.15);
+  box-shadow: 0 3px 10px rgba(37, 99, 235, 0.18);
 }
 .filter-pill-btn.status-all.active .filter-count-badge {
   background: #2563eb;
+  border-color: #1d4ed8;
   color: #ffffff;
 }
 
-/* 2. Pending - Light Warm Amber / Gold */
+/* 2. Pending - Crisp Amber/Gold */
 .filter-pill-btn.status-pending {
-  background: #fffbeb;
-  border-color: #fde68a;
-  color: #b45309;
+  background: #ffffff;
+  border-color: #f59e0b;
+  color: #92400e;
 }
 .filter-pill-btn.status-pending .filter-count-badge {
   background: #fef3c7;
-  color: #92400e;
+  border: 1px solid #fcd34d;
+  color: #78350f;
 }
 .filter-pill-btn.status-pending:hover {
-  background: #fef3c7;
-  border-color: #fcd34d;
+  background: #fffbeb;
+  border-color: #d97706;
   color: #78350f;
 }
 .filter-pill-btn.status-pending.active {
-  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-  border-color: #f59e0b;
+  background: #fffbeb;
+  border-color: #d97706;
   color: #78350f;
-  font-weight: 700;
-  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.18);
+  box-shadow: 0 3px 10px rgba(217, 119, 6, 0.2);
 }
 .filter-pill-btn.status-pending.active .filter-count-badge {
   background: #d97706;
+  border-color: #b45309;
   color: #ffffff;
 }
 
-/* 3. Confirmed - Light Blue */
+/* 3. Confirmed - Crisp Ocean Blue */
 .filter-pill-btn.status-confirmed {
-  background: #f0f7ff;
-  border-color: #bfdbfe;
+  background: #ffffff;
+  border-color: #3b82f6;
   color: #1d4ed8;
 }
 .filter-pill-btn.status-confirmed .filter-count-badge {
   background: #dbeafe;
+  border: 1px solid #93c5fd;
   color: #1e40af;
 }
 .filter-pill-btn.status-confirmed:hover {
-  background: #e0f2fe;
-  border-color: #93c5fd;
+  background: #eff6ff;
+  border-color: #2563eb;
   color: #1e40af;
 }
 .filter-pill-btn.status-confirmed.active {
-  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  background: #eff6ff;
   border-color: #2563eb;
   color: #1e40af;
-  font-weight: 700;
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.18);
+  box-shadow: 0 3px 10px rgba(37, 99, 235, 0.2);
 }
 .filter-pill-btn.status-confirmed.active .filter-count-badge {
   background: #2563eb;
+  border-color: #1d4ed8;
   color: #ffffff;
 }
 
-/* 4. Dispatched - Light Lavender / Purple */
+/* 4. Dispatched - Crisp Purple */
 .filter-pill-btn.status-dispatched {
-  background: #faf5ff;
-  border-color: #e9d5ff;
+  background: #ffffff;
+  border-color: #a855f7;
   color: #7e22ce;
 }
 .filter-pill-btn.status-dispatched .filter-count-badge {
   background: #f3e8ff;
+  border: 1px solid #d8b4fe;
   color: #6b21a8;
 }
 .filter-pill-btn.status-dispatched:hover {
-  background: #f3e8ff;
-  border-color: #d8b4fe;
+  background: #faf5ff;
+  border-color: #9333ea;
   color: #581c87;
 }
 .filter-pill-btn.status-dispatched.active {
-  background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+  background: #faf5ff;
   border-color: #9333ea;
   color: #581c87;
-  font-weight: 700;
-  box-shadow: 0 2px 8px rgba(147, 51, 234, 0.18);
+  box-shadow: 0 3px 10px rgba(147, 51, 234, 0.2);
 }
 .filter-pill-btn.status-dispatched.active .filter-count-badge {
   background: #9333ea;
+  border-color: #7e22ce;
   color: #ffffff;
 }
 
-/* 5. Delivered - Light Mint / Emerald */
+/* 5. Delivered - Crisp Emerald Green */
 .filter-pill-btn.status-delivered {
-  background: #ecfdf5;
-  border-color: #a7f3d0;
-  color: #047857;
+  background: #ffffff;
+  border-color: #10b981;
+  color: #15803d;
 }
 .filter-pill-btn.status-delivered .filter-count-badge {
-  background: #d1fae5;
-  color: #065f46;
+  background: #dcfce7;
+  border: 1px solid #86efac;
+  color: #14532d;
 }
 .filter-pill-btn.status-delivered:hover {
-  background: #d1fae5;
-  border-color: #6ee7b7;
-  color: #064e3b;
+  background: #f0fdf4;
+  border-color: #16a34a;
+  color: #14532d;
 }
 .filter-pill-btn.status-delivered.active {
-  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
-  border-color: #10b981;
-  color: #064e3b;
-  font-weight: 700;
-  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.18);
+  background: #f0fdf4;
+  border-color: #16a34a;
+  color: #14532d;
+  box-shadow: 0 3px 10px rgba(22, 163, 74, 0.2);
 }
 .filter-pill-btn.status-delivered.active .filter-count-badge {
-  background: #059669;
+  background: #16a34a;
+  border-color: #15803d;
   color: #ffffff;
 }
 
-/* 6. Cancelled - Light Rose / Red */
+/* 6. Cancelled - Crisp Red */
 .filter-pill-btn.status-cancelled {
-  background: #fef2f2;
-  border-color: #fecaca;
-  color: #dc2626;
+  background: #ffffff;
+  border-color: #ef4444;
+  color: #b91c1c;
 }
 .filter-pill-btn.status-cancelled .filter-count-badge {
   background: #fee2e2;
-  color: #991b1b;
+  border: 1px solid #fca5a5;
+  color: #7f1d1d;
 }
 .filter-pill-btn.status-cancelled:hover {
-  background: #fee2e2;
-  border-color: #fca5a5;
+  background: #fef2f2;
+  border-color: #dc2626;
   color: #7f1d1d;
 }
 .filter-pill-btn.status-cancelled.active {
-  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
-  border-color: #ef4444;
+  background: #fef2f2;
+  border-color: #dc2626;
   color: #7f1d1d;
-  font-weight: 700;
-  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.18);
+  box-shadow: 0 3px 10px rgba(220, 38, 38, 0.2);
 }
 .filter-pill-btn.status-cancelled.active .filter-count-badge {
   background: #dc2626;
+  border-color: #b91c1c;
   color: #ffffff;
 }
 
@@ -2854,12 +2870,14 @@ body, button, input, select, textarea, table, th, td {
 
 .badge-bracket {
   font-weight: 800;
-  color: #d97706;
-  margin-left: 2px;
+  color: #b45309;
+  margin-left: 3px;
+  letter-spacing: 0;
 }
 
 .filter-pill-btn.active .filter-count-badge .badge-bracket {
-  color: #fef3c7;
+  color: #fef08a !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
 }
 
 .carryover-pill-btn {

@@ -483,6 +483,21 @@ function setPeriodMode(mode) {
   renderDashboard();
 }
 
+function isCurrentPeriod() {
+  if (periodMode !== 'daily') return false;
+  return (
+    periodDate.getFullYear() === NOW.getFullYear() &&
+    periodDate.getMonth() === NOW.getMonth() &&
+    periodDate.getDate() === NOW.getDate()
+  );
+}
+
+function resetToCurrentPeriod() {
+  setPeriodMode('daily');
+  jumpToToday();
+  showToast('Reset to current date (Today)', 'info');
+}
+
 function renderPeriodNavigator() {
   const container = document.getElementById('periodNavigatorBox');
   if (!container) return;
@@ -491,6 +506,13 @@ function renderPeriodNavigator() {
   const yearOptions = [currentYear - 2, currentYear - 1, currentYear, currentYear + 1]
     .map(y => `<option value="${y}" ${y === periodDate.getFullYear() ? 'selected' : ''}>${y}</option>`)
     .join('');
+
+  const isCurrent = isCurrentPeriod();
+  const resetCrossBtn = !isCurrent ? `
+    <button type="button" class="period-reset-cross" onclick="resetToCurrentPeriod()" title="Reset to current (Today)">
+      <i class="fas fa-times"></i>
+    </button>
+  ` : '';
 
   if (periodMode === 'daily') {
     container.innerHTML = `
@@ -511,6 +533,7 @@ function renderPeriodNavigator() {
       <button type="button" class="period-quick-btn" onclick="jumpToToday()" title="Jump to Today">
         TODAY
       </button>
+      ${resetCrossBtn}
     `;
     return;
   }
@@ -541,6 +564,7 @@ function renderPeriodNavigator() {
       <button type="button" class="period-quick-btn" onclick="jumpToCurrentMonth()" title="Jump to Current Month">
         THIS MONTH
       </button>
+      ${resetCrossBtn}
     `;
     return;
   }
@@ -564,6 +588,7 @@ function renderPeriodNavigator() {
       <button type="button" class="period-quick-btn" onclick="jumpToCurrentYear()" title="Jump to Current Year">
         THIS YEAR
       </button>
+      ${resetCrossBtn}
     `;
     return;
   }
@@ -576,6 +601,7 @@ function renderPeriodNavigator() {
     <button type="button" class="period-quick-btn" onclick="setPeriodMode('daily')" title="Switch to Today">
       TODAY
     </button>
+    ${resetCrossBtn}
   `;
 }
 

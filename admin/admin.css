@@ -664,6 +664,34 @@ body::before {
   background: #e2e8f0;
   color: #0f172a;
 }
+.period-reset-cross {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+  color: #ef4444;
+  font-size: 0.68rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  margin-left: 2px;
+  flex-shrink: 0;
+}
+
+.period-reset-cross:hover {
+  background: #fee2e2;
+  color: #dc2626;
+  border-color: #f87171;
+  transform: scale(1.1);
+}
+
+.period-reset-cross:active {
+  transform: scale(0.95);
+}
+
 
 .period-all-label {
   font-size: 0.82rem;

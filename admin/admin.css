@@ -1320,13 +1320,14 @@ body::before {
 .receipt-paper {
   background: #ffffff;
   color: #000000;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-family: 'Plus Jakarta Sans', 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   line-height: 1.4;
   margin: 0 auto;
-  padding: 26px 20px 24px 20px;
+  padding: 22px 20px 20px 20px;
   box-sizing: border-box;
   width: 100%;
-  max-width: 380px;
+  max-width: 390px;
+  -webkit-font-smoothing: antialiased;
 }
 
 .receipt-action-bar {

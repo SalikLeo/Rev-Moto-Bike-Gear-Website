@@ -1217,104 +1217,109 @@ function openReceiptModal(orderId) {
   const deliveryCost = Number(order.delivery_cost || 350);
   const totalAmount = Number(order.total_amount) || (subtotal + deliveryCost);
 
-  const itemsRowsHtml = (order.items || []).map((it, idx) => `
+    const itemsRowsHtml = (order.items || []).map((it, idx) => `
     <tr>
-      <td style="border: 1px solid #000; padding: 6px 3px; text-align: center; vertical-align: top; font-weight: 700;">${idx + 1}</td>
-      <td style="border: 1px solid #000; padding: 6px; text-align: left; vertical-align: top;">
-        <div style="font-weight: 700; line-height: 1.25;">${escapeHtml(it.name || 'Item')}</div>
-        ${it.size ? `<div style="font-size: 10px; color: #444; margin-top: 2px;">Size: ${escapeHtml(it.size)}</div>` : ''}
+      <td style="border: 1.2px solid #000; padding: 4px 3px; text-align: center; vertical-align: top; font-weight: 600; color: #000;">${idx + 1}</td>
+      <td style="border: 1.2px solid #000; padding: 4px 6px; text-align: left; vertical-align: top;">
+        <div style="font-weight: 700; font-size: 11.5px; color: #000; line-height: 1.25;">${escapeHtml(it.name || 'Item')}</div>
+        ${it.size ? `<div style="font-size: 10px; font-weight: 600; color: #3f3f46; margin-top: 1px;">Size: ${escapeHtml(it.size)}</div>` : ''}
       </td>
-      <td style="border: 1px solid #000; padding: 6px 3px; text-align: center; vertical-align: top; font-weight: 700;">${it.qty || 1}</td>
-      <td style="border: 1px solid #000; padding: 6px 4px; text-align: right; vertical-align: top;">${(Number(it.price) || 0).toLocaleString('en-PK')}</td>
-      <td style="border: 1px solid #000; padding: 6px 4px; text-align: right; vertical-align: top; font-weight: 700;">${((Number(it.price) || 0) * Number(it.qty || 1)).toLocaleString('en-PK')}</td>
+      <td style="border: 1.2px solid #000; padding: 4px 3px; text-align: center; vertical-align: top; font-weight: 700; color: #000;">${it.qty || 1}</td>
+      <td style="border: 1.2px solid #000; padding: 4px 5px; text-align: right; vertical-align: top; font-weight: 600; color: #000;">${(Number(it.price) || 0).toLocaleString('en-PK')}</td>
+      <td style="border: 1.2px solid #000; padding: 4px 5px; text-align: right; vertical-align: top; font-weight: 700; color: #000;">${((Number(it.price) || 0) * Number(it.qty || 1)).toLocaleString('en-PK')}</td>
     </tr>
   `).join('');
 
   receiptEl.innerHTML = `
-    <!-- Centered Store Header -->
-    <div style="text-align: center;">
-      <h2 style="font-size: 21px; font-weight: 800; letter-spacing: 0.5px; margin: 0; color: #000;">REV MOTO</h2>
-      <div style="font-size: 10.5px; font-weight: 700; text-transform: uppercase; margin-top: 3px; letter-spacing: 0.5px; color: #111;">PREMIUM MOTORCYCLE GEAR &amp; PROTECTION</div>
-      <div style="font-size: 11px; color: #222; margin-top: 4px;">Sialkot Manufacturing District, Punjab, Pakistan</div>
-      <div style="font-size: 11px; color: #222; margin-top: 2px;">Phone: 0337-4249450</div>
-      <div style="margin-top: 8px;">
-        <span style="display: inline-block; border: 1.5px solid #000; padding: 3px 14px; font-weight: 800; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #000;">
-          ${escapeHtml(order.payment_method || 'CASH ON DELIVERY')}
-        </span>
-      </div>
-    </div>
-
-    <!-- Dashed separator -->
-    <div style="border-top: 1.5px dashed #333; margin: 12px 0;"></div>
-
-    <!-- Order Metadata Rows -->
-    <div style="font-size: 12px; line-height: 1.6; color: #111;">
-      <div style="display: flex; justify-content: space-between; align-items: baseline;">
-        <span>Order ID:</span>
-        <span style="font-weight: 800; font-size: 13px;">#${escapeHtml(order.id)}</span>
-      </div>
-      <div style="display: flex; justify-content: space-between; align-items: baseline;">
-        <span>Date &amp; Time:</span>
-        <span style="font-weight: 500;">${formatReceiptDate(order.created_at)}</span>
-      </div>
-      <div style="display: flex; justify-content: space-between; align-items: baseline;">
-        <span>Customer:</span>
-        <span style="font-weight: 700;">${escapeHtml(order.customer_name || 'Customer')}</span>
-      </div>
-      <div style="display: flex; justify-content: space-between; align-items: baseline;">
-        <span>Phone:</span>
-        <span style="font-weight: 700;">${escapeHtml(order.phone || '')}</span>
-      </div>
-      <div style="margin-top: 3px;">
-        <span>Delivery Address:</span>
-        <div style="font-size: 11px; color: #333; font-weight: 500; line-height: 1.35; margin-top: 2px;">
-          ${escapeHtml(order.address || 'Address provided at checkout')}${order.city ? ', ' + escapeHtml(order.city) : ''}
+    <div style="font-family: 'Plus Jakarta Sans', 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #fff; color: #000;">
+      <!-- Store Header -->
+      <div style="text-align: center;">
+        <h2 style="font-size: 16px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; margin: 0; color: #000; line-height: 1.2;">REV MOTO</h2>
+        <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; color: #000; margin-top: 3px;">PREMIUM MOTORCYCLE GEAR &amp; PROTECTION</div>
+        <div style="font-size: 10.5px; font-weight: 600; color: #000; margin-top: 3px; line-height: 1.35;">
+          Sialkot Manufacturing District, Punjab, Pakistan<br>
+          Phone: 0337-4249450
+        </div>
+        <div style="margin-top: 7px;">
+          <span style="display: inline-block; border: 1.2px solid #000; padding: 2px 10px; font-weight: 800; font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em; color: #000;">
+            ${escapeHtml(order.payment_method || 'CASH ON DELIVERY')}
+          </span>
         </div>
       </div>
-    </div>
 
-    <!-- Dashed separator -->
-    <div style="border-top: 1.5px dashed #333; margin: 12px 0;"></div>
+      <!-- Dashed separator -->
+      <div style="border-top: 1px dashed #71717a; margin: 10px 0;"></div>
 
-    <!-- Itemized Table (Exact border structure) -->
-    <table style="width: 100%; border-collapse: collapse; border: 1.5px solid #000; font-size: 11px; color: #000;">
-      <thead>
-        <tr>
-          <th style="border: 1px solid #000; padding: 5px 3px; text-align: center; width: 24px; font-weight: 800;">#</th>
-          <th style="border: 1px solid #000; padding: 5px 6px; text-align: left; font-weight: 800;">ITEM</th>
-          <th style="border: 1px solid #000; padding: 5px 3px; text-align: center; width: 36px; font-weight: 800;">QTY</th>
-          <th style="border: 1px solid #000; padding: 5px 4px; text-align: right; width: 56px; font-weight: 800;">RATE</th>
-          <th style="border: 1px solid #000; padding: 5px 4px; text-align: right; width: 62px; font-weight: 800;">AMOUNT</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${itemsRowsHtml}
-      </tbody>
-    </table>
-
-    <!-- Totals Breakdown -->
-    <div style="margin-top: 10px; font-size: 12px; line-height: 1.6; color: #000;">
-      <div style="display: flex; justify-content: space-between; align-items: baseline;">
-        <span>Subtotal</span>
-        <span style="font-weight: 700;">Rs. ${subtotal.toLocaleString('en-PK')}</span>
+      <!-- Order Metadata Rows -->
+      <div style="font-size: 11.5px; line-height: 1.6; color: #000;">
+        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+          <span style="font-weight: 700;">Order ID:</span>
+          <span style="font-weight: 800;">#${escapeHtml(order.id)}</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+          <span style="font-weight: 700;">Date &amp; Time:</span>
+          <span style="font-weight: 700;">${formatReceiptDate(order.created_at)}</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+          <span style="font-weight: 700;">Customer:</span>
+          <span style="font-weight: 700;">${escapeHtml(order.customer_name || 'Customer')}</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+          <span style="font-weight: 700;">Phone:</span>
+          <span style="font-weight: 700;">${escapeHtml(order.phone || '0337-4249450')}</span>
+        </div>
+        <div style="margin-top: 2px;">
+          <span style="font-weight: 700; display: block;">Delivery Address:</span>
+          <span style="display: block; font-size: 11px; font-weight: 500; color: #3f3f46; line-height: 1.35; margin-top: 1px;">
+            ${escapeHtml(order.address || 'Address provided at checkout')}${order.city ? ', ' + escapeHtml(order.city) : ''}
+          </span>
+        </div>
       </div>
-      <div style="display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1.5px solid #000; padding-bottom: 4px;">
-        <span>Delivery Charges</span>
-        <span style="font-weight: 700;">Rs. ${deliveryCost.toLocaleString('en-PK')}</span>
-      </div>
-      <div style="display: flex; justify-content: space-between; align-items: baseline; padding-top: 6px;">
-        <span style="font-weight: 800; font-size: 13.5px; letter-spacing: 0.3px;">TOTAL AMOUNT</span>
-        <span style="font-weight: 800; font-size: 15px;">Rs. ${totalAmount.toLocaleString('en-PK')}</span>
-      </div>
-    </div>
 
-    <!-- Dashed separator -->
-    <div style="border-top: 1.5px dashed #333; margin: 12px 0 8px 0;"></div>
+      <!-- Dashed separator -->
+      <div style="border-top: 1px dashed #71717a; margin: 10px 0;"></div>
 
-    <!-- Centered Footer & Scissor Line -->
-    <div style="text-align: center;">
-      <div style="font-size: 10.5px; font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase;">THANK YOU FOR ORDERING!</div>
-      <div style="font-size: 11px; color: #777; margin-top: 4px; letter-spacing: 2px;">✂ - - - - - - - - - - - - - - - - - -</div>
+      <!-- Itemized Table (Exact border structure) -->
+      <table style="width: 100%; border-collapse: collapse; border: 1.2px solid #000; font-size: 11px; color: #000; margin: 4px 0; background: #fff;">
+        <thead>
+          <tr style="background: #fff; color: #000;">
+            <th style="border: 1.2px solid #000; padding: 4px 3px; text-align: center; width: 24px; font-weight: 800; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.04em;">#</th>
+            <th style="border: 1.2px solid #000; padding: 4px 6px; text-align: left; font-weight: 800; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.04em;">ITEM</th>
+            <th style="border: 1.2px solid #000; padding: 4px 3px; text-align: center; width: 34px; font-weight: 800; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.04em;">QTY</th>
+            <th style="border: 1.2px solid #000; padding: 4px 5px; text-align: right; width: 56px; font-weight: 800; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.04em;">RATE</th>
+            <th style="border: 1.2px solid #000; padding: 4px 5px; text-align: right; width: 64px; font-weight: 800; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.04em;">AMOUNT</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${itemsRowsHtml}
+        </tbody>
+      </table>
+
+      <!-- Totals Breakdown -->
+      <div style="margin-top: 8px; font-size: 11.5px; line-height: 1.6; color: #000;">
+        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+          <span style="font-weight: 600;">Subtotal</span>
+          <span style="font-weight: 700;">Rs. ${subtotal.toLocaleString('en-PK')}</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+          <span style="font-weight: 600;">Delivery Charges</span>
+          <span style="font-weight: 700;">Rs. ${deliveryCost.toLocaleString('en-PK')}</span>
+        </div>
+        <div style="height: 1.5px; background: #000; width: 100%; margin: 4px 0;"></div>
+        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+          <span style="font-weight: 800; font-size: 13.5px; letter-spacing: 0.03em;">TOTAL AMOUNT</span>
+          <span style="font-weight: 800; font-size: 13.5px;">Rs. ${totalAmount.toLocaleString('en-PK')}</span>
+        </div>
+      </div>
+
+      <!-- Dashed separator -->
+      <div style="border-top: 1px dashed #71717a; margin: 10px 0;"></div>
+
+      <!-- Centered Footer & Scissor Line -->
+      <div style="text-align: center;">
+        <div style="font-size: 10.5px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; color: #000;">THANK YOU FOR ORDERING!</div>
+        <div style="font-size: 10px; color: #71717a; margin-top: 4px; font-family: monospace;">✂ - - - - - - - - - - - - - - - - - - - - -</div>
+      </div>
     </div>
   `;
 
@@ -1434,7 +1439,7 @@ function printThermalReceipt() {
           padding: 3mm 4mm;
           background: #ffffff;
           color: #000000;
-          font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+          font-family: 'Plus Jakarta Sans', 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
           width: 80mm;
           max-width: 80mm;
           -webkit-print-color-adjust: exact;

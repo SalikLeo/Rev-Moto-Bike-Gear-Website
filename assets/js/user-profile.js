@@ -350,17 +350,29 @@ function injectUserProfileModal() {
 
     <!-- 80mm Customer Thermal Receipt Preview Modal -->
     <div class="user-modal-overlay" id="userReceiptOverlay" onclick="if(event.target===this) closeUserReceiptModal()">
-      <div class="user-modal-card" style="max-width: 420px; padding: 0; overflow: hidden; background: #ffffff;">
-        <div style="padding: 12px 16px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
-          <strong style="font-size: 0.95rem; color: #0f172a;"><i class="fas fa-receipt text-cyan"></i> 80mm Order Receipt</strong>
-          <button class="user-modal-close" onclick="closeUserReceiptModal()" style="width: 28px; height: 28px;"><i class="fas fa-times"></i></button>
+      <div class="user-modal-card" style="max-width: 390px; padding: 0; overflow: hidden; background: #ffffff; border-radius: 16px; box-shadow: 0 25px 60px rgba(0,0,0,0.3);">
+        <!-- Top Drag Pill & Close Button -->
+        <div style="padding: 10px 16px 4px 16px; background: #ffffff; display: flex; justify-content: space-between; align-items: center; position: relative;">
+          <div style="width: 36px; height: 4px; background: #cbd5e1; border-radius: 4px; margin: 0 auto; position: absolute; left: 50%; transform: translateX(-50%);"></div>
+          <div style="width: 1px;"></div>
+          <button class="user-modal-close" onclick="closeUserReceiptModal()" style="width: 28px; height: 28px; border-radius: 50%;" aria-label="Close Receipt"><i class="fas fa-times"></i></button>
         </div>
-        <div style="padding: 16px; max-height: 75vh; overflow-y: auto;" id="userReceiptContent">
+
+        <!-- Receipt Content Paper -->
+        <div style="padding: 8px 20px 14px 20px; max-height: 76vh; overflow-y: auto;" id="userReceiptContent">
           <!-- Rendered by user-profile.js -->
         </div>
-        <div style="padding: 12px 16px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; gap: 8px;">
-          <button class="btn btn-primary btn-full" onclick="printUserReceipt()" style="height: 38px; font-size: 0.85rem;">
-            <i class="fas fa-print"></i> Print Receipt
+
+        <!-- Exact 3 Action Buttons: Download, WhatsApp, Print -->
+        <div style="padding: 12px 16px; background: #ffffff; border-top: 1px dashed #cbd5e1; display: flex; gap: 8px; justify-content: center;">
+          <button type="button" class="btn-receipt-action btn-receipt-download" onclick="downloadCustomerReceiptImage()" style="flex: 1; height: 40px; background: #18181b; color: #ffffff; border: none; border-radius: 10px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.76rem; font-weight: 800; letter-spacing: 0.04em; display: inline-flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; text-transform: uppercase;">
+            <i class="fas fa-download" style="color: #f97316;"></i> DOWNLOAD
+          </button>
+          <button type="button" class="btn-receipt-action btn-receipt-wa" onclick="shareCustomerReceiptWhatsApp()" style="flex: 1.1; height: 40px; background: #059669; color: #ffffff; border: none; border-radius: 10px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.76rem; font-weight: 800; letter-spacing: 0.04em; display: inline-flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; text-transform: uppercase;">
+            <i class="fab fa-whatsapp"></i> WHATSAPP
+          </button>
+          <button type="button" class="btn-receipt-action btn-receipt-print" onclick="printUserReceipt()" style="flex: 1; height: 40px; background: #ea580c; color: #ffffff; border: none; border-radius: 10px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.76rem; font-weight: 800; letter-spacing: 0.04em; display: inline-flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; text-transform: uppercase;">
+            <i class="fas fa-print"></i> PRINT
           </button>
         </div>
       </div>
@@ -712,83 +724,125 @@ function handleSaveProfileForm(e) {
 }
 
 // ── ORDER ACTIONS (RECEIPT, REORDER, WHATSAPP) ──
+let currentCustomerReceiptOrder = null;
+
 function openUserReceiptModal(orderId) {
   const orders = getCustomerOrders();
   const order = orders.find(o => String(o.id || o.orderId) === String(orderId));
   if (!order) return;
+
+  currentCustomerReceiptOrder = order;
 
   const content = document.getElementById('userReceiptContent');
   if (!content) return;
 
   const items = order.items || [];
   const itemsHtml = items.map((it, idx) => `
-    <tr style="border-bottom: 1px solid #e2e8f0; font-size: 11px;">
-      <td style="padding: 5px 4px; text-align: center;">${idx + 1}</td>
-      <td style="padding: 5px 4px;">
-        <strong style="color: #000;">${escapeUserHtml(it.name)}</strong>
-        <div style="font-size: 10px; color: #555;">Size: ${escapeUserHtml(it.size || 'Standard')}</div>
+    <tr>
+      <td style="border: 1.2px solid #000; padding: 4px 3px; text-align: center; vertical-align: top; font-weight: 600; color: #000;">${idx + 1}</td>
+      <td style="border: 1.2px solid #000; padding: 4px 6px; text-align: left; vertical-align: top;">
+        <div style="font-weight: 700; font-size: 11.5px; color: #000; line-height: 1.25;">${escapeUserHtml(it.name)}</div>
+        <div style="font-size: 10px; font-weight: 600; color: #3f3f46; margin-top: 1px;">Size: ${escapeUserHtml(it.size || 'Standard')}</div>
       </td>
-      <td style="padding: 5px 4px; text-align: center;">${it.qty}</td>
-      <td style="padding: 5px 4px; text-align: right;">${Number(it.price).toLocaleString()}</td>
-      <td style="padding: 5px 4px; text-align: right; font-weight: 700;">${Number(it.price * it.qty).toLocaleString()}</td>
+      <td style="border: 1.2px solid #000; padding: 4px 3px; text-align: center; vertical-align: top; font-weight: 700; color: #000;">${it.qty || 1}</td>
+      <td style="border: 1.2px solid #000; padding: 4px 5px; text-align: right; vertical-align: top; font-weight: 600; color: #000;">${Number(it.price || 0).toLocaleString('en-PK')}</td>
+      <td style="border: 1.2px solid #000; padding: 4px 5px; text-align: right; vertical-align: top; font-weight: 700; color: #000;">${Number((it.price || 0) * (it.qty || 1)).toLocaleString('en-PK')}</td>
     </tr>
   `).join('');
 
-  const subtotal = items.reduce((sum, i) => sum + (i.price * i.qty), 0);
+  const subtotal = items.reduce((sum, i) => sum + (Number(i.price || 0) * Number(i.qty || 1)), 0);
   const delivery = order.delivery_cost || order.deliveryCost || 350;
   const total = order.total_amount || order.totalAmount || (subtotal + delivery);
 
   content.innerHTML = `
-    <div style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: #fff; color: #000; padding: 8px;">
-      <div style="text-align: center; margin-bottom: 12px;">
-        <h2 style="font-size: 20px; font-weight: 800; margin: 0; letter-spacing: 0.5px;">REV MOTO</h2>
-        <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; margin-top: 2px;">PREMIUM MOTORCYCLE GEAR &amp; PROTECTION</div>
-        <div style="font-size: 10.5px; color: #333; margin-top: 3px;">Sialkot Manufacturing District, Punjab, Pakistan</div>
-        <div style="font-size: 10.5px; color: #333; margin-top: 2px;">Phone: 0337-4249450</div>
-        <div style="margin-top: 8px;">
-          <span style="display: inline-block; border: 1.5px solid #000; padding: 2px 12px; font-weight: 800; font-size: 10px; text-transform: uppercase;">
+    <div id="customerReceiptPaper" style="font-family: 'Plus Jakarta Sans', 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #fff; color: #000;">
+      <!-- Store Header -->
+      <div style="text-align: center;">
+        <h2 style="font-size: 16px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; margin: 0; color: #000; line-height: 1.2;">REV MOTO</h2>
+        <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; color: #000; margin-top: 3px;">PREMIUM MOTORCYCLE GEAR &amp; PROTECTION</div>
+        <div style="font-size: 10.5px; font-weight: 600; color: #000; margin-top: 3px; line-height: 1.35;">
+          Sialkot Manufacturing District, Punjab, Pakistan<br>
+          Phone: 0337-4249450
+        </div>
+        <div style="margin-top: 7px;">
+          <span style="display: inline-block; border: 1.2px solid #000; padding: 2px 10px; font-weight: 800; font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em; color: #000;">
             ${escapeUserHtml(order.payment_method || order.paymentMethod || 'CASH ON DELIVERY')}
           </span>
         </div>
       </div>
 
-      <div style="border-top: 1.5px dashed #333; margin: 10px 0;"></div>
+      <!-- Dashed separator -->
+      <div style="border-top: 1px dashed #71717a; margin: 10px 0;"></div>
 
-      <div style="font-size: 11px; line-height: 1.5;">
-        <div style="display: flex; justify-content: space-between;"><span>Order ID:</span><strong>#${escapeUserHtml(order.id || order.orderId)}</strong></div>
-        <div style="display: flex; justify-content: space-between;"><span>Date:</span><span>${formatUserOrderDate(order.created_at || order.createdAt)}</span></div>
-        <div style="display: flex; justify-content: space-between;"><span>Customer:</span><strong>${escapeUserHtml(order.customer_name || order.customerName || 'Rider')}</strong></div>
-        <div style="display: flex; justify-content: space-between;"><span>Phone:</span><span>${escapeUserHtml(order.phone || '0337-4249450')}</span></div>
-        <div><span>Address:</span> <span style="font-weight: 600;">${escapeUserHtml(order.address || 'Standard Delivery')}</span></div>
-      </div>
-
-      <div style="border-top: 1.5px dashed #333; margin: 10px 0;"></div>
-
-      <table style="width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 10px;">
-        <thead>
-          <tr style="border-bottom: 1.5px solid #000; font-size: 10px; text-transform: uppercase;">
-            <th style="padding: 4px; text-align: center;">#</th>
-            <th style="padding: 4px; text-align: left;">Item</th>
-            <th style="padding: 4px; text-align: center;">Qty</th>
-            <th style="padding: 4px; text-align: right;">Rate</th>
-            <th style="padding: 4px; text-align: right;">Amount</th>
-          </tr>
-        </thead>
-        <tbody>${itemsHtml}</tbody>
-      </table>
-
-      <div style="font-size: 11px; line-height: 1.6; border-top: 1px solid #000; padding-top: 6px;">
-        <div style="display: flex; justify-content: space-between;"><span>Subtotal:</span><span>Rs. ${subtotal.toLocaleString()}</span></div>
-        <div style="display: flex; justify-content: space-between;"><span>Delivery Charges:</span><span>Rs. ${delivery.toLocaleString()}</span></div>
-        <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 800; border-top: 1.5px solid #000; margin-top: 4px; padding-top: 4px;">
-          <span>TOTAL AMOUNT:</span>
-          <span>Rs. ${Number(total).toLocaleString()}</span>
+      <!-- Order Metadata Rows -->
+      <div style="font-size: 11.5px; line-height: 1.6; color: #000;">
+        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+          <span style="font-weight: 700;">Order ID:</span>
+          <span style="font-weight: 800;">#${escapeUserHtml(order.id || order.orderId)}</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+          <span style="font-weight: 700;">Date &amp; Time:</span>
+          <span style="font-weight: 700;">${formatUserOrderDate(order.created_at || order.createdAt)}</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+          <span style="font-weight: 700;">Customer:</span>
+          <span style="font-weight: 700;">${escapeUserHtml(order.customer_name || order.customerName || 'Customer')}</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+          <span style="font-weight: 700;">Phone:</span>
+          <span style="font-weight: 700;">${escapeUserHtml(order.phone || '0337-4249450')}</span>
+        </div>
+        <div style="margin-top: 2px;">
+          <span style="font-weight: 700; display: block;">Delivery Address:</span>
+          <span style="display: block; font-size: 11px; font-weight: 500; color: #3f3f46; line-height: 1.35; margin-top: 1px;">
+            ${escapeUserHtml(order.address || 'Standard Delivery')}
+          </span>
         </div>
       </div>
 
-      <div style="border-top: 1.5px dashed #333; margin: 12px 0 6px 0;"></div>
-      <div style="text-align: center; font-size: 10.5px; font-weight: 700; text-transform: uppercase;">
-        THANK YOU FOR ORDERING WITH REV MOTO!
+      <!-- Dashed separator -->
+      <div style="border-top: 1px dashed #71717a; margin: 10px 0;"></div>
+
+      <!-- Itemized Table (Exact border structure) -->
+      <table style="width: 100%; border-collapse: collapse; border: 1.2px solid #000; font-size: 11px; color: #000; margin: 4px 0; background: #fff;">
+        <thead>
+          <tr style="background: #fff; color: #000;">
+            <th style="border: 1.2px solid #000; padding: 4px 3px; text-align: center; width: 24px; font-weight: 800; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.04em;">#</th>
+            <th style="border: 1.2px solid #000; padding: 4px 6px; text-align: left; font-weight: 800; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.04em;">ITEM</th>
+            <th style="border: 1.2px solid #000; padding: 4px 3px; text-align: center; width: 34px; font-weight: 800; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.04em;">QTY</th>
+            <th style="border: 1.2px solid #000; padding: 4px 5px; text-align: right; width: 56px; font-weight: 800; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.04em;">RATE</th>
+            <th style="border: 1.2px solid #000; padding: 4px 5px; text-align: right; width: 64px; font-weight: 800; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.04em;">AMOUNT</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${itemsHtml}
+        </tbody>
+      </table>
+
+      <!-- Totals Breakdown -->
+      <div style="margin-top: 8px; font-size: 11.5px; line-height: 1.6; color: #000;">
+        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+          <span style="font-weight: 600;">Subtotal</span>
+          <span style="font-weight: 700;">Rs. ${subtotal.toLocaleString('en-PK')}</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+          <span style="font-weight: 600;">Delivery Charges</span>
+          <span style="font-weight: 700;">Rs. ${delivery.toLocaleString('en-PK')}</span>
+        </div>
+        <div style="height: 1.5px; background: #000; width: 100%; margin: 4px 0;"></div>
+        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+          <span style="font-weight: 800; font-size: 13.5px; letter-spacing: 0.03em;">TOTAL AMOUNT</span>
+          <span style="font-weight: 800; font-size: 13.5px;">Rs. ${Number(total).toLocaleString('en-PK')}</span>
+        </div>
+      </div>
+
+      <!-- Dashed separator -->
+      <div style="border-top: 1px dashed #71717a; margin: 10px 0;"></div>
+
+      <!-- Centered Footer & Scissor Line -->
+      <div style="text-align: center;">
+        <div style="font-size: 10.5px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; color: #000;">THANK YOU FOR ORDERING!</div>
+        <div style="font-size: 10px; color: #71717a; margin-top: 4px; font-family: monospace;">✂ - - - - - - - - - - - - - - - - - - - - -</div>
       </div>
     </div>
   `;
@@ -799,30 +853,83 @@ function openUserReceiptModal(orderId) {
 function closeUserReceiptModal() {
   const el = document.getElementById('userReceiptOverlay');
   if (el) el.classList.remove('open');
+  currentCustomerReceiptOrder = null;
 }
 
 function printUserReceipt() {
-  const content = document.getElementById('userReceiptContent');
-  if (!content) return;
+  const paper = document.getElementById('customerReceiptPaper');
+  if (!paper) return;
   const printWin = window.open('', '_blank', 'width=420,height=600');
   printWin.document.write(`
     <!DOCTYPE html>
     <html>
       <head>
         <title>REV MOTO Receipt</title>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
         <style>
           @page { size: 80mm auto; margin: 0; }
-          body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin: 0; padding: 4mm; width: 72mm; }
+          body {
+            font-family: 'Plus Jakarta Sans', 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0; padding: 2mm 3mm 4mm 3mm; width: 74mm; max-width: 80mm;
+            -webkit-print-color-adjust: exact; print-color-adjust: exact;
+          }
         </style>
       </head>
       <body>
-        ${content.innerHTML}
-        <script>window.onload = function() { window.print(); window.close(); }<\/script>
+        ${paper.innerHTML}
+        <script>window.onload = function() { setTimeout(function() { window.print(); window.close(); }, 200); }<\/script>
       </body>
     </html>
   `);
   printWin.document.close();
 }
+
+async function downloadCustomerReceiptImage() {
+  const paper = document.getElementById('customerReceiptPaper');
+  if (!paper || !currentCustomerReceiptOrder) return;
+
+  if (typeof html2canvas === 'undefined') {
+    // Load html2canvas dynamically
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+    script.onload = () => downloadCustomerReceiptImage();
+    document.head.appendChild(script);
+    return;
+  }
+
+  try {
+    showToast('Generating 80mm receipt image...', 'info');
+    const canvas = await html2canvas(paper, {
+      scale: 3,
+      useCORS: true,
+      backgroundColor: '#ffffff'
+    });
+    const link = document.createElement('a');
+    link.download = `RevMoto-Receipt-${currentCustomerReceiptOrder.id || currentCustomerReceiptOrder.orderId}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    showToast('Receipt image downloaded!', 'success');
+  } catch (e) {
+    printUserReceipt();
+  }
+}
+
+function shareCustomerReceiptWhatsApp() {
+  if (!currentCustomerReceiptOrder) return;
+  const o = currentCustomerReceiptOrder;
+  const itemsText = (o.items || []).map(i => `• ${i.name} (${i.size || 'M'}) x${i.qty} - Rs. ${((i.price || 0) * (i.qty || 1)).toLocaleString()}`).join('\n');
+  const msg = `*REV MOTO 80MM ORDER RECEIPT*\n` +
+    `*Order ID:* #${o.id || o.orderId}\n` +
+    `*Customer:* ${o.customer_name || o.customerName || 'Customer'}\n` +
+    `*Phone:* ${o.phone || ''}\n` +
+    `*Delivery Address:* ${o.address || ''}\n\n` +
+    `*Items:*\n${itemsText}\n\n` +
+    `*TOTAL (COD):* Rs. ${(o.total_amount || o.totalAmount || 0).toLocaleString()}\n` +
+    `Thank you for ordering with Rev Moto!`;
+
+  window.open(`https://wa.me/923374249450?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
 
 function reorderCustomerOrder(orderId) {
   const orders = getCustomerOrders();

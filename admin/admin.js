@@ -820,13 +820,13 @@ function updateMetrics() {
   // Dynamic subtitle describing the selected period
   let periodLabelText = '';
   if (periodMode === 'daily') {
-    periodLabelText = `Volume for ${formatDateMMDDYYYY(periodDate)}`;
+    periodLabelText = `Sales for ${formatDateMMDDYYYY(periodDate)}`;
   } else if (periodMode === 'monthly') {
-    periodLabelText = `Volume for ${MONTH_NAMES[periodDate.getMonth()]} ${periodDate.getFullYear()}`;
+    periodLabelText = `Sales for ${MONTH_NAMES[periodDate.getMonth()]} ${periodDate.getFullYear()}`;
   } else if (periodMode === 'annual') {
-    periodLabelText = `Annual Volume for ${periodDate.getFullYear()}`;
+    periodLabelText = `Annual Sales for ${periodDate.getFullYear()}`;
   } else {
-    periodLabelText = 'All-time volume';
+    periodLabelText = 'All-time total sales';
   }
 
   const cards = document.querySelectorAll('.metrics-grid .metric-card .metric-sub');

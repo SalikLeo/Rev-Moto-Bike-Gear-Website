@@ -25,7 +25,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
   <!-- Admin Portal CSS -->
-  <link rel="stylesheet" href="admin.css?v=1.9">
+  <link rel="stylesheet" href="admin.css?v=2.0">
 </head>
 <body>
 
@@ -270,6 +270,75 @@
     </div>
   </div>
 
+    <!-- ═══ QUICK STATUS CHANGE & CONFIRMATION MODAL ═══════════════════ -->
+  <div class="admin-modal-overlay" id="quickStatusModal" onclick="if(event.target===this) closeQuickStatusModal()">
+    <div class="admin-modal-content" style="max-width: 440px;">
+      <div class="admin-modal-header" style="padding: 14px 18px;">
+        <div class="admin-modal-title" style="font-size: 1.05rem;">
+          <i class="fas fa-arrows-rotate" style="color: var(--accent-blue);"></i>
+          <span>Change Order Status</span>
+        </div>
+        <button class="admin-modal-close" onclick="closeQuickStatusModal()" title="Close"><i class="fas fa-times"></i></button>
+      </div>
+
+      <div class="admin-modal-body" style="padding: 18px 20px;">
+        <!-- Order Info Summary -->
+        <div class="qs-order-card">
+          <div class="qs-order-top">
+            <div>
+              <span class="qs-order-id" id="qsModalOrderId">#RM-00000</span>
+              <div class="qs-order-name" id="qsModalCustomerName">Customer Name</div>
+            </div>
+            <div style="text-align: right;">
+              <span class="qs-current-label">Current Status</span>
+              <div id="qsModalCurrentBadge"></div>
+            </div>
+          </div>
+          <div class="qs-order-amount-line">
+            <span>Collectible COD:</span>
+            <strong id="qsModalAmount">Rs. 0</strong>
+          </div>
+        </div>
+
+        <!-- Status Selection Prompt -->
+        <div style="font-size: 0.76rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.04em;">
+          Select New Status:
+        </div>
+
+        <div class="qs-status-list" id="qsStatusOptions">
+          <!-- Rendered dynamically by admin.js -->
+        </div>
+
+        <!-- Confirmation Prompt Panel (shows when a new status is picked) -->
+        <div class="qs-confirm-panel" id="qsConfirmPanel" style="display: none;">
+          <div class="qs-confirm-box">
+            <i class="fas fa-triangle-exclamation qs-confirm-icon"></i>
+            <div>
+              <div class="qs-confirm-title">Confirm Status Change</div>
+              <div class="qs-confirm-desc" id="qsConfirmMessage">
+                Change status of this order?
+              </div>
+            </div>
+          </div>
+
+          <div class="qs-confirm-actions">
+            <button type="button" class="btn-admin btn-admin-subtle" onclick="closeQuickStatusModal()" style="flex: 1; height: 38px;">
+              Cancel
+            </button>
+            <button type="button" class="btn-admin btn-admin-primary" id="qsConfirmActionBtn" onclick="executeQuickStatusChange()" style="flex: 1.3; height: 38px;">
+              <i class="fas fa-check"></i> Yes, Change Status
+            </button>
+          </div>
+        </div>
+
+        <!-- If selected status is same as current -->
+        <div class="qs-same-notice" id="qsSameNotice" style="display: none;">
+          <i class="fas fa-info-circle"></i> This order is already <span id="qsSameStatusName" style="font-weight: 700;">PENDING</span>.
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ═══ SUPABASE DATABASE CONFIG MODAL ═════════════════════════════ -->
   <div class="admin-modal-overlay" id="supabaseConfigModal" onclick="if(event.target===this) closeSupabaseModal()">
     <div class="admin-modal-content">
@@ -357,6 +426,6 @@
     }
   </style>
 
-  <script src="admin.js?v=2.0"></script>
+  <script src="admin.js?v=2.1"></script>
 </body>
 </html>

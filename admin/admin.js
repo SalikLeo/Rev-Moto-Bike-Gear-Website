@@ -1005,9 +1005,10 @@ function renderDesktopTable() {
           <span class="order-price-val">${formatPKR(order.total_amount)}</span>
         </td>
         <td>
-          <span class="status-badge ${order.status || 'pending'}">
+          <button type="button" class="status-badge ${order.status || 'pending'} status-badge-btn" onclick="openQuickStatusModal('${order.id}')" title="Click to change status">
             ${order.status || 'pending'}
-          </span>
+            <i class="fas fa-chevron-down" style="font-size: 0.58rem; margin-left: 3px; opacity: 0.65;"></i>
+          </button>
         </td>
         <td>
           <div style="display: flex; align-items: center; justify-content: flex-end; gap: 6px;">
@@ -1060,9 +1061,10 @@ function renderMobileCards() {
             <span class="m-order-id" onclick="openOrderModal('${order.id}')">#${order.id}</span>
             <span class="m-order-time">• ${formatTimeAgo(order.created_at)}</span>
           </div>
-          <span class="status-badge ${order.status || 'pending'}">
+          <button type="button" class="status-badge ${order.status || 'pending'} status-badge-btn" onclick="openQuickStatusModal('${order.id}')" title="Click to change status">
             ${order.status || 'pending'}
-          </span>
+            <i class="fas fa-chevron-down" style="font-size: 0.58rem; margin-left: 3px; opacity: 0.65;"></i>
+          </button>
         </div>
 
         <div class="m-customer-row">
@@ -1600,6 +1602,207 @@ function showToast(msg, type = 'info') {
   }, 3200);
 }
 
+
+// ── QUICK STATUS MODAL & CONFIRMATION ──────────────────────
+let qsTargetOrder = null;
+let qsSelectedStatus = null;
+
+const STATUS_DEFINITIONS = [
+  {
+    id: 'pending',
+    label: 'Pending',
+    desc: 'Call Required (Awaiting Confirmation)',
+    icon: 'fa-clock',
+    iconBg: '#fef3c7',
+    iconColor: '#b45309'
+  },
+  {
+    id: 'confirmed',
+    label: 'Confirmed',
+    desc: 'Call Verified & Ready to Pack',
+    icon: 'fa-phone-volume',
+    iconBg: '#dbeafe',
+    iconColor: '#1d4ed8'
+  },
+  {
+    id: 'dispatched',
+    label: 'Dispatched',
+    desc: 'Handed to Courier (In Transit)',
+    icon: 'fa-truck-fast',
+    iconBg: '#f3e8ff',
+    iconColor: '#7e22ce'
+  },
+  {
+    id: 'delivered',
+    label: 'Delivered',
+    desc: 'Order Delivered & Paid (Complete)',
+    icon: 'fa-circle-check',
+    iconBg: '#d1fae5',
+    iconColor: '#047857'
+  },
+  {
+    id: 'cancelled',
+    label: 'Cancelled',
+    desc: 'Customer / Store Cancelled',
+    icon: 'fa-ban',
+    iconBg: '#fee2e2',
+    iconColor: '#b91c1c'
+  }
+];
+
+function openQuickStatusModal(orderId) {
+  const order = ordersList.find(o => String(o.id) === String(orderId));
+  if (!order) return;
+
+  qsTargetOrder = order;
+  qsSelectedStatus = null;
+
+  const currentStatus = order.status || 'pending';
+
+  const orderIdEl = document.getElementById('qsModalOrderId');
+  if (orderIdEl) orderIdEl.textContent = '#' + order.id;
+
+  const nameEl = document.getElementById('qsModalCustomerName');
+  if (nameEl) nameEl.textContent = order.customer_name || 'Guest Rider';
+
+  const amtEl = document.getElementById('qsModalAmount');
+  if (amtEl) amtEl.textContent = formatPKR(order.total_amount);
+
+  const currentBadgeEl = document.getElementById('qsModalCurrentBadge');
+  if (currentBadgeEl) {
+    currentBadgeEl.innerHTML = `
+      <span class="status-badge ${currentStatus}">
+        ${currentStatus}
+      </span>
+    `;
+  }
+
+  // Render status options
+  renderQuickStatusOptions(currentStatus);
+
+  // Hide confirmation panels initially
+  const confirmPanel = document.getElementById('qsConfirmPanel');
+  if (confirmPanel) confirmPanel.style.display = 'none';
+
+  const sameNotice = document.getElementById('qsSameNotice');
+  if (sameNotice) sameNotice.style.display = 'none';
+
+  const modal = document.getElementById('quickStatusModal');
+  if (modal) modal.classList.add('open');
+}
+
+function renderQuickStatusOptions(currentStatus) {
+  const listEl = document.getElementById('qsStatusOptions');
+  if (!listEl) return;
+
+  listEl.innerHTML = STATUS_DEFINITIONS.map(st => {
+    const isCurrent = st.id === currentStatus;
+    const isSelected = qsSelectedStatus === st.id;
+    return `
+      <button type="button" class="qs-status-opt ${isSelected ? 'selected' : ''}" onclick="selectQuickStatusOption('${st.id}')">
+        <div class="qs-opt-left">
+          <div class="qs-opt-icon" style="background: ${st.iconBg}; color: ${st.iconColor};">
+            <i class="fas ${st.icon} fa-fw"></i>
+          </div>
+          <div>
+            <div class="qs-opt-title" style="display: flex; align-items: center; gap: 6px;">
+              <span>${st.label}</span>
+              ${isCurrent ? '<span style="font-size: 0.65rem; background: #f1f5f9; color: #64748b; padding: 2px 6px; border-radius: 4px; font-weight: 700; text-transform: uppercase;">Current</span>' : ''}
+            </div>
+            <div class="qs-opt-desc">${st.desc}</div>
+          </div>
+        </div>
+        <div class="qs-opt-check">
+          <i class="fas fa-circle-check"></i>
+        </div>
+      </button>
+    `;
+  }).join('');
+}
+
+function selectQuickStatusOption(statusId) {
+  if (!qsTargetOrder) return;
+  qsSelectedStatus = statusId;
+  const currentStatus = qsTargetOrder.status || 'pending';
+
+  // Re-render option states
+  renderQuickStatusOptions(currentStatus);
+
+  const confirmPanel = document.getElementById('qsConfirmPanel');
+  const sameNotice = document.getElementById('qsSameNotice');
+
+  if (statusId === currentStatus) {
+    if (confirmPanel) confirmPanel.style.display = 'none';
+    if (sameNotice) {
+      sameNotice.style.display = 'block';
+      const nameEl = document.getElementById('qsSameStatusName');
+      if (nameEl) nameEl.textContent = statusId.toUpperCase();
+    }
+  } else {
+    if (sameNotice) sameNotice.style.display = 'none';
+    if (confirmPanel) {
+      confirmPanel.style.display = 'block';
+      const msg = document.getElementById('qsConfirmMessage');
+      if (msg) {
+        msg.innerHTML = `Change Order <strong>#${qsTargetOrder.id}</strong> status from <span class="status-badge ${currentStatus}" style="font-size: 0.65rem; vertical-align: middle;">${currentStatus}</span> to <span class="status-badge ${statusId}" style="font-size: 0.65rem; vertical-align: middle;">${statusId}</span>?`;
+      }
+      const actionBtn = document.getElementById('qsConfirmActionBtn');
+      if (actionBtn) {
+        actionBtn.disabled = false;
+        actionBtn.innerHTML = `<i class="fas fa-check"></i> Yes, Change to ${statusId.toUpperCase()}`;
+      }
+    }
+  }
+}
+
+function closeQuickStatusModal() {
+  const modal = document.getElementById('quickStatusModal');
+  if (modal) modal.classList.remove('open');
+  qsTargetOrder = null;
+  qsSelectedStatus = null;
+}
+
+async function executeQuickStatusChange() {
+  if (!qsTargetOrder || !qsSelectedStatus) return;
+  const targetId = qsTargetOrder.id;
+  const newStatus = qsSelectedStatus;
+  const oldStatus = qsTargetOrder.status || 'pending';
+
+  if (newStatus === oldStatus) {
+    closeQuickStatusModal();
+    return;
+  }
+
+  const actionBtn = document.getElementById('qsConfirmActionBtn');
+  if (actionBtn) {
+    actionBtn.disabled = true;
+    actionBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+  }
+
+  if (supabaseClient) {
+    try {
+      const { error } = await supabaseClient
+        .from('orders')
+        .update({ status: newStatus })
+        .eq('id', targetId);
+
+      if (error) throw error;
+    } catch (e) {
+      console.warn('Supabase update failed, saving locally:', e);
+    }
+  }
+
+  const idx = ordersList.findIndex(o => String(o.id) === String(targetId));
+  if (idx !== -1) {
+    ordersList[idx].status = newStatus;
+    saveLocalOrders(ordersList);
+  }
+
+  showToast(`Order #${targetId} updated to ${newStatus.toUpperCase()}`, 'success');
+  closeQuickStatusModal();
+  renderDashboard();
+}
+
 function escapeHtml(str) {
   if (!str) return '';
   return String(str)
@@ -1615,6 +1818,16 @@ document.addEventListener('DOMContentLoaded', () => {
   renderPeriodNavigator();
   initSupabase();
   fetchOrders();
+
+  // Global Escape key listener to close modals
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeQuickStatusModal();
+      closeOrderModal();
+      closeReceiptModal();
+      closeSupabaseModal();
+    }
+  });
 
   const searchInput = document.getElementById('adminSearchInput');
   if (searchInput) {

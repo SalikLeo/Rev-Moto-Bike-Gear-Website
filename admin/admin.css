@@ -1553,3 +1553,221 @@ body::before {
     bottom: 14px;
   }
 }
+
+
+/* Status Badge Clickable Button */
+.status-badge.clickable,
+button.status-badge {
+  cursor: pointer;
+  border: 1px solid transparent;
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: var(--radius-pill);
+  transition: all 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+  user-select: none;
+}
+
+.status-badge.clickable:hover,
+button.status-badge:hover {
+  transform: translateY(-1px);
+  filter: brightness(0.96);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.09);
+}
+
+.status-badge.clickable:active,
+button.status-badge:active {
+  transform: translateY(0);
+}
+
+/* Quick Status Modal Styling */
+.qs-order-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  margin-bottom: 14px;
+}
+
+.qs-order-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.qs-order-id {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: var(--accent-blue);
+}
+
+.qs-order-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-pure);
+  margin-top: 1px;
+}
+
+.qs-current-label {
+  display: block;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.qs-order-amount-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 6px;
+}
+
+.qs-order-amount-line strong {
+  color: var(--text-pure);
+  font-weight: 700;
+}
+
+.qs-status-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 14px;
+}
+
+.qs-status-opt {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border-subtle);
+  background: #ffffff;
+  cursor: pointer;
+  transition: all 0.16s ease;
+  text-align: left;
+  width: 100%;
+  font-family: inherit;
+}
+
+.qs-status-opt:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  transform: translateX(2px);
+}
+
+.qs-status-opt.selected {
+  border-color: var(--accent-blue);
+  background: #eff6ff;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+
+.qs-opt-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.qs-opt-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.88rem;
+  flex-shrink: 0;
+}
+
+.qs-opt-title {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--text-pure);
+}
+
+.qs-opt-desc {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.qs-opt-check {
+  font-size: 0.88rem;
+  color: var(--accent-blue);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.qs-status-opt.selected .qs-opt-check {
+  opacity: 1;
+}
+
+.qs-confirm-panel {
+  background: #f8fafc;
+  border: 1.5px solid #cbd5e1;
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  margin-top: 10px;
+  animation: qsFadeIn 0.2s ease forwards;
+}
+
+@keyframes qsFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.qs-confirm-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.qs-confirm-icon {
+  color: #f59e0b;
+  font-size: 1.15rem;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.qs-confirm-title {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--text-pure);
+}
+
+.qs-confirm-desc {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  margin-top: 3px;
+  line-height: 1.45;
+}
+
+.qs-confirm-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.qs-same-notice {
+  padding: 10px;
+  background: #f1f5f9;
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  text-align: center;
+  margin-top: 8px;
+}

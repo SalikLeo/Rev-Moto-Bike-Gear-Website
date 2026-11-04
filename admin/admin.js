@@ -3433,6 +3433,8 @@ const DEFAULT_CATALOG_PRODUCTS = [
     price: 14500,
     oldPrice: 18000,
     badge: 'Flagship Drop',
+    rating: 5.0,
+    reviews: 48,
     inStock: true,
     isVariable: true,
     sizes: 'M (38-40"), L (41-43"), XL (44-46"), XXL (47-49")',
@@ -3454,6 +3456,8 @@ const DEFAULT_CATALOG_PRODUCTS = [
     price: 5200,
     oldPrice: 6500,
     badge: 'Carbon Knuckle',
+    rating: 4.9,
+    reviews: 64,
     inStock: true,
     isVariable: true,
     sizes: 'M (Palm 8.0-8.5"), L (Palm 8.5-9.0"), XL (Palm 9.0-9.5")',
@@ -3474,6 +3478,8 @@ const DEFAULT_CATALOG_PRODUCTS = [
     price: 8200,
     oldPrice: 9900,
     badge: '18L Modular',
+    rating: 4.8,
+    reviews: 31,
     inStock: true,
     isVariable: true,
     sizes: '14L Streamline Urban, 18L Expandable Modular, 24L Long-Haul Touring',
@@ -3494,6 +3500,8 @@ const DEFAULT_CATALOG_PRODUCTS = [
     price: 11500,
     oldPrice: 14000,
     badge: 'CE Hip & Knee',
+    rating: 4.9,
+    reviews: 52,
     inStock: true,
     isVariable: false,
     sizes: '30, 32, 34, 36, 38',
@@ -3510,6 +3518,8 @@ const DEFAULT_CATALOG_PRODUCTS = [
     price: 1850,
     oldPrice: 2400,
     badge: 'Anti-Fog Vents',
+    rating: 4.8,
+    reviews: 29,
     inStock: true,
     isVariable: true,
     sizes: 'Standard (Single PM0.1 Filter), Twin-Pack (3x Carbon Filters), Winter Pro (Thermal + 5x Filters)',
@@ -3530,6 +3540,8 @@ const DEFAULT_CATALOG_PRODUCTS = [
     price: 4200,
     oldPrice: 5500,
     badge: 'Short Cuff',
+    rating: 4.9,
+    reviews: 36,
     inStock: true,
     isVariable: false,
     sizes: 'M, L, XL',
@@ -3546,6 +3558,8 @@ const DEFAULT_CATALOG_PRODUCTS = [
     price: 3200,
     oldPrice: 3900,
     badge: 'Quick-Dry',
+    rating: 4.9,
+    reviews: 42,
     inStock: true,
     isVariable: true,
     sizes: 'S (Drop Shoulder), M (Drop Shoulder), L (Drop Shoulder), XL (Drop Shoulder)',
@@ -3573,14 +3587,13 @@ function getAdminProducts() {
         // Migration / enrichment: ensure default catalog products inherit variants if previously missing
         return parsed.map(p => {
           const defaultMatch = DEFAULT_CATALOG_PRODUCTS.find(d => d.id === p.id);
-          if (defaultMatch && (!p.variants || p.variants.length === 0) && defaultMatch.variants && defaultMatch.variants.length > 0) {
-            return {
-              ...p,
-              isVariable: defaultMatch.isVariable,
-              variants: defaultMatch.variants
-            };
-          }
-          return p;
+          return {
+            ...p,
+            rating: p.rating || (defaultMatch && defaultMatch.rating) || 5.0,
+            reviews: p.reviews || (defaultMatch && defaultMatch.reviews) || 36,
+            isVariable: (p.isVariable !== undefined) ? p.isVariable : (defaultMatch ? defaultMatch.isVariable : false),
+            variants: (p.variants && p.variants.length > 0) ? p.variants : (defaultMatch ? defaultMatch.variants : [])
+          };
         });
       }
     }
@@ -4167,6 +4180,8 @@ function handleProductFormSubmit(e) {
       images: [img],
       tagline: tagline || 'High-Performance Motorcycle Gear',
       desc: desc || `${name} engineered for superior protection and rider comfort.`,
+      rating: 5.0,
+      reviews: 24,
       featured: true
     };
     products.unshift(newProd);

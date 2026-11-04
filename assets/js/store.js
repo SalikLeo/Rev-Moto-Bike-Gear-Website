@@ -386,7 +386,17 @@ function getCatalogProducts() {
     const custom = localStorage.getItem('revmoto_custom_products');
     if (custom) {
       const parsed = JSON.parse(custom);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed.map(p => {
+          const master = MASTER_PRODUCTS.find(m => m.id === p.id);
+          return {
+            ...p,
+            rating: p.rating || (master && master.rating) || 5.0,
+            reviews: p.reviews || (master && master.reviews) || 36,
+            slug: p.slug || (master && master.slug) || (p.name ? p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-') : 'product')
+          };
+        });
+      }
     }
   } catch (e) {}
   return [...MASTER_PRODUCTS];

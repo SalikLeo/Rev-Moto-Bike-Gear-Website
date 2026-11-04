@@ -1299,28 +1299,36 @@ function updateHeaderUserIcon() {
 }
 
 // Auto-fill checkout fields if on checkout.html
-function autoFillCheckoutFields() {
+function autoFillCheckoutFields(forceOverwrite = false) {
   const profile = getStoredUserProfile();
   const googleUser = getStoredCustomerUser();
 
   const nameInput = document.getElementById('coFullName');
-  if (nameInput && !nameInput.value && (profile.name || googleUser?.name)) {
-    nameInput.value = profile.name || googleUser?.name || '';
+  if (nameInput && (profile.name || googleUser?.name)) {
+    if (forceOverwrite || !nameInput.value.trim()) {
+      nameInput.value = profile.name || googleUser?.name || '';
+    }
   }
 
   const phoneInput = document.getElementById('coPhone');
-  if (phoneInput && !phoneInput.value && profile.phone) {
-    phoneInput.value = profile.phone;
+  if (phoneInput && profile.phone) {
+    if (forceOverwrite || !phoneInput.value.trim()) {
+      phoneInput.value = profile.phone;
+    }
   }
 
   const emailInput = document.getElementById('coEmail');
-  if (emailInput && !emailInput.value && (profile.email || googleUser?.email)) {
-    emailInput.value = profile.email || googleUser?.email || '';
+  if (emailInput && (profile.email || googleUser?.email)) {
+    if (forceOverwrite || !emailInput.value.trim()) {
+      emailInput.value = profile.email || googleUser?.email || '';
+    }
   }
 
-  const addressInput = document.getElementById('coStreetAddress');
-  if (addressInput && !addressInput.value && profile.address) {
-    addressInput.value = profile.address;
+  const addressInput = document.getElementById('coAddress') || document.getElementById('coStreetAddress');
+  if (addressInput && profile.address) {
+    if (forceOverwrite || !addressInput.value.trim()) {
+      addressInput.value = profile.address;
+    }
   }
 }
 
@@ -1362,5 +1370,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Listen to profile updates
   window.addEventListener('revmoto_auth_changed', updateHeaderUserIcon);
-  window.addEventListener('revmoto_profile_updated', autoFillCheckoutFields);
+  window.addEventListener('revmoto_profile_updated', () => autoFillCheckoutFields(true));
 });

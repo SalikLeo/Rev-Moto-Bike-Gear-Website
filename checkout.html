@@ -353,7 +353,7 @@
 
   <script src="assets/js/smooth-scroll.js?v=4.4"></script>
 
-  <script src="assets/js/user-profile.js?v=1.1"></script>
+  <script src="assets/js/user-profile.js?v=1.2"></script>
   <script src="assets/js/navbar.js?v=4.6"></script>
 
   <script>
@@ -714,33 +714,42 @@
     document.addEventListener('DOMContentLoaded', () => {
 
     // Auto-fill checkout fields from saved User Profile
-    function autoFillCheckoutFromProfile() {
+    function autoFillCheckoutFromProfile(force = false) {
       try {
         const prof = JSON.parse(localStorage.getItem('revmoto_user_profile') || '{}');
         const googleUser = JSON.parse(localStorage.getItem('revmoto_customer_user') || '{}');
         
         const nameField = document.getElementById('coFullName');
-        if (nameField && !nameField.value && (prof.name || googleUser.name)) {
-          nameField.value = prof.name || googleUser.name || '';
+        if (nameField && (prof.name || googleUser.name)) {
+          if (force || !nameField.value.trim()) {
+            nameField.value = prof.name || googleUser.name || '';
+          }
         }
 
         const phoneField = document.getElementById('coPhone');
-        if (phoneField && !phoneField.value && prof.phone) {
-          phoneField.value = prof.phone;
+        if (phoneField && prof.phone) {
+          if (force || !phoneField.value.trim()) {
+            phoneField.value = prof.phone;
+          }
         }
 
         const emailField = document.getElementById('coEmail');
-        if (emailField && !emailField.value && (prof.email || googleUser.email)) {
-          emailField.value = prof.email || googleUser.email || '';
+        if (emailField && (prof.email || googleUser.email)) {
+          if (force || !emailField.value.trim()) {
+            emailField.value = prof.email || googleUser.email || '';
+          }
         }
 
         const addrField = document.getElementById('coAddress') || document.getElementById('coStreetAddress');
-        if (addrField && !addrField.value && prof.address) {
-          addrField.value = prof.address;
+        if (addrField && prof.address) {
+          if (force || !addrField.value.trim()) {
+            addrField.value = prof.address;
+          }
         }
       } catch(e) {}
     }
     autoFillCheckoutFromProfile();
+    window.addEventListener('revmoto_profile_updated', () => autoFillCheckoutFromProfile(true));
 
 
       initCheckout();

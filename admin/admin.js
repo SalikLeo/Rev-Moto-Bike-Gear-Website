@@ -31,6 +31,16 @@ function resolveAdminImgPath(src) {
   return '../' + src;
 }
 
+// Modern Sleek Action SVGs (Feather / Lucide Outline)
+const SVG_ICONS = {
+  receipt: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"></path><line x1="8" y1="8" x2="16" y2="8"></line><line x1="8" y1="12" x2="16" y2="12"></line><line x1="8" y1="16" x2="12" y2="16"></line></svg>`,
+  whatsapp: `<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm.01 1.67c2.2 0 4.26.86 5.82 2.42a8.23 8.23 0 0 1 2.41 5.83c0 4.54-3.7 8.24-8.24 8.24-1.45 0-2.87-.38-4.12-1.12l-.3-.18-3.06.8.82-2.98-.19-.31a8.19 8.19 0 0 1-1.25-4.45c0-4.54 3.7-8.24 8.24-8.24zm4.52 11.66c-.25-.13-1.47-.72-1.7-.81-.23-.08-.39-.13-.56.13-.17.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.13-1.06-.39-2.02-1.25-.75-.67-1.26-1.5-1.41-1.75-.14-.25-.02-.39.11-.51.11-.11.25-.29.37-.44.13-.14.17-.25.25-.42.08-.17.04-.31-.02-.44-.06-.13-.56-1.34-.76-1.84-.2-.49-.4-.42-.56-.43h-.47c-.17 0-.44.06-.67.31-.23.25-.88.86-.88 2.1s.9 2.44 1.03 2.61c.13.17 1.77 2.7 4.29 3.79.6.26 1.07.42 1.44.53.6.19 1.15.16 1.58.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.15-1.18-.06-.1-.23-.17-.48-.29z"/></svg>`,
+  phone: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>`,
+  eye: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>`
+};
+
+
+
 /**
  * ==========================================================================
  * REV MOTO — Modern Responsive Admin Engine (Supabase + Local Fallback)
@@ -1064,17 +1074,17 @@ function renderDesktopTable() {
         </td>
         <td>
           <div style="display: flex; align-items: center; justify-content: flex-end; gap: 6px;">
-            <button class="btn-admin btn-admin-subtle" style="padding: 6px 10px; font-size: 0.76rem;" onclick="openReceiptModal('${order.id}')" title="80mm Thermal Receipt">
-              <i class="fas fa-receipt text-cyan"></i>
+            <button class="btn-action-icon btn-action-receipt" onclick="openReceiptModal('${order.id}')" title="80mm Thermal Receipt">
+              ${SVG_ICONS.receipt}
             </button>
-            <a href="${waUrl}" target="_blank" rel="noopener" class="btn-admin btn-whatsapp-sm" style="padding: 6px 10px; font-size: 0.76rem;" title="Chat on WhatsApp">
-              <i class="fab fa-whatsapp"></i>
+            <a href="${waUrl}" target="_blank" rel="noopener" class="btn-action-icon btn-action-wa" title="Chat on WhatsApp">
+              ${SVG_ICONS.whatsapp}
             </a>
-            <a href="tel:${phoneClean}" class="btn-admin btn-call-sm" style="padding: 6px 10px; font-size: 0.76rem;" title="Call Customer">
-              <i class="fas fa-phone"></i>
+            <a href="tel:${phoneClean}" class="btn-action-icon btn-action-call" title="Call Customer">
+              ${SVG_ICONS.phone}
             </a>
-            <button class="btn-admin btn-admin-subtle" style="padding: 6px 10px; font-size: 0.76rem;" onclick="openOrderModal('${order.id}')" title="View Order Details">
-              <i class="fas fa-eye"></i>
+            <button class="btn-action-icon btn-action-view" onclick="openOrderModal('${order.id}')" title="View Order Details">
+              ${SVG_ICONS.eye}
             </button>
           </div>
         </td>
@@ -1137,17 +1147,17 @@ function renderMobileCards() {
         </div>
 
         <div class="m-actions-row">
-          <button class="btn-admin btn-admin-subtle" onclick="openReceiptModal('${order.id}')" title="80mm Receipt">
-            <i class="fas fa-receipt text-cyan"></i> Slip
+          <button class="btn-action-icon btn-action-receipt" onclick="openReceiptModal('${order.id}')" title="80mm Receipt">
+            ${SVG_ICONS.receipt} <span>Slip</span>
           </button>
-          <a href="${waUrl}" target="_blank" rel="noopener" class="btn-admin btn-whatsapp-sm" title="Chat on WhatsApp">
-            <i class="fab fa-whatsapp"></i> WhatsApp
+          <a href="${waUrl}" target="_blank" rel="noopener" class="btn-action-icon btn-action-wa" title="Chat on WhatsApp">
+            ${SVG_ICONS.whatsapp} <span>WhatsApp</span>
           </a>
-          <a href="tel:${phoneClean}" class="btn-admin btn-call-sm">
-            <i class="fas fa-phone"></i> Call
+          <a href="tel:${phoneClean}" class="btn-action-icon btn-action-call" title="Call Customer">
+            ${SVG_ICONS.phone} <span>Call</span>
           </a>
-          <button class="btn-admin btn-admin-subtle" onclick="openOrderModal('${order.id}')">
-            <i class="fas fa-eye"></i> View
+          <button class="btn-action-icon btn-action-view" onclick="openOrderModal('${order.id}')" title="View Order">
+            ${SVG_ICONS.eye} <span>View</span>
           </button>
         </div>
       </div>
@@ -2336,12 +2346,12 @@ function renderCustomersView() {
               <div style="font-size: 0.82rem; font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">
                 ${escapeHtml(c.phone || 'No phone')}
               </div>
-              <div style="display: flex; gap: 4px;">
-                <a href="${waLink}" target="_blank" rel="noopener" class="btn-admin btn-whatsapp-sm" style="padding: 4px 8px; font-size: 0.7rem;" title="Chat on WhatsApp">
-                  <i class="fab fa-whatsapp"></i>
+              <div style="display: flex; gap: 6px;">
+                <a href="${waLink}" target="_blank" rel="noopener" class="btn-action-icon btn-action-wa" style="width: 30px; height: 30px;" title="Chat on WhatsApp">
+                  ${SVG_ICONS.whatsapp}
                 </a>
-                <a href="${callLink}" class="btn-admin btn-call-sm" style="padding: 4px 8px; font-size: 0.7rem;">
-                  <i class="fas fa-phone"></i> Call
+                <a href="${callLink}" class="btn-action-icon btn-action-call" style="width: 30px; height: 30px;" title="Call Customer">
+                  ${SVG_ICONS.phone}
                 </a>
               </div>
             </td>

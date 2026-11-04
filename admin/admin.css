@@ -2828,3 +2828,78 @@ body, button, input, select, textarea, table, th, td {
   border-color: #bfdbfe !important;
   box-shadow: 0 4px 12px rgba(37, 99, 235, 0.06) !important;
 }
+
+/* ── CARRYOVER & PREVIOUS UNDELIVERED ORDERS ──────────────── */
+.metric-bracket-badge {
+  font-size: 0.8em;
+  font-weight: 800;
+  color: #d97706;
+  margin-left: 5px;
+  cursor: pointer;
+  display: inline-block;
+  padding: 1px 5px;
+  border-radius: 6px;
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  transition: all 0.2s ease;
+  vertical-align: middle;
+}
+
+.metric-bracket-badge:hover {
+  background: #fef3c7;
+  color: #b45309;
+  border-color: #f59e0b;
+  transform: translateY(-1px);
+}
+
+.badge-bracket {
+  font-weight: 800;
+  color: #d97706;
+  margin-left: 2px;
+}
+
+.filter-pill-btn.active .filter-count-badge .badge-bracket {
+  color: #fef3c7;
+}
+
+.carryover-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #fffbeb;
+  border: 1.5px solid #fde68a;
+  color: #92400e;
+  padding: 4px 11px;
+  border-radius: var(--radius-pill);
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.carryover-pill-btn:hover {
+  background: #fef3c7;
+  border-color: #f59e0b;
+  color: #78350f;
+}
+
+.carryover-pill-btn.active {
+  background: #d97706;
+  border-color: #b45309;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(217, 119, 6, 0.3);
+}
+
+.order-carryover-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  background: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fde68a;
+  padding: 1px 6px;
+  border-radius: 4px;
+}

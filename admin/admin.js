@@ -55,6 +55,7 @@ let ordersList = [];
 let activeFilter = 'all'; // status filter: 'all' | 'pending' | 'confirmed' | 'dispatched' | 'delivered' | 'cancelled'
 let periodMode = 'daily'; // 'daily' | 'monthly' | 'annual' | 'all'
 let periodDate = new Date(); // active filter date reference
+let includeCarryover = false; // whether to include carryover undelivered orders in table
 let searchQuery = '';
 let soundEnabled = true;
 let currentSelectedOrder = null;
@@ -521,6 +522,7 @@ function saveLocalOrders(orders) {
 // ── PERIOD FILTER LOGIC (Daily / Monthly / Annual / All) ──
 function setPeriodMode(mode) {
   periodMode = mode;
+  includeCarryover = false;
 
   // Update segmented control buttons
   ['daily', 'monthly', 'annual', 'all'].forEach(m => {
@@ -656,6 +658,7 @@ function renderPeriodNavigator() {
 }
 
 function stepPeriodDate(delta) {
+  includeCarryover = false;
   const d = new Date(periodDate.getTime());
   if (periodMode === 'daily') {
     d.setDate(d.getDate() + delta);
@@ -710,6 +713,7 @@ function onDailyPickerChange(val) {
   if (!val) return;
   const parts = val.split('-');
   if (parts.length === 3) {
+    includeCarryover = false;
     periodDate = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
     renderPeriodNavigator();
     currentPage = 1;
@@ -718,6 +722,7 @@ function onDailyPickerChange(val) {
 }
 
 function onMonthSelectChange(m) {
+  includeCarryover = false;
   const d = new Date(periodDate.getTime());
   d.setMonth(m);
   periodDate = d;
@@ -727,6 +732,7 @@ function onMonthSelectChange(m) {
 }
 
 function onYearSelectChange(y) {
+  includeCarryover = false;
   const d = new Date(periodDate.getTime());
   d.setFullYear(y);
   periodDate = d;
@@ -768,12 +774,76 @@ function getPeriodFilteredOrders() {
   return ordersList.filter(order => matchesPeriodFilter(order.created_at));
 }
 
-function getFilteredOrders() {
+// Undelivered orders from previous time filters (e.g. before current day/month/year)
+function getPreviousUndeliveredOrders() {
+  if (periodMode === 'all') return [];
+
+  let periodStart = null;
+  if (periodMode === 'daily') {
+    periodStart = new Date(periodDate.getFullYear(), periodDate.getMonth(), periodDate.getDate(), 0, 0, 0, 0);
+  } else if (periodMode === 'monthly') {
+    periodStart = new Date(periodDate.getFullYear(), periodDate.getMonth(), 1, 0, 0, 0, 0);
+  } else if (periodMode === 'annual') {
+    periodStart = new Date(periodDate.getFullYear(), 0, 1, 0, 0, 0, 0);
+  }
+
+  if (!periodStart) return [];
+
   return ordersList.filter(order => {
-    // 1. Period Date Filter
-    if (!matchesPeriodFilter(order.created_at)) {
-      return false;
-    }
+    if (!order.created_at) return false;
+    const orderDate = new Date(order.created_at);
+    return orderDate < periodStart && order.status !== 'delivered' && order.status !== 'cancelled';
+  });
+}
+
+function toggleIncludeCarryover(forceState) {
+  if (typeof forceState === 'boolean') {
+    includeCarryover = forceState;
+  } else {
+    includeCarryover = !includeCarryover;
+  }
+  currentPage = 1;
+  renderDashboard();
+}
+
+function filterByCarryoverStatus(statusKey) {
+  activeFilter = statusKey;
+  includeCarryover = true;
+  currentPage = 1;
+  renderDashboard();
+}
+
+function renderCarryoverPill(prevTotal) {
+  const container = document.getElementById('carryoverPillContainer');
+  if (!container) return;
+
+  if (prevTotal <= 0) {
+    container.innerHTML = '';
+    return;
+  }
+
+  container.innerHTML = `
+    <button type="button" class="carryover-pill-btn ${includeCarryover ? 'active' : ''}" onclick="toggleIncludeCarryover()" title="${includeCarryover ? 'Click to hide earlier carryover orders' : 'Click to view ' + prevTotal + ' undelivered orders from earlier periods in table'}">
+      <i class="fas ${includeCarryover ? 'fa-check' : 'fa-clock-rotate-left'}"></i>
+      <span>Carryover (${prevTotal})</span>
+    </button>
+  `;
+}
+
+function getFilteredOrders() {
+  const periodOrders = getPeriodFilteredOrders();
+  let baseOrders = periodOrders;
+
+  if (includeCarryover) {
+    const prevUndelivered = getPreviousUndeliveredOrders();
+    const seen = new Set(periodOrders.map(o => String(o.id)));
+    const carryoverToAdd = prevUndelivered
+      .filter(o => !seen.has(String(o.id)))
+      .map(o => ({ ...o, _isCarryover: true }));
+    baseOrders = [...periodOrders, ...carryoverToAdd];
+  }
+
+  return baseOrders.filter(order => {
     // 2. Status Pipeline Filter
     if (activeFilter !== 'all' && order.status !== activeFilter) {
       return false;
@@ -803,6 +873,8 @@ function renderDashboard() {
 function updateMetrics() {
   // Metrics reflect the active Period (Daily, Monthly, Annual, or All)
   const scopedOrders = getPeriodFilteredOrders();
+  const prevUndelivered = getPreviousUndeliveredOrders();
+
   let totalRev = 0;
   let totalOrders = scopedOrders.length;
   let pendingCount = 0;
@@ -817,15 +889,41 @@ function updateMetrics() {
     if (order.status === 'dispatched') dispatchedCount++;
   });
 
+  const prevTotal = prevUndelivered.length;
+  const prevPending = prevUndelivered.filter(o => o.status === 'pending').length;
+  const prevDispatched = prevUndelivered.filter(o => o.status === 'dispatched').length;
+
   const revEl = document.getElementById('metricRevenueVal');
   const ordEl = document.getElementById('metricOrdersVal');
   const penEl = document.getElementById('metricPendingVal');
   const disEl = document.getElementById('metricDispatchedVal');
 
   if (revEl) revEl.textContent = formatPKR(totalRev);
-  if (ordEl) ordEl.textContent = totalOrders;
-  if (penEl) penEl.textContent = pendingCount;
-  if (disEl) disEl.textContent = dispatchedCount;
+
+  // Show previous undelivered count in brackets (e.g. 0 (9) or 12)
+  if (ordEl) {
+    if (prevTotal > 0) {
+      ordEl.innerHTML = `${totalOrders} <span class="metric-bracket-badge" onclick="toggleIncludeCarryover()" title="${prevTotal} undelivered orders from previous periods (${includeCarryover ? 'Showing in table' : 'Click to view in table'})">(${prevTotal})</span>`;
+    } else {
+      ordEl.textContent = totalOrders;
+    }
+  }
+
+  if (penEl) {
+    if (prevPending > 0) {
+      penEl.innerHTML = `${pendingCount} <span class="metric-bracket-badge" onclick="filterByCarryoverStatus('pending')" title="${prevPending} pending confirmation from previous periods (Click to view)">(${prevPending})</span>`;
+    } else {
+      penEl.textContent = pendingCount;
+    }
+  }
+
+  if (disEl) {
+    if (prevDispatched > 0) {
+      disEl.innerHTML = `${dispatchedCount} <span class="metric-bracket-badge" onclick="filterByCarryoverStatus('dispatched')" title="${prevDispatched} dispatched from previous periods (Click to view)">(${prevDispatched})</span>`;
+    } else {
+      disEl.textContent = dispatchedCount;
+    }
+  }
 
   // Dynamic subtitle describing the selected period
   let periodLabelText = '';
@@ -841,11 +939,29 @@ function updateMetrics() {
 
   const cards = document.querySelectorAll('.metrics-grid .metric-card .metric-sub');
   if (cards && cards[0]) cards[0].textContent = periodLabelText;
-  if (cards && cards[1]) cards[1].textContent = `Found ${totalOrders} order(s) in this period`;
+  if (cards && cards[1]) {
+    cards[1].textContent = prevTotal > 0
+      ? `Found ${totalOrders} order(s) in this period • (${prevTotal}) undelivered from earlier`
+      : `Found ${totalOrders} order(s) in this period`;
+  }
+  if (cards && cards[2]) {
+    cards[2].textContent = prevPending > 0
+      ? `Requires WhatsApp/Call check • (${prevPending}) from earlier`
+      : `Requires WhatsApp/Call check`;
+  }
+  if (cards && cards[3]) {
+    cards[3].textContent = prevDispatched > 0
+      ? `Booked with Courier • (${prevDispatched}) from earlier`
+      : `Booked with Courier`;
+  }
+
+  renderCarryoverPill(prevTotal);
 }
 
 function renderFilterTabs() {
   const scopedOrders = getPeriodFilteredOrders();
+  const prevUndelivered = getPreviousUndeliveredOrders();
+
   const counts = {
     all: scopedOrders.length,
     pending: scopedOrders.filter(o => o.status === 'pending').length,
@@ -853,6 +969,15 @@ function renderFilterTabs() {
     dispatched: scopedOrders.filter(o => o.status === 'dispatched').length,
     delivered: scopedOrders.filter(o => o.status === 'delivered').length,
     cancelled: scopedOrders.filter(o => o.status === 'cancelled').length,
+  };
+
+  const prevCounts = {
+    all: prevUndelivered.length,
+    pending: prevUndelivered.filter(o => o.status === 'pending').length,
+    confirmed: prevUndelivered.filter(o => o.status === 'confirmed').length,
+    dispatched: prevUndelivered.filter(o => o.status === 'dispatched').length,
+    delivered: 0,
+    cancelled: 0,
   };
 
   const container = document.getElementById('filterTabsTrack');
@@ -867,17 +992,32 @@ function renderFilterTabs() {
     { key: 'cancelled', label: 'Cancelled' }
   ];
 
-  container.innerHTML = filters.map(f => `
-    <button class="filter-pill-btn status-${f.key} ${activeFilter === f.key ? 'active' : ''}" onclick="setFilter('${f.key}', this)">
-      ${f.label}
-      <span class="filter-count-badge">${counts[f.key] || 0}</span>
-    </button>
-  `).join('');
+  container.innerHTML = filters.map(f => {
+    const c = counts[f.key] || 0;
+    const p = prevCounts[f.key] || 0;
+    const badgeText = p > 0 ? `${c} <span class="badge-bracket">(${p})</span>` : `${c}`;
+
+    return `
+      <button class="filter-pill-btn status-${f.key} ${activeFilter === f.key ? 'active' : ''}" onclick="setFilter('${f.key}', this)">
+        ${f.label}
+        <span class="filter-count-badge">${badgeText}</span>
+      </button>
+    `;
+  }).join('');
 }
 
 function setFilter(key, btnEl) {
   activeFilter = key;
   currentPage = 1;
+  const scoped = getPeriodFilteredOrders();
+  const c = key === 'all' ? scoped.length : scoped.filter(o => o.status === key).length;
+  if (c === 0 && key !== 'delivered' && key !== 'cancelled') {
+    const prev = getPreviousUndeliveredOrders();
+    const p = key === 'all' ? prev.length : prev.filter(o => o.status === key).length;
+    if (p > 0) {
+      includeCarryover = true;
+    }
+  }
   renderDashboard();
   if (btnEl && typeof btnEl.scrollIntoView === 'function') {
     btnEl.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
@@ -1015,11 +1155,22 @@ function renderDesktopTable() {
   const { items } = getPagedOrders(allFiltered);
 
   if (items.length === 0) {
+    const prevUndelivered = getPreviousUndeliveredOrders();
+    const hasCarryover = prevUndelivered.length > 0 && !includeCarryover;
+
     tbody.innerHTML = `
       <tr>
-        <td colspan="6" style="text-align: center; padding: 40px; color: var(--text-muted);">
-          <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 10px; display: block; opacity: 0.5;"></i>
-          No orders found for the selected period &amp; filters.
+        <td colspan="6" style="text-align: center; padding: 40px 20px; color: var(--text-muted);">
+          <i class="fas fa-inbox" style="font-size: 2.2rem; margin-bottom: 10px; display: block; opacity: 0.45;"></i>
+          <div style="font-size: 0.95rem; font-weight: 600; color: #334155;">No orders found for the selected period &amp; filters.</div>
+          ${hasCarryover ? `
+            <div style="margin-top: 10px; font-size: 0.82rem; color: #64748b;">
+              You have <strong style="color: #d97706;">(${prevUndelivered.length}) undelivered orders</strong> carried over from earlier periods.
+            </div>
+            <button type="button" class="btn btn-primary btn-sm" onclick="toggleIncludeCarryover(true)" style="margin-top: 12px; font-size: 0.8rem; padding: 7px 16px; font-weight: 700; border-radius: 8px;">
+              <i class="fas fa-clock-rotate-left"></i> View (${prevUndelivered.length}) Undelivered Orders
+            </button>
+          ` : ''}
         </td>
       </tr>
     `;
@@ -1034,7 +1185,10 @@ function renderDesktopTable() {
     return `
       <tr>
         <td>
-          <a class="order-id-link" onclick="openOrderModal('${order.id}')">#${order.id}</a>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <a class="order-id-link" onclick="openOrderModal('${order.id}')">#${order.id}</a>
+            ${order._isCarryover ? `<span class="order-carryover-tag" title="Undelivered order from previous period"><i class="fas fa-clock-rotate-left"></i> Carryover</span>` : ''}
+          </div>
           <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 2px; white-space: nowrap;">${formatOrderDateTime(order.created_at)}</div>
         </td>
         <td>
@@ -1102,10 +1256,21 @@ function renderMobileCards() {
   const { items } = getPagedOrders(allFiltered);
 
   if (items.length === 0) {
+    const prevUndelivered = getPreviousUndeliveredOrders();
+    const hasCarryover = prevUndelivered.length > 0 && !includeCarryover;
+
     container.innerHTML = `
       <div style="text-align: center; padding: 40px 20px; background: var(--bg-card); border-radius: var(--radius-md); border: 1px solid var(--border-subtle); color: var(--text-muted);">
-        <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 10px; display: block; opacity: 0.5;"></i>
-        No orders found for the selected period &amp; filters.
+        <i class="fas fa-inbox" style="font-size: 2.2rem; margin-bottom: 10px; display: block; opacity: 0.45;"></i>
+        <div style="font-size: 0.95rem; font-weight: 600; color: #334155;">No orders found for the selected period &amp; filters.</div>
+        ${hasCarryover ? `
+          <div style="margin-top: 10px; font-size: 0.82rem; color: #64748b;">
+            You have <strong style="color: #d97706;">(${prevUndelivered.length}) undelivered orders</strong> carried over from earlier periods.
+          </div>
+          <button type="button" class="btn btn-primary btn-sm" onclick="toggleIncludeCarryover(true)" style="margin-top: 12px; font-size: 0.8rem; padding: 7px 16px; font-weight: 700; border-radius: 8px;">
+            <i class="fas fa-clock-rotate-left"></i> View (${prevUndelivered.length}) Undelivered Orders
+          </button>
+        ` : ''}
       </div>
     `;
     return;
@@ -1120,8 +1285,11 @@ function renderMobileCards() {
       <div class="mobile-order-card">
         <div class="m-order-header">
           <div>
-            <span class="m-order-id" onclick="openOrderModal('${order.id}')">#${order.id}</span>
-            <span class="m-order-time">• ${formatOrderDateTime(order.created_at)}</span>
+            <div style="display: flex; align-items: center; gap: 4px;">
+              <span class="m-order-id" onclick="openOrderModal('${order.id}')">#${order.id}</span>
+              ${order._isCarryover ? `<span class="order-carryover-tag" style="font-size: 0.58rem; padding: 1px 4px;"><i class="fas fa-clock-rotate-left"></i> Earlier</span>` : ''}
+            </div>
+            <span class="m-order-time">${formatOrderDateTime(order.created_at)}</span>
           </div>
           <button type="button" class="status-badge ${order.status || 'pending'} status-badge-btn" onclick="openQuickStatusModal('${order.id}')" title="Click to change status">
             ${order.status || 'pending'}

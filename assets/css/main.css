@@ -2086,9 +2086,80 @@ h1, h2, h3, h4, h5, h6 {
     height: 36px;
     font-size: 0.95rem;
   }
+  /* Compact Modern Mobile Footer */
+  .site-footer {
+    padding: 38px 0 20px;
+  }
   .footer-grid {
-    grid-template-columns: 1fr;
-    gap: 36px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px 16px;
+    margin-bottom: 24px;
+  }
+  .footer-col-brand {
+    grid-column: 1 / -1;
+  }
+  .footer-col-brand .pill-brand {
+    margin-bottom: 10px !important;
+  }
+  .footer-brand-desc {
+    font-size: 0.82rem;
+    line-height: 1.5;
+    margin-bottom: 14px;
+    color: #94a3b8;
+    max-width: 100%;
+  }
+  .footer-social-row {
+    gap: 8px;
+  }
+  .social-icon-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 0.92rem;
+    border-radius: 10px;
+  }
+  .footer-heading {
+    font-size: 0.82rem;
+    margin-bottom: 12px;
+    padding-bottom: 5px;
+    letter-spacing: 0.06em;
+  }
+  .footer-heading::after {
+    width: 18px;
+    height: 2px;
+  }
+  .footer-nav-list {
+    gap: 8px;
+  }
+  .footer-nav-list a {
+    font-size: 0.82rem;
+    line-height: 1.35;
+  }
+  .footer-grid > div:last-child {
+    grid-column: 1 / -1;
+  }
+  .footer-info-item {
+    gap: 10px;
+    margin-bottom: 8px;
+    font-size: 0.80rem;
+    line-height: 1.4;
+  }
+  .footer-info-icon {
+    width: 26px;
+    height: 26px;
+    min-width: 26px;
+    font-size: 0.75rem;
+    border-radius: 6px;
+  }
+  .footer-bottom {
+    padding-top: 16px;
+    font-size: 0.74rem;
+    gap: 10px;
+    flex-direction: column;
+    text-align: center;
+  }
+  .footer-bottom div:last-child {
+    justify-content: center;
+    gap: 12px !important;
   }
   .floating-cart-dock {
     bottom: 16px;
@@ -2165,6 +2236,23 @@ h1, h2, h3, h4, h5, h6 {
     width: 34px;
     height: 34px;
     font-size: 0.9rem;
+  }
+  .site-footer {
+    padding: 32px 0 18px;
+  }
+  .footer-grid {
+    gap: 20px 12px;
+    margin-bottom: 20px;
+  }
+  .footer-heading {
+    font-size: 0.78rem;
+    margin-bottom: 10px;
+  }
+  .footer-nav-list a {
+    font-size: 0.78rem;
+  }
+  .footer-brand-desc {
+    font-size: 0.80rem;
   }
 }
 

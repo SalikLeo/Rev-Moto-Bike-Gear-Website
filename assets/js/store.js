@@ -651,6 +651,13 @@ function updateBadges() {
   // Pill header count
   document.querySelectorAll('.cart-count-pill').forEach(b => {
     b.textContent = cCount;
+    if (cCount > 0) {
+      b.style.display = 'flex';
+      b.setAttribute('data-count', String(cCount));
+    } else {
+      b.style.display = 'none';
+      b.setAttribute('data-count', '0');
+    }
   });
 
   document.querySelectorAll('.wish-count-pill').forEach(b => {

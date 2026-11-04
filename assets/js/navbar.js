@@ -41,8 +41,13 @@
             </svg>
           </button>
 
-          <button class="pill-action-btn pill-search-btn" onclick="openSearchModal()" title="Search Products" aria-label="Search Catalog">
-            <i class="fas fa-search"></i>
+          <button class="pill-action-btn pill-cart-btn" id="navCartBtn" onclick="openCartDrawer()" title="View Shopping Cart" aria-label="Shopping Cart">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="cart-icon-svg">
+              <circle cx="8" cy="21" r="1"></circle>
+              <circle cx="19" cy="21" r="1"></circle>
+              <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path>
+            </svg>
+            <span class="pill-cart-badge cart-count-pill" id="navCartBadge" style="display: none;">0</span>
           </button>
 
           <a href="https://wa.me/${RM_CONFIG.whatsapp.number}" target="_blank" rel="noopener" class="pill-action-btn pill-contact-btn pill-whatsapp-btn" title="Chat on WhatsApp" aria-label="Chat on WhatsApp">
@@ -327,6 +332,9 @@
     if (document.getElementById('pillNavbar')) return;
     document.body.insertAdjacentHTML('afterbegin', ambientBgHtml);
     document.body.insertAdjacentHTML('afterbegin', pillHeaderHtml);
+    if (typeof updateBadges === 'function') {
+      try { updateBadges(); } catch(e) {}
+    }
     document.body.insertAdjacentHTML('beforeend', footerHtml);
 
     // Navbar scroll elevation

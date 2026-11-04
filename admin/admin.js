@@ -810,7 +810,7 @@ function updateMetrics() {
 
   scopedOrders.forEach(order => {
     const amt = Number(order.total_amount) || 0;
-    if (order.status !== 'cancelled') {
+    if (order.status === 'delivered') {
       totalRev += amt;
     }
     if (order.status === 'pending') pendingCount++;
@@ -2949,11 +2949,11 @@ function renderSalesPeriodNavigator() {
 
 function getFilteredSalesOrders() {
   if (salesPeriodMode === 'all') {
-    return ordersList.filter(o => o.status !== 'cancelled');
+    return ordersList.filter(o => o.status === 'delivered');
   }
 
   return ordersList.filter(o => {
-    if (!o.created_at || o.status === 'cancelled') return false;
+    if (!o.created_at || o.status !== 'delivered') return false;
     const od = new Date(o.created_at);
 
     if (salesPeriodMode === 'daily') {

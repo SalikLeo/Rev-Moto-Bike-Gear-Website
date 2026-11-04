@@ -1443,7 +1443,7 @@ function printThermalReceipt() {
           padding: 3mm 4mm;
           background: #ffffff;
           color: #000000;
-          font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
           width: 80mm;
           max-width: 80mm;
           -webkit-print-color-adjust: exact;

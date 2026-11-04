@@ -1342,45 +1342,333 @@ function closeReceiptModal() {
   currentReceiptOrder = null;
 }
 
-async function downloadReceiptImage() {
-  if (!currentReceiptOrder) return;
-  const paperEl = document.getElementById('receiptPaper');
-  if (!paperEl) return;
+function drawRevMotoReceiptCanvas(order, scale = 2) {
+  if (!order) return '';
+  const baseWidth = 760;
+  const width = baseWidth;
+  const padX = 48; // Generous 48px padding (identical to 24px at 380px width)
+  let curY = 48;
 
-  if (typeof html2canvas === 'undefined') {
-    showToast('html2canvas library not ready, triggering print instead...', 'info');
-    printThermalReceipt();
-    return;
+  const items = order.items || [];
+  const estimatedHeight = 760 + (items.length * 68) + (order.address ? 60 : 0);
+  const baseHeight = Math.max(800, estimatedHeight);
+
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.round(baseWidth * scale);
+  canvas.height = Math.round(baseHeight * scale);
+  const ctx = canvas.getContext('2d');
+
+  ctx.scale(scale, scale);
+
+  // Background - Pure Crisp White
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, baseWidth, baseHeight);
+
+  const fontSans = '"Plus Jakarta Sans", "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+
+  // --- Store Header ---
+  ctx.fillStyle = '#000000';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'alphabetic';
+
+  // REV MOTO
+  ctx.font = `800 32px ${fontSans}`;
+  ctx.fillText('REV MOTO', width / 2, curY);
+  curY += 28;
+
+  // Subtitle
+  ctx.font = `800 20px ${fontSans}`;
+  ctx.fillText('PREMIUM MOTORCYCLE GEAR & PROTECTION', width / 2, curY);
+  curY += 26;
+
+  // Address & Phone
+  ctx.font = `600 18px ${fontSans}`;
+  ctx.fillText('Sialkot Manufacturing District, Punjab, Pakistan', width / 2, curY);
+  curY += 24;
+  ctx.fillText('Phone: 0337-4249450', width / 2, curY);
+  curY += 26;
+
+  // Boxed Payment Badge
+  const payMethod = (order.payment_method || order.paymentMethod || 'CASH ON DELIVERY (COD)').toUpperCase();
+  ctx.font = `800 18px ${fontSans}`;
+  const badgeTextW = ctx.measureText(payMethod).width;
+  const badgeW = badgeTextW + 44;
+  const badgeH = 38;
+  const badgeX = (width - badgeW) / 2;
+  const badgeY = curY;
+
+  ctx.strokeStyle = '#000000';
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(badgeX, badgeY, badgeW, badgeH);
+
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(payMethod, width / 2, badgeY + (badgeH / 2) - 1);
+  curY = badgeY + badgeH + 26;
+
+  // Dashed Divider Helper
+  const drawDashedDivider = (y) => {
+    ctx.save();
+    ctx.strokeStyle = '#71717a';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([6, 5]);
+    ctx.beginPath();
+    ctx.moveTo(padX, y);
+    ctx.lineTo(width - padX, y);
+    ctx.stroke();
+    ctx.restore();
+  };
+
+  drawDashedDivider(curY);
+  curY += 30;
+
+  // --- Order Metadata ---
+  ctx.textBaseline = 'alphabetic';
+  const drawMetaLine = (label, val) => {
+    ctx.textAlign = 'left';
+    ctx.font = `700 20px ${fontSans}`;
+    ctx.fillStyle = '#000000';
+    ctx.fillText(label, padX, curY);
+
+    ctx.textAlign = 'right';
+    ctx.font = `800 20px ${fontSans}`;
+    ctx.fillStyle = '#000000';
+    ctx.fillText(String(val || '-'), width - padX, curY);
+    curY += 30;
+  };
+
+  const rawId = String(order.id || order.orderId || '0');
+  const cleanOrderId = rawId.startsWith('#') ? rawId : `#${rawId}`;
+  
+  let dateStr = '';
+  try {
+    const rawDate = order.created_at || order.createdAt;
+    if (rawDate) {
+      const d = new Date(rawDate);
+      if (!isNaN(d.getTime())) {
+        dateStr = d.toLocaleString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric',
+          hour: 'numeric',
+          minute: '2-digit',
+          hour12: true
+        });
+      }
+    }
+  } catch(e) {}
+  if (!dateStr) dateStr = 'Nov 4, 2026, 5:32 PM';
+
+  const custName = order.customer_name || order.customerName || 'Customer';
+  const custPhone = order.phone || '0337-4249450';
+  const custAddr = order.address || (order.city ? `${order.city}, Pakistan` : 'Standard Delivery');
+
+  drawMetaLine('Order ID:', cleanOrderId);
+  drawMetaLine('Date & Time:', dateStr);
+  drawMetaLine('Customer:', custName);
+  drawMetaLine('Phone:', custPhone);
+
+  if (custAddr) {
+    ctx.textAlign = 'left';
+    ctx.font = `700 20px ${fontSans}`;
+    ctx.fillStyle = '#000000';
+    ctx.fillText('Delivery Address:', padX, curY);
+    curY += 26;
+    ctx.font = `500 18px ${fontSans}`;
+    ctx.fillStyle = '#3f3f46';
+    ctx.fillText(custAddr, padX, curY);
+    curY += 30;
   }
 
-  showToast('Generating 80mm receipt image...', 'info');
-  try {
-    const canvas = await html2canvas(paperEl, {
-      scale: 2.5,
-      backgroundColor: '#ffffff',
-      useCORS: true,
-      logging: false,
-      onclone: (clonedDoc) => {
-        const el = clonedDoc.getElementById('receiptPaper');
-        if (el) {
-          el.style.padding = '26px 20px 24px 20px';
-          el.style.margin = '0 auto';
-          el.style.boxSizing = 'border-box';
-          el.style.width = '380px';
-          el.style.maxWidth = '380px';
-          el.style.background = '#ffffff';
-        }
-      }
+  drawDashedDivider(curY);
+  curY += 28;
+
+  // --- Table ---
+  const tableX = padX;
+  const tableW = width - (2 * padX);
+
+  const colW = {
+    idx: 52,
+    qty: 72,
+    rate: 110,
+    amt: 120
+  };
+  const colItemW = tableW - colW.idx - colW.qty - colW.rate - colW.amt;
+
+  const colLeft = {
+    idx: tableX,
+    item: tableX + colW.idx,
+    qty: tableX + colW.idx + colItemW,
+    rate: tableX + colW.idx + colItemW + colW.qty,
+    amt: tableX + colW.idx + colItemW + colW.qty + colW.rate
+  };
+
+  // Header Row
+  const headerH = 42;
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(tableX, curY, tableW, headerH);
+  ctx.strokeStyle = '#000000';
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(tableX, curY, tableW, headerH);
+
+  [colLeft.item, colLeft.qty, colLeft.rate, colLeft.amt].forEach(x => {
+    ctx.beginPath();
+    ctx.moveTo(x, curY);
+    ctx.lineTo(x, curY + headerH);
+    ctx.stroke();
+  });
+
+  ctx.fillStyle = '#000000';
+  ctx.font = `800 18px ${fontSans}`;
+  ctx.textBaseline = 'middle';
+  const headMidY = curY + (headerH / 2);
+
+  ctx.textAlign = 'center';
+  ctx.fillText('#', colLeft.idx + (colW.idx / 2), headMidY);
+
+  ctx.textAlign = 'left';
+  ctx.fillText('ITEM', colLeft.item + 12, headMidY);
+
+  ctx.textAlign = 'center';
+  ctx.fillText('QTY', colLeft.qty + (colW.qty / 2), headMidY);
+
+  ctx.textAlign = 'right';
+  ctx.fillText('RATE', colLeft.rate + colW.rate - 12, headMidY);
+  ctx.fillText('AMOUNT', colLeft.amt + colW.amt - 12, headMidY);
+
+  curY += headerH;
+
+  // Items Rows
+  items.forEach((it, i) => {
+    const hasSize = Boolean(it.size);
+    const rowH = hasSize ? 60 : 46;
+    const midY = curY + (hasSize ? 22 : rowH / 2);
+
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(tableX, curY, tableW, rowH);
+
+    [colLeft.item, colLeft.qty, colLeft.rate, colLeft.amt].forEach(x => {
+      ctx.beginPath();
+      ctx.moveTo(x, curY);
+      ctx.lineTo(x, curY + rowH);
+      ctx.stroke();
     });
 
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#000000';
+    ctx.font = `700 19px ${fontSans}`;
+    ctx.textAlign = 'center';
+    ctx.fillText(String(i + 1), colLeft.idx + (colW.idx / 2), midY);
+
+    ctx.textAlign = 'left';
+    ctx.font = `700 19px ${fontSans}`;
+    ctx.fillText(it.name || 'Item', colLeft.item + 12, midY);
+
+    if (hasSize) {
+      ctx.font = `600 16px ${fontSans}`;
+      ctx.fillStyle = '#3f3f46';
+      ctx.fillText(`Size: ${it.size}`, colLeft.item + 12, curY + 44);
+    }
+
+    ctx.fillStyle = '#000000';
+    ctx.font = `700 19px ${fontSans}`;
+    ctx.textAlign = 'center';
+    ctx.fillText(String(it.qty || 1), colLeft.qty + (colW.qty / 2), midY);
+
+    ctx.textAlign = 'right';
+    ctx.font = `600 19px ${fontSans}`;
+    ctx.fillText(Number(it.price || 0).toLocaleString('en-PK'), colLeft.rate + colW.rate - 12, midY);
+
+    ctx.font = `700 19px ${fontSans}`;
+    ctx.fillText(Number((it.price || 0) * (it.qty || 1)).toLocaleString('en-PK'), colLeft.amt + colW.amt - 12, midY);
+
+    curY += rowH;
+  });
+
+  curY += 24;
+
+  // --- Totals Section ---
+  const subtotal = items.reduce((acc, it) => acc + (Number(it.price || 0) * Number(it.qty || 1)), 0);
+  const delivery = Number(order.delivery_cost || order.deliveryCost || 350);
+  const total = Number(order.total_amount || order.totalAmount || (subtotal + delivery));
+
+  ctx.textBaseline = 'alphabetic';
+  const drawTotalLine = (label, val, isBold = false) => {
+    ctx.textAlign = 'left';
+    ctx.font = `600 20px ${fontSans}`;
+    ctx.fillStyle = '#000000';
+    ctx.fillText(label, padX, curY);
+
+    ctx.textAlign = 'right';
+    ctx.font = isBold ? `800 20px ${fontSans}` : `700 20px ${fontSans}`;
+    ctx.fillStyle = '#000000';
+    ctx.fillText(val, width - padX, curY);
+    curY += 30;
+  };
+
+  drawTotalLine('Subtotal', `Rs. ${subtotal.toLocaleString('en-PK')}`);
+  drawTotalLine('Delivery Charges', `Rs. ${delivery.toLocaleString('en-PK')}`);
+
+  // Solid Divider Line
+  curY += 4;
+  ctx.strokeStyle = '#000000';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(padX, curY);
+  ctx.lineTo(width - padX, curY);
+  ctx.stroke();
+
+  // Total Amount Line
+  curY += 32;
+  ctx.font = `800 24px ${fontSans}`;
+  ctx.fillStyle = '#000000';
+  ctx.textAlign = 'left';
+  ctx.fillText('TOTAL AMOUNT', padX, curY);
+
+  ctx.textAlign = 'right';
+  ctx.fillText(`Rs. ${total.toLocaleString('en-PK')}`, width - padX, curY);
+  curY += 26;
+
+  // Dashed Divider before Footer
+  drawDashedDivider(curY);
+  curY += 30;
+
+  // --- Footer ---
+  ctx.textAlign = 'center';
+  ctx.font = `800 19px ${fontSans}`;
+  ctx.fillStyle = '#000000';
+  ctx.fillText('THANK YOU FOR ORDERING!', width / 2, curY);
+  curY += 26;
+
+  ctx.font = `18px monospace`;
+  ctx.fillStyle = '#71717a';
+  ctx.fillText('✂ - - - - - - - - - - - - - - - - - - - - -', width / 2, curY);
+  curY += 48; // Generous 48px bottom padding!
+
+  // Crop canvas to exact required height
+  const trimmed = document.createElement('canvas');
+  trimmed.width = Math.round(baseWidth * scale);
+  trimmed.height = Math.round(curY * scale);
+  const tCtx = trimmed.getContext('2d');
+  tCtx.drawImage(canvas, 0, 0);
+
+  return trimmed.toDataURL('image/png', 1.0);
+}
+
+function downloadReceiptImage() {
+  if (!currentReceiptOrder) return;
+  try {
+    showToast('Generating 80mm receipt image...', 'info');
+    const dataUrl = drawRevMotoReceiptCanvas(currentReceiptOrder);
     const a = document.createElement('a');
     a.download = `RevMoto-Receipt-${currentReceiptOrder.id}.png`;
-    a.href = canvas.toDataURL('image/png');
+    a.href = dataUrl;
     a.click();
     showToast(`Receipt #${currentReceiptOrder.id} downloaded!`, 'success');
   } catch (err) {
     console.error('Receipt download error:', err);
-    showToast('Could not save image. Try Print instead.', 'error');
+    printThermalReceipt();
   }
 }
 

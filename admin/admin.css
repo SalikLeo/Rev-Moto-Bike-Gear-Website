@@ -323,13 +323,22 @@ body::before {
 }
 
 .btn-whatsapp-sm {
-  background: linear-gradient(135deg, #25d366 0%, #1ea952 100%);
-  color: #ffffff;
-  box-shadow: 0 3px 10px var(--whatsapp-green-glow);
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #16a34a;
+  box-shadow: none;
+  transition: all 0.18s ease;
 }
 
 .btn-whatsapp-sm:hover {
-  background: #1eb956;
+  background: #dcfce7;
+  color: #15803d;
+  border-color: #86efac;
+  transform: translateY(-1px);
+}
+
+.btn-whatsapp-sm i {
+  font-size: 0.95rem;
 }
 
 .btn-call-sm {

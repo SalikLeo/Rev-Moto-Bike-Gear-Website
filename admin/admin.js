@@ -1056,7 +1056,7 @@ function renderDesktopTable() {
               <i class="fas fa-receipt text-cyan"></i>
             </button>
             <a href="${waUrl}" target="_blank" rel="noopener" class="btn-admin btn-whatsapp-sm" style="padding: 6px 10px; font-size: 0.76rem;" title="Chat on WhatsApp">
-              <i class="fab fa-whatsapp"></i> WA
+              <i class="fab fa-whatsapp"></i>
             </a>
             <a href="tel:${phoneClean}" class="btn-admin btn-call-sm" style="padding: 6px 10px; font-size: 0.76rem;" title="Call Customer">
               <i class="fas fa-phone"></i>
@@ -1128,8 +1128,8 @@ function renderMobileCards() {
           <button class="btn-admin btn-admin-subtle" onclick="openReceiptModal('${order.id}')" title="80mm Receipt">
             <i class="fas fa-receipt text-cyan"></i> Slip
           </button>
-          <a href="${waUrl}" target="_blank" rel="noopener" class="btn-admin btn-whatsapp-sm">
-            <i class="fab fa-whatsapp"></i> WA
+          <a href="${waUrl}" target="_blank" rel="noopener" class="btn-admin btn-whatsapp-sm" title="Chat on WhatsApp">
+            <i class="fab fa-whatsapp"></i> WhatsApp
           </a>
           <a href="tel:${phoneClean}" class="btn-admin btn-call-sm">
             <i class="fas fa-phone"></i> Call
@@ -2325,8 +2325,8 @@ function renderCustomersView() {
                 ${escapeHtml(c.phone || 'No phone')}
               </div>
               <div style="display: flex; gap: 4px;">
-                <a href="${waLink}" target="_blank" rel="noopener" class="btn-admin btn-whatsapp-sm" style="padding: 4px 8px; font-size: 0.7rem;">
-                  <i class="fab fa-whatsapp"></i> WA
+                <a href="${waLink}" target="_blank" rel="noopener" class="btn-admin btn-whatsapp-sm" style="padding: 4px 8px; font-size: 0.7rem;" title="Chat on WhatsApp">
+                  <i class="fab fa-whatsapp"></i>
                 </a>
                 <a href="${callLink}" class="btn-admin btn-call-sm" style="padding: 4px 8px; font-size: 0.7rem;">
                   <i class="fas fa-phone"></i> Call

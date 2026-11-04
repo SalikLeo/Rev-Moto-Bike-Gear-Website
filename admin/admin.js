@@ -1815,6 +1815,7 @@ document.addEventListener('DOMContentLoaded', () => {
       closeOrderModal();
       closeReceiptModal();
       closeSupabaseModal();
+      closeProductModal();
     }
   });
 
@@ -1846,7 +1847,7 @@ function switchAdminView(viewName) {
   if (activeTabBtn) activeTabBtn.classList.add('active');
 
   // Show/Hide view panels
-  const views = ['orders', 'customers', 'reviews', 'settings'];
+  const views = ['orders', 'sales', 'products', 'customers', 'reviews', 'settings'];
   views.forEach(v => {
     const el = document.getElementById(v + 'View');
     if (el) {
@@ -1856,6 +1857,10 @@ function switchAdminView(viewName) {
 
   if (viewName === 'orders') {
     renderDashboard();
+  } else if (viewName === 'sales') {
+    renderSalesView();
+  } else if (viewName === 'products') {
+    renderProductsView();
   } else if (viewName === 'customers') {
     renderCustomersView();
   } else if (viewName === 'reviews') {
@@ -2341,4 +2346,875 @@ function saveStoreSettings() {
 
   localStorage.setItem('revmoto_store_settings', JSON.stringify(settingsObj));
   showToast(`Settings saved! Standard delivery fee set to Rs. ${deliveryFee}`, 'success');
+}
+
+
+// ═══════════════════════════════════════════════════════════════
+// SALES MANAGEMENT VIEW (ITEM-WISE SALES & TIME FILTERS)
+// ═══════════════════════════════════════════════════════════════
+let salesPeriodMode = 'daily'; // 'daily' | 'monthly' | 'annual' | 'all'
+let salesPeriodDate = new Date();
+let salesSearchQuery = '';
+let salesSortOrder = 'rev_desc'; // 'rev_desc' | 'qty_desc' | 'name_asc'
+
+function setSalesPeriod(mode, btn) {
+  salesPeriodMode = mode;
+  document.querySelectorAll('#salesPeriodPills .period-pill').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderSalesPeriodNavigator();
+  renderSalesView();
+}
+
+function renderSalesPeriodNavigator() {
+  const navWrap = document.getElementById('salesDateNavWrap');
+  if (!navWrap) return;
+
+  if (salesPeriodMode === 'all') {
+    navWrap.innerHTML = `
+      <div class="date-navigator" style="padding: 4px 10px; font-weight: 700; color: var(--text-secondary); font-size: 0.78rem;">
+        All Time Sales History
+      </div>
+    `;
+    return;
+  }
+
+  const isCurrent = isSalesCurrentPeriod();
+  let labelHtml = '';
+
+  if (salesPeriodMode === 'daily') {
+    const y = salesPeriodDate.getFullYear();
+    const m = String(salesPeriodDate.getMonth() + 1).padStart(2, '0');
+    const d = String(salesPeriodDate.getDate()).padStart(2, '0');
+    const inputVal = `${y}-${m}-${d}`;
+    const displayStr = `${m}/${d}/${y}`;
+
+    labelHtml = `
+      <label class="date-display-label" for="salesNativeDatePicker">
+        <span class="date-text">${displayStr}</span>
+        <i class="fas fa-calendar-alt calendar-icon"></i>
+      </label>
+      <input type="date" id="salesNativeDatePicker" class="native-date-hidden" value="${inputVal}" onchange="handleSalesNativeDateChange(this.value)">
+    `;
+  } else if (salesPeriodMode === 'monthly') {
+    const curYear = salesPeriodDate.getFullYear();
+    const curMonth = salesPeriodDate.getMonth();
+    const curMonthName = MONTH_NAMES[curMonth];
+
+    labelHtml = `
+      <div class="custom-dropdown-wrap">
+        <button type="button" class="dropdown-trigger" onclick="toggleSalesDropdown('salesMonthDropdown', event)">
+          <span>${curMonthName}</span> <i class="fas fa-chevron-down caret-icon"></i>
+        </button>
+        <div class="dropdown-menu-list" id="salesMonthDropdown">
+          ${MONTH_NAMES.map((name, idx) => `
+            <div class="dropdown-menu-item ${idx === curMonth ? 'selected' : ''}" onclick="selectSalesMonth(${idx})">
+              ${name}
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="custom-dropdown-wrap">
+        <button type="button" class="dropdown-trigger" onclick="toggleSalesDropdown('salesYearDropdown', event)">
+          <span>${curYear}</span> <i class="fas fa-chevron-down caret-icon"></i>
+        </button>
+        <div class="dropdown-menu-list" id="salesYearDropdown">
+          ${[curYear - 2, curYear - 1, curYear, curYear + 1].map(yr => `
+            <div class="dropdown-menu-item ${yr === curYear ? 'selected' : ''}" onclick="selectSalesYear(${yr})">
+              ${yr}
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  } else if (salesPeriodMode === 'annual') {
+    const curYear = salesPeriodDate.getFullYear();
+    labelHtml = `
+      <div class="custom-dropdown-wrap">
+        <button type="button" class="dropdown-trigger" onclick="toggleSalesDropdown('salesAnnualDropdown', event)">
+          <span>${curYear}</span> <i class="fas fa-chevron-down caret-icon"></i>
+        </button>
+        <div class="dropdown-menu-list" id="salesAnnualDropdown">
+          ${[curYear - 2, curYear - 1, curYear, curYear + 1].map(yr => `
+            <div class="dropdown-menu-item ${yr === curYear ? 'selected' : ''}" onclick="selectSalesYear(${yr})">
+              ${yr}
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  const quickJumpLabel = salesPeriodMode === 'daily' ? 'TODAY' : (salesPeriodMode === 'monthly' ? 'THIS MONTH' : 'THIS YEAR');
+
+  navWrap.innerHTML = `
+    <div class="date-navigator">
+      <button type="button" class="nav-arrow-btn" onclick="shiftSalesPeriod(-1)" title="Previous">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+
+      ${labelHtml}
+
+      <button type="button" class="nav-arrow-btn" onclick="shiftSalesPeriod(1)" title="Next">
+        <i class="fas fa-chevron-right"></i>
+      </button>
+
+      <button type="button" class="btn-today-pill" onclick="resetSalesPeriodToCurrent()">
+        ${quickJumpLabel}
+      </button>
+
+      ${!isCurrent ? `
+        <button type="button" class="btn-reset-cross" onclick="resetSalesPeriodToCurrent()" title="Reset to current ${salesPeriodMode}">
+          <i class="fas fa-times"></i>
+        </button>
+      ` : ''}
+    </div>
+  `;
+}
+
+function isSalesCurrentPeriod() {
+  const now = new Date();
+  if (salesPeriodMode === 'daily') {
+    return salesPeriodDate.toDateString() === now.toDateString();
+  }
+  if (salesPeriodMode === 'monthly') {
+    return salesPeriodDate.getFullYear() === now.getFullYear() && salesPeriodDate.getMonth() === now.getMonth();
+  }
+  if (salesPeriodMode === 'annual') {
+    return salesPeriodDate.getFullYear() === now.getFullYear();
+  }
+  return true;
+}
+
+function shiftSalesPeriod(direction) {
+  const d = new Date(salesPeriodDate.getTime());
+  if (salesPeriodMode === 'daily') {
+    d.setDate(d.getDate() + direction);
+  } else if (salesPeriodMode === 'monthly') {
+    d.setMonth(d.getMonth() + direction);
+  } else if (salesPeriodMode === 'annual') {
+    d.setFullYear(d.getFullYear() + direction);
+  }
+  salesPeriodDate = d;
+  renderSalesPeriodNavigator();
+  renderSalesView();
+}
+
+function resetSalesPeriodToCurrent() {
+  salesPeriodDate = new Date();
+  renderSalesPeriodNavigator();
+  renderSalesView();
+}
+
+function handleSalesNativeDateChange(val) {
+  if (!val) return;
+  const parts = val.split('-');
+  if (parts.length === 3) {
+    salesPeriodDate = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+    renderSalesPeriodNavigator();
+    renderSalesView();
+  }
+}
+
+function toggleSalesDropdown(id, e) {
+  if (e) e.stopPropagation();
+  const el = document.getElementById(id);
+  if (!el) return;
+  const isOpen = el.classList.contains('open');
+  document.querySelectorAll('.dropdown-menu-list').forEach(d => d.classList.remove('open'));
+  if (!isOpen) el.classList.add('open');
+}
+
+function selectSalesMonth(m) {
+  salesPeriodDate.setMonth(m);
+  document.querySelectorAll('.dropdown-menu-list').forEach(d => d.classList.remove('open'));
+  renderSalesPeriodNavigator();
+  renderSalesView();
+}
+
+function selectSalesYear(y) {
+  salesPeriodDate.setFullYear(y);
+  document.querySelectorAll('.dropdown-menu-list').forEach(d => d.classList.remove('open'));
+  renderSalesPeriodNavigator();
+  renderSalesView();
+}
+
+function getFilteredSalesOrders() {
+  if (salesPeriodMode === 'all') {
+    return ordersList.filter(o => o.status !== 'cancelled');
+  }
+
+  return ordersList.filter(o => {
+    if (!o.created_at || o.status === 'cancelled') return false;
+    const od = new Date(o.created_at);
+
+    if (salesPeriodMode === 'daily') {
+      return (
+        od.getFullYear() === salesPeriodDate.getFullYear() &&
+        od.getMonth() === salesPeriodDate.getMonth() &&
+        od.getDate() === salesPeriodDate.getDate()
+      );
+    }
+    if (salesPeriodMode === 'monthly') {
+      return (
+        od.getFullYear() === salesPeriodDate.getFullYear() &&
+        od.getMonth() === salesPeriodDate.getMonth()
+      );
+    }
+    if (salesPeriodMode === 'annual') {
+      return od.getFullYear() === salesPeriodDate.getFullYear();
+    }
+    return true;
+  });
+}
+
+function aggregateItemSales(scopedOrders) {
+  const map = {};
+
+  scopedOrders.forEach(o => {
+    const items = o.items || [];
+    items.forEach(it => {
+      const name = (it.name || 'Motorcycle Gear').trim();
+      const qty = Number(it.qty) || 1;
+      const price = Number(it.price) || 0;
+      const size = it.size || 'Standard';
+
+      if (!map[name]) {
+        // Find product image if available
+        const catalogProd = getAdminProducts().find(p => p.name.toLowerCase() === name.toLowerCase());
+        const img = catalogProd ? catalogProd.img : 'assets/images/jacket_cyber.jpg';
+        const category = catalogProd ? catalogProd.categoryLabel || catalogProd.category : 'Gear';
+
+        map[name] = {
+          name,
+          category,
+          image: img,
+          totalQty: 0,
+          totalRevenue: 0,
+          sizes: {},
+          lastSoldAt: o.created_at
+        };
+      }
+
+      map[name].totalQty += qty;
+      map[name].totalRevenue += (price * qty);
+      map[name].sizes[size] = (map[name].sizes[size] || 0) + qty;
+
+      if (new Date(o.created_at) > new Date(map[name].lastSoldAt || 0)) {
+        map[name].lastSoldAt = o.created_at;
+      }
+    });
+  });
+
+  return Object.values(map);
+}
+
+function renderSalesView() {
+  renderSalesPeriodNavigator();
+  const scopedOrders = getFilteredSalesOrders();
+  const aggregated = aggregateItemSales(scopedOrders);
+
+  // Calculate Metrics
+  const totalUnits = aggregated.reduce((sum, i) => sum + i.totalQty, 0);
+  const totalRevenue = aggregated.reduce((sum, i) => sum + i.totalRevenue, 0);
+  const totalSkus = aggregated.length;
+
+  let topItemName = '—';
+  let topItemQty = 0;
+  if (aggregated.length > 0) {
+    const sortedByQty = [...aggregated].sort((a, b) => b.totalQty - a.totalQty);
+    topItemName = sortedByQty[0].name;
+    topItemQty = sortedByQty[0].totalQty;
+  }
+
+  const unitsEl = document.getElementById('salesMetricUnits');
+  if (unitsEl) unitsEl.textContent = totalUnits;
+
+  const revEl = document.getElementById('salesMetricRevenue');
+  if (revEl) revEl.textContent = formatPKR(totalRevenue);
+
+  const topEl = document.getElementById('salesMetricTopItem');
+  if (topEl) topEl.textContent = topItemName;
+
+  const topHintEl = document.getElementById('salesMetricTopItemHint');
+  if (topHintEl) topHintEl.textContent = topItemQty > 0 ? `${topItemQty} units sold` : 'No sales in period';
+
+  const skusEl = document.getElementById('salesMetricSkus');
+  if (skusEl) skusEl.textContent = totalSkus;
+
+  // Filter & Sort Items
+  let list = aggregated.filter(i => {
+    if (!salesSearchQuery) return true;
+    const q = salesSearchQuery.toLowerCase();
+    return i.name.toLowerCase().includes(q) || i.category.toLowerCase().includes(q);
+  });
+
+  if (salesSortOrder === 'rev_desc') {
+    list.sort((a, b) => b.totalRevenue - a.totalRevenue);
+  } else if (salesSortOrder === 'qty_desc') {
+    list.sort((a, b) => b.totalQty - a.totalQty);
+  } else if (salesSortOrder === 'name_asc') {
+    list.sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  // Table Body
+  const tbody = document.getElementById('salesTableBody');
+  if (tbody) {
+    if (list.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 36px; color: var(--text-muted);">No gear sales recorded in this period.</td></tr>`;
+    } else {
+      tbody.innerHTML = list.map((item, idx) => {
+        const sharePct = totalRevenue > 0 ? Math.round((item.totalRevenue / totalRevenue) * 100) : 0;
+        const avgPrice = item.totalQty > 0 ? Math.round(item.totalRevenue / item.totalQty) : 0;
+        const rankClass = idx === 0 ? 'top-1' : (idx === 1 ? 'top-2' : (idx === 2 ? 'top-3' : ''));
+
+        // Sizes string
+        const sizeBadges = Object.entries(item.sizes).map(([sz, q]) => `
+          <span style="font-size: 0.72rem; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-weight: 600; color: var(--text-secondary); margin-right: 4px;">
+            ${escapeHtml(sz)} (${q})
+          </span>
+        `).join('');
+
+        return `
+          <tr>
+            <td>
+              <div class="sales-rank-badge ${rankClass}">#${idx + 1}</div>
+            </td>
+            <td>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <img src="${item.image}" alt="${escapeHtml(item.name)}" class="product-table-img">
+                <div>
+                  <strong style="color: var(--text-pure); font-size: 0.88rem;">${escapeHtml(item.name)}</strong>
+                  <div style="font-size: 0.74rem; color: var(--text-muted);">${escapeHtml(item.category)}</div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span class="status-badge confirmed" style="font-size: 0.74rem; font-weight: 800;">
+                ${item.totalQty} Units Sold
+              </span>
+            </td>
+            <td>
+              <strong style="color: var(--accent-blue); font-size: 0.92rem;">${formatPKR(item.totalRevenue)}</strong>
+              <div style="font-size: 0.72rem; color: var(--text-muted);">${formatPKR(avgPrice)} / unit</div>
+            </td>
+            <td>
+              <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+                ${sizeBadges}
+              </div>
+            </td>
+            <td>
+              <div style="font-size: 0.78rem; font-weight: 700; color: var(--text-primary);">${sharePct}%</div>
+              <div class="sales-progress-wrap">
+                <div class="sales-progress-bar" style="width: ${sharePct}%;"></div>
+              </div>
+            </td>
+            <td>
+              <span style="font-size: 0.76rem; color: var(--text-secondary);">${formatTimeAgo(item.lastSoldAt)}</span>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+  }
+
+  // Mobile Cards
+  const mobileContainer = document.getElementById('mobileSalesContainer');
+  if (mobileContainer) {
+    if (list.length === 0) {
+      mobileContainer.innerHTML = `<div style="text-align: center; padding: 30px; color: var(--text-muted);">No sales in this period.</div>`;
+    } else {
+      mobileContainer.innerHTML = list.map((item, idx) => `
+        <div class="mobile-order-card">
+          <div class="m-order-header">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span class="sales-rank-badge ${idx < 3 ? 'top-' + (idx + 1) : ''}">#${idx + 1}</span>
+              <strong style="font-size: 0.9rem; color: var(--text-pure);">${escapeHtml(item.name)}</strong>
+            </div>
+            <span class="status-badge confirmed">${item.totalQty} Sold</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px; border-top: 1px dashed var(--border-subtle); padding-top: 6px;">
+            <div>
+              <span style="font-size: 0.72rem; color: var(--text-muted); display: block;">Item Revenue:</span>
+              <strong style="color: var(--accent-blue); font-size: 0.95rem;">${formatPKR(item.totalRevenue)}</strong>
+            </div>
+            <span style="font-size: 0.74rem; color: var(--text-muted);">${item.category}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+  }
+}
+
+function handleSalesSearch() {
+  salesSearchQuery = document.getElementById('salesSearchInput')?.value || '';
+  renderSalesView();
+}
+
+function handleSalesSortChange() {
+  salesSortOrder = document.getElementById('salesSortSelect')?.value || 'rev_desc';
+  renderSalesView();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PRODUCTS & CATALOG MANAGEMENT ENGINE
+// ═══════════════════════════════════════════════════════════════
+const DEFAULT_CATALOG_PRODUCTS = [
+  {
+    id: 'rm-cyber-jacket-01',
+    name: 'Armored Mesh Riding Jacket',
+    category: 'jackets',
+    categoryLabel: 'Riding Jackets',
+    price: 14500,
+    oldPrice: 18000,
+    badge: 'Flagship Drop',
+    stockCount: 17,
+    inStock: true,
+    sizes: 'M (38-40"), L (41-43"), XL (44-46"), XXL (47-49")',
+    img: 'assets/images/jacket_cyber.jpg',
+    tagline: 'Molded Carbon Armor Plates · High-Flow Airflow Mesh · 360° Reflective',
+    desc: 'The pinnacle of motorcycle street armor. Features genuine vacuum-infused carbon fiber shoulder impact shields, ultra-durable 1000D ballistic mesh chassis for maximum hot-climate airflow.'
+  },
+  {
+    id: 'rm-carbon-gloves-01',
+    name: 'Carbon Fiber Riding Gloves',
+    category: 'gloves',
+    categoryLabel: 'Motorcycle Gloves',
+    price: 5200,
+    oldPrice: 6500,
+    badge: 'Carbon Knuckle',
+    stockCount: 35,
+    inStock: true,
+    sizes: 'M (Palm 8.0-8.5"), L (Palm 8.5-9.0"), XL (Palm 9.0-9.5")',
+    img: 'assets/images/gloves_carbon.jpg',
+    tagline: 'Carbon Knuckle Shield · Palm Slider · Touchscreen Controls',
+    desc: 'Crafted for instant throttle sensitivity and high-level protection. Molded carbon-fiber knuckles with shock-absorbing silicone gel underlay deflect impacts.'
+  },
+  {
+    id: 'rm-nomad-tankbag-01',
+    name: 'Magnetic Tank Bag (Modular)',
+    category: 'packs',
+    categoryLabel: 'Bags & Packs',
+    price: 6800,
+    oldPrice: 8500,
+    badge: '18L Modular',
+    stockCount: 22,
+    inStock: true,
+    sizes: '18L Expandable (Standard)',
+    img: 'assets/images/tankbag.jpeg',
+    tagline: 'High-Strength Rare-Earth Magnets · Waterproof Cockpit Shell',
+    desc: 'Four multi-directional high-flux rare-earth neodymium magnetic flaps clamp securely onto any steel fuel tank.'
+  },
+  {
+    id: 'rm-touring-pants-01',
+    name: 'Waterproof Touring Pants',
+    category: 'jackets',
+    categoryLabel: 'Riding Pants',
+    price: 11500,
+    oldPrice: 14000,
+    badge: 'CE Hip & Knee',
+    stockCount: 14,
+    inStock: true,
+    sizes: '30, 32, 34, 36, 38',
+    img: 'assets/images/jacket.jpeg',
+    tagline: 'HydraShield 10K Membrane · Adjustable CE Armor Pockets',
+    desc: 'Engineered for cross-country highway endurance in torrential weather with reinforced knee abrasion pads.'
+  },
+  {
+    id: 'rm-balaclava-01',
+    name: 'Thermal Windproof Balaclava',
+    category: 'masks',
+    categoryLabel: 'Face Masks',
+    price: 1850,
+    oldPrice: 2400,
+    badge: 'Anti-Fog Vents',
+    stockCount: 50,
+    inStock: true,
+    sizes: 'Universal Elastic',
+    img: 'assets/images/halfmask.jpeg',
+    tagline: 'Laser Micro-Vents · Ergonomic Thermal Throat Gaiter',
+    desc: 'Stops biting highway crosswinds while channeling exhalation away from helmet visors to eliminate fogging.'
+  },
+  {
+    id: 'rm-street-gloves-02',
+    name: 'Titanium Palm Short Gloves',
+    category: 'gloves',
+    categoryLabel: 'Motorcycle Gloves',
+    price: 4200,
+    oldPrice: 5500,
+    badge: 'Short Cuff',
+    stockCount: 18,
+    inStock: true,
+    sizes: 'M, L, XL',
+    img: 'assets/images/glove.jpeg',
+    tagline: 'Titanium Slider Pucks · Perforated Airflow Leather',
+    desc: 'Short aggressive urban cuff for everyday warm weather city riding.'
+  },
+  {
+    id: 'rm-performance-tee-01',
+    name: 'Rev Moto Performance Rider Tee',
+    category: 'apparel',
+    categoryLabel: 'Apparel',
+    price: 2400,
+    oldPrice: 3200,
+    badge: 'Quick-Dry',
+    stockCount: 30,
+    inStock: true,
+    sizes: 'S, M, L, XL, XXL',
+    img: 'assets/images/tshirt.jpeg',
+    tagline: 'Moisture-Wicking Technical Poly · Antimicrobial Silver Fibers',
+    desc: 'High-breathability base layer designed to be worn comfortably underneath armored jackets.'
+  }
+];
+
+let activeProductCategoryFilter = 'all';
+let productSearchQuery = '';
+
+function getAdminProducts() {
+  try {
+    const raw = localStorage.getItem('revmoto_custom_products');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch (e) {}
+
+  localStorage.setItem('revmoto_custom_products', JSON.stringify(DEFAULT_CATALOG_PRODUCTS));
+  return DEFAULT_CATALOG_PRODUCTS;
+}
+
+function saveAdminProducts(products) {
+  localStorage.setItem('revmoto_custom_products', JSON.stringify(products));
+  window.dispatchEvent(new CustomEvent('revmoto_products_updated', { detail: products }));
+}
+
+function renderProductsView() {
+  const products = getAdminProducts();
+
+  // Metrics
+  const total = products.length;
+  const inStockUnits = products.reduce((sum, p) => sum + (Number(p.stockCount) || 0), 0);
+  const categoriesCount = new Set(products.map(p => p.category)).size;
+
+  const totalEl = document.getElementById('prodMetricTotal');
+  if (totalEl) totalEl.textContent = total;
+
+  const unitsEl = document.getElementById('prodMetricUnits');
+  if (unitsEl) unitsEl.textContent = inStockUnits;
+
+  const catEl = document.getElementById('prodMetricCategories');
+  if (catEl) catEl.textContent = categoriesCount;
+
+  // Filter
+  const filtered = products.filter(p => {
+    const matchesCat = (activeProductCategoryFilter === 'all') || (p.category === activeProductCategoryFilter);
+    const matchesQuery = !productSearchQuery || 
+      p.name.toLowerCase().includes(productSearchQuery.toLowerCase()) || 
+      (p.badge && p.badge.toLowerCase().includes(productSearchQuery.toLowerCase())) ||
+      (p.categoryLabel && p.categoryLabel.toLowerCase().includes(productSearchQuery.toLowerCase()));
+    return matchesCat && matchesQuery;
+  });
+
+  // Table
+  const tbody = document.getElementById('productsTableBody');
+  if (tbody) {
+    if (filtered.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 36px; color: var(--text-muted);">No products found matching filters.</td></tr>`;
+    } else {
+      tbody.innerHTML = filtered.map(p => {
+        const inStock = p.inStock !== false && Number(p.stockCount) > 0;
+        const stockLabel = inStock ? `In Stock (${p.stockCount})` : 'Out of Stock';
+
+        return `
+          <tr>
+            <td>
+              <img src="${p.img}" alt="${escapeHtml(p.name)}" class="product-table-img">
+            </td>
+            <td>
+              <strong style="color: var(--text-pure); font-size: 0.88rem;">${escapeHtml(p.name)}</strong>
+              ${p.badge ? `<span style="font-size: 0.65rem; background: #eff6ff; color: #2563eb; padding: 2px 6px; border-radius: 4px; font-weight: 700; margin-left: 6px;">${escapeHtml(p.badge)}</span>` : ''}
+              <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 2px;">${escapeHtml(p.tagline || '')}</div>
+            </td>
+            <td>
+              <span style="font-size: 0.82rem; color: var(--text-primary); font-weight: 600;">${escapeHtml(p.categoryLabel || p.category)}</span>
+            </td>
+            <td>
+              <strong style="color: var(--accent-blue); font-size: 0.92rem;">${formatPKR(p.price)}</strong>
+              ${p.oldPrice ? `<span style="font-size: 0.75rem; text-decoration: line-through; color: var(--text-muted); margin-left: 4px;">${formatPKR(p.oldPrice)}</span>` : ''}
+            </td>
+            <td>
+              <span style="font-size: 0.76rem; color: var(--text-secondary); max-width: 220px; display: block; overflow: hidden; text-overflow: ellipsis;">
+                ${escapeHtml(p.sizes || 'Standard')}
+              </span>
+            </td>
+            <td>
+              <button type="button" class="stock-pill-btn ${inStock ? 'in-stock' : 'out-of-stock'}" onclick="toggleProductStock('${escapeHtml(p.id)}')" title="Click to toggle stock status">
+                <i class="fas ${inStock ? 'fa-check-circle' : 'fa-times-circle'}"></i>
+                <span>${stockLabel}</span>
+              </button>
+            </td>
+            <td style="text-align: right;">
+              <div style="display: flex; gap: 6px; justify-content: flex-end;">
+                <button class="btn-admin btn-admin-subtle" style="padding: 6px 10px; font-size: 0.76rem;" onclick="openProductModal('${escapeHtml(p.id)}')" title="Edit Product">
+                  <i class="fas fa-edit text-cyan"></i> Edit
+                </button>
+                <button class="btn-admin btn-admin-subtle" style="padding: 6px 10px; font-size: 0.76rem; color: #ef4444;" onclick="deleteProduct('${escapeHtml(p.id)}')" title="Delete Product">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+  }
+
+  // Mobile Cards
+  const mobileContainer = document.getElementById('mobileProductsContainer');
+  if (mobileContainer) {
+    if (filtered.length === 0) {
+      mobileContainer.innerHTML = `<div style="text-align: center; padding: 30px; color: var(--text-muted);">No products found.</div>`;
+    } else {
+      mobileContainer.innerHTML = filtered.map(p => {
+        const inStock = p.inStock !== false && Number(p.stockCount) > 0;
+        return `
+          <div class="mobile-order-card">
+            <div style="display: flex; gap: 12px; align-items: center;">
+              <img src="${p.img}" alt="${escapeHtml(p.name)}" class="product-table-img" style="width: 52px; height: 52px;">
+              <div style="flex: 1;">
+                <strong style="color: var(--text-pure); font-size: 0.92rem;">${escapeHtml(p.name)}</strong>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">${escapeHtml(p.categoryLabel || p.category)}</div>
+                <strong style="color: var(--accent-blue); font-size: 0.95rem; margin-top: 2px; display: block;">${formatPKR(p.price)}</strong>
+              </div>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; border-top: 1px dashed var(--border-subtle); padding-top: 8px;">
+              <button type="button" class="stock-pill-btn ${inStock ? 'in-stock' : 'out-of-stock'}" onclick="toggleProductStock('${escapeHtml(p.id)}')">
+                ${inStock ? 'In Stock (' + p.stockCount + ')' : 'Out of Stock'}
+              </button>
+              <div style="display: flex; gap: 6px;">
+                <button class="btn-admin btn-admin-subtle" style="padding: 5px 10px; font-size: 0.75rem;" onclick="openProductModal('${escapeHtml(p.id)}')">
+                  <i class="fas fa-edit"></i> Edit
+                </button>
+                <button class="btn-admin btn-admin-subtle" style="padding: 5px 10px; font-size: 0.75rem; color: #ef4444;" onclick="deleteProduct('${escapeHtml(p.id)}')">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+  }
+}
+
+function filterProductsByCategory(cat, btn) {
+  activeProductCategoryFilter = cat;
+  document.querySelectorAll('#prodCategoryPills .filter-tab').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderProductsView();
+}
+
+function handleProductSearch() {
+  productSearchQuery = document.getElementById('prodSearchInput')?.value || '';
+  renderProductsView();
+}
+
+function toggleProductStock(productId) {
+  const products = getAdminProducts();
+  const prod = products.find(p => String(p.id) === String(productId));
+  if (!prod) return;
+
+  const currentStatus = prod.inStock !== false && Number(prod.stockCount) > 0;
+  if (currentStatus) {
+    prod.inStock = false;
+    prod.stockCount = 0;
+    showToast(`"${prod.name}" marked Out of Stock`, 'info');
+  } else {
+    prod.inStock = true;
+    prod.stockCount = 10;
+    showToast(`"${prod.name}" marked In Stock (10 units)`, 'success');
+  }
+
+  saveAdminProducts(products);
+  renderProductsView();
+}
+
+function deleteProduct(productId) {
+  const products = getAdminProducts();
+  const prod = products.find(p => String(p.id) === String(productId));
+  if (!prod) return;
+
+  if (!confirm(`Are you sure you want to delete "${prod.name}" from the store catalog?`)) return;
+
+  const updated = products.filter(p => String(p.id) !== String(productId));
+  saveAdminProducts(updated);
+  showToast(`"${prod.name}" removed from catalog.`, 'info');
+  renderProductsView();
+}
+
+// ── PRODUCT MODAL CONTROLLER ──
+function openProductModal(productId = null) {
+  const modal = document.getElementById('productModal');
+  if (!modal) return;
+
+  const titleEl = document.getElementById('productModalTitle');
+  const idInput = document.getElementById('editingProductId');
+  const nameInput = document.getElementById('prodNameInput');
+  const catSelect = document.getElementById('prodCategorySelect');
+  const badgeInput = document.getElementById('prodBadgeInput');
+  const priceInput = document.getElementById('prodPriceInput');
+  const oldPriceInput = document.getElementById('prodOldPriceInput');
+  const stockInput = document.getElementById('prodStockInput');
+  const sizesInput = document.getElementById('prodSizesInput');
+  const imgUrlInput = document.getElementById('prodImageUrlInput');
+  const taglineInput = document.getElementById('prodTaglineInput');
+  const descInput = document.getElementById('prodDescInput');
+  const previewBox = document.getElementById('productModalImgPreview');
+
+  if (productId) {
+    const products = getAdminProducts();
+    const prod = products.find(p => String(p.id) === String(productId));
+    if (!prod) return;
+
+    if (titleEl) titleEl.textContent = 'Edit Product: ' + prod.name;
+    if (idInput) idInput.value = prod.id;
+    if (nameInput) nameInput.value = prod.name;
+    if (catSelect) catSelect.value = prod.category || 'jackets';
+    if (badgeInput) badgeInput.value = prod.badge || '';
+    if (priceInput) priceInput.value = prod.price || '';
+    if (oldPriceInput) oldPriceInput.value = prod.oldPrice || '';
+    if (stockInput) stockInput.value = prod.stockCount || 10;
+    if (sizesInput) sizesInput.value = prod.sizes || '';
+    if (imgUrlInput) imgUrlInput.value = prod.img || '';
+    if (taglineInput) taglineInput.value = prod.tagline || '';
+    if (descInput) descInput.value = prod.desc || '';
+
+    if (previewBox) {
+      previewBox.innerHTML = prod.img ? `<img src="${prod.img}" alt="Preview">` : `<i class="fas fa-image" style="color: var(--text-muted); font-size: 1.5rem;"></i>`;
+    }
+  } else {
+    if (titleEl) titleEl.textContent = 'Add New Product to Catalog';
+    if (idInput) idInput.value = '';
+    if (nameInput) nameInput.value = '';
+    if (catSelect) catSelect.value = 'jackets';
+    if (badgeInput) badgeInput.value = 'New Arrival';
+    if (priceInput) priceInput.value = '';
+    if (oldPriceInput) oldPriceInput.value = '';
+    if (stockInput) stockInput.value = 15;
+    if (sizesInput) sizesInput.value = 'M, L, XL, XXL';
+    if (imgUrlInput) imgUrlInput.value = 'assets/images/jacket_cyber.jpg';
+    if (taglineInput) taglineInput.value = '';
+    if (descInput) descInput.value = '';
+
+    if (previewBox) {
+      previewBox.innerHTML = `<img src="assets/images/jacket_cyber.jpg" alt="Preview">`;
+    }
+  }
+
+  modal.classList.add('open');
+}
+
+function closeProductModal() {
+  const modal = document.getElementById('productModal');
+  if (modal) modal.classList.remove('open');
+}
+
+function handleProductImageFile(e) {
+  const file = e.target?.files?.[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    const dataUrl = event.target.result;
+    const urlInput = document.getElementById('prodImageUrlInput');
+    if (urlInput) urlInput.value = dataUrl;
+    updateProductImagePreview(dataUrl);
+  };
+  reader.readAsDataURL(file);
+}
+
+function updateProductImagePreview(url) {
+  const previewBox = document.getElementById('productModalImgPreview');
+  if (!previewBox) return;
+  if (url && url.trim()) {
+    previewBox.innerHTML = `<img src="${url.trim()}" alt="Preview" onerror="this.onerror=null; this.src='assets/images/jacket_cyber.jpg'">`;
+  } else {
+    previewBox.innerHTML = `<i class="fas fa-image" style="color: var(--text-muted); font-size: 1.5rem;"></i>`;
+  }
+}
+
+function handleProductFormSubmit(e) {
+  e.preventDefault();
+
+  const id = document.getElementById('editingProductId')?.value;
+  const name = document.getElementById('prodNameInput')?.value.trim();
+  const category = document.getElementById('prodCategorySelect')?.value || 'jackets';
+  const badge = document.getElementById('prodBadgeInput')?.value.trim();
+  const price = Number(document.getElementById('prodPriceInput')?.value || 0);
+  const oldPrice = Number(document.getElementById('prodOldPriceInput')?.value || 0);
+  const stockCount = Number(document.getElementById('prodStockInput')?.value || 10);
+  const sizes = document.getElementById('prodSizesInput')?.value.trim() || 'Standard';
+  const img = document.getElementById('prodImageUrlInput')?.value.trim() || 'assets/images/jacket_cyber.jpg';
+  const tagline = document.getElementById('prodTaglineInput')?.value.trim();
+  const desc = document.getElementById('prodDescInput')?.value.trim();
+
+  const categoryLabels = {
+    jackets: 'Riding Jackets',
+    gloves: 'Motorcycle Gloves',
+    packs: 'Bags & Packs',
+    masks: 'Face Masks & Balaclavas',
+    apparel: 'Apparel & Accessories'
+  };
+
+  const products = getAdminProducts();
+
+  if (id) {
+    // Edit existing product
+    const idx = products.findIndex(p => String(p.id) === String(id));
+    if (idx !== -1) {
+      products[idx] = {
+        ...products[idx],
+        name,
+        category,
+        categoryLabel: categoryLabels[category] || category,
+        badge,
+        price,
+        oldPrice: oldPrice || (price > 0 ? Math.round(price * 1.25) : 0),
+        stockCount,
+        inStock: stockCount > 0,
+        sizes,
+        img,
+        tagline,
+        desc
+      };
+      showToast(`Product "${name}" updated!`, 'success');
+    }
+  } else {
+    // Create new product
+    const newId = 'rm-custom-' + Date.now();
+    const newProd = {
+      id: newId,
+      name,
+      slug: name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
+      category,
+      categoryLabel: categoryLabels[category] || category,
+      badge: badge || 'New Arrival',
+      price,
+      oldPrice: oldPrice || (price > 0 ? Math.round(price * 1.25) : 0),
+      stockCount,
+      inStock: stockCount > 0,
+      sizes,
+      img,
+      images: [img],
+      tagline: tagline || 'High-Performance Motorcycle Gear',
+      desc: desc || `${name} engineered for superior protection and rider comfort.`,
+      featured: true
+    };
+    products.unshift(newProd);
+    showToast(`"${name}" added to catalog!`, 'success');
+  }
+
+  saveAdminProducts(products);
+  closeProductModal();
+  renderProductsView();
 }

@@ -25,7 +25,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
   <!-- Admin Portal CSS -->
-  <link rel="stylesheet" href="admin.css?v=2.1">
+  <link rel="stylesheet" href="admin.css?v=2.2">
 </head>
 <body>
 
@@ -46,6 +46,12 @@
       <nav class="admin-header-tabs" id="adminHeaderTabs">
         <button type="button" class="admin-top-tab active" id="tabNavOrders" onclick="switchAdminView('orders')">
           <i class="fas fa-boxes-stacked"></i> <span>Orders</span>
+        </button>
+        <button type="button" class="admin-top-tab" id="tabNavSales" onclick="switchAdminView('sales')">
+          <i class="fas fa-chart-line"></i> <span>Sales</span>
+        </button>
+        <button type="button" class="admin-top-tab" id="tabNavProducts" onclick="switchAdminView('products')">
+          <i class="fas fa-vest"></i> <span>Products</span>
         </button>
         <button type="button" class="admin-top-tab" id="tabNavCustomers" onclick="switchAdminView('customers')">
           <i class="fas fa-users"></i> <span>Customers</span>
@@ -193,6 +199,200 @@
     </div>
 
       </div><!-- /#ordersView -->
+
+    <!-- ════ SALES VIEW (ITEM-WISE SALES & TIME FILTERS) ════════════ -->
+    <div id="salesView" class="admin-tab-view" style="display: none;">
+      <!-- Time Filters Bar for Sales -->
+      <div class="admin-controls-card" style="margin-bottom: 14px;">
+        <div class="filter-controls-row">
+          <div class="period-filter-group">
+            <span class="period-label">PERIOD</span>
+            <div class="period-pills" id="salesPeriodPills">
+              <button class="period-pill active" onclick="setSalesPeriod('daily', this)">Daily</button>
+              <button class="period-pill" onclick="setSalesPeriod('monthly', this)">Monthly</button>
+              <button class="period-pill" onclick="setSalesPeriod('annual', this)">Annual</button>
+              <button class="period-pill" onclick="setSalesPeriod('all', this)">All</button>
+            </div>
+            <!-- Dynamic Date Navigator for Sales -->
+            <div class="date-navigator-wrap" id="salesDateNavWrap">
+              <!-- Rendered by admin.js -->
+            </div>
+          </div>
+
+          <!-- Sales Search & Sort -->
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+            <div class="admin-search-wrapper" style="max-width: 260px;">
+              <i class="fas fa-search admin-search-icon"></i>
+              <input type="text" id="salesSearchInput" class="admin-search-input" placeholder="Search gear..." oninput="handleSalesSearch()">
+            </div>
+            <select id="salesSortSelect" class="form-control-select" style="height: 36px; padding: 0 10px; font-size: 0.78rem;" onchange="handleSalesSortChange()">
+              <option value="rev_desc">Highest Revenue</option>
+              <option value="qty_desc">Most Units Sold</option>
+              <option value="name_asc">Item Name (A–Z)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sales Summary Metrics Cards -->
+      <section class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-icon-wrap" style="background: rgba(37,99,235,0.1); color: #2563eb;">
+            <i class="fas fa-boxes-packing"></i>
+          </div>
+          <div class="metric-info">
+            <span class="metric-label">Total Units Sold</span>
+            <div class="metric-val" id="salesMetricUnits">0</div>
+            <span class="metric-hint" id="salesMetricUnitsHint">In selected period</span>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-icon-wrap" style="background: rgba(16,185,129,0.1); color: #10b981;">
+            <i class="fas fa-chart-line"></i>
+          </div>
+          <div class="metric-info">
+            <span class="metric-label">Gear Sales Revenue</span>
+            <div class="metric-val" id="salesMetricRevenue">Rs. 0</div>
+            <span class="metric-hint">Item sales total</span>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-icon-wrap" style="background: rgba(245,158,11,0.1); color: #f59e0b;">
+            <i class="fas fa-trophy"></i>
+          </div>
+          <div class="metric-info">
+            <span class="metric-label">Top Selling Gear</span>
+            <div class="metric-val" id="salesMetricTopItem" style="font-size: 1.05rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">—</div>
+            <span class="metric-hint" id="salesMetricTopItemHint">Highest volume</span>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-icon-wrap" style="background: rgba(168,85,247,0.1); color: #a855f7;">
+            <i class="fas fa-tags"></i>
+          </div>
+          <div class="metric-info">
+            <span class="metric-label">Active SKUs Sold</span>
+            <div class="metric-val" id="salesMetricSkus">0</div>
+            <span class="metric-hint">Distinct products sold</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Desktop Item-Wise Sales Table -->
+      <div class="desktop-table-container">
+        <table class="admin-orders-table">
+          <thead>
+            <tr>
+              <th style="width: 50px;">Rank</th>
+              <th>Product &amp; Category</th>
+              <th>Units Sold</th>
+              <th>Total Revenue</th>
+              <th>Popular Sizes</th>
+              <th style="width: 140px;">Share of Sales</th>
+              <th>Last Sold</th>
+            </tr>
+          </thead>
+          <tbody id="salesTableBody">
+            <!-- Rendered by admin.js -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Mobile Sales Cards -->
+      <div class="mobile-orders-container" id="mobileSalesContainer">
+        <!-- Rendered by admin.js -->
+      </div>
+    </div>
+
+    <!-- ════ PRODUCTS VIEW (CATALOG & STOCK MANAGEMENT) ════════════ -->
+    <div id="productsView" class="admin-tab-view" style="display: none;">
+      <!-- Product Catalog Summary Metrics -->
+      <section class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-icon-wrap" style="background: rgba(37,99,235,0.1); color: #2563eb;">
+            <i class="fas fa-vest"></i>
+          </div>
+          <div class="metric-info">
+            <span class="metric-label">Total Products</span>
+            <div class="metric-val" id="prodMetricTotal">0</div>
+            <span class="metric-hint">Active gear items in catalog</span>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-icon-wrap" style="background: rgba(16,185,129,0.1); color: #10b981;">
+            <i class="fas fa-cubes"></i>
+          </div>
+          <div class="metric-info">
+            <span class="metric-label">Total In-Stock Units</span>
+            <div class="metric-val" id="prodMetricUnits">0</div>
+            <span class="metric-hint">Combined stock across sizes</span>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-icon-wrap" style="background: rgba(245,158,11,0.1); color: #f59e0b;">
+            <i class="fas fa-layer-group"></i>
+          </div>
+          <div class="metric-info">
+            <span class="metric-label">Gear Categories</span>
+            <div class="metric-val" id="prodMetricCategories">4</div>
+            <span class="metric-hint">Jackets, Gloves, Bags, Masks</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Products Controls: Search, Category Filter & Add Product Button -->
+      <div class="admin-controls-card" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+          <div class="admin-search-wrapper" style="max-width: 260px;">
+            <i class="fas fa-search admin-search-icon"></i>
+            <input type="text" id="prodSearchInput" class="admin-search-input" placeholder="Search products..." oninput="handleProductSearch()">
+          </div>
+
+          <div class="status-filters" id="prodCategoryPills">
+            <button class="filter-tab active" onclick="filterProductsByCategory('all', this)">All</button>
+            <button class="filter-tab" onclick="filterProductsByCategory('jackets', this)">Jackets</button>
+            <button class="filter-tab" onclick="filterProductsByCategory('gloves', this)">Gloves</button>
+            <button class="filter-tab" onclick="filterProductsByCategory('packs', this)">Bags</button>
+            <button class="filter-tab" onclick="filterProductsByCategory('masks', this)">Masks</button>
+          </div>
+        </div>
+
+        <button class="btn-admin btn-admin-primary" style="height: 38px;" onclick="openProductModal()" title="Add a new product to store catalog">
+          <i class="fas fa-plus"></i> Add New Product
+        </button>
+      </div>
+
+      <!-- Desktop Products Table -->
+      <div class="desktop-table-container">
+        <table class="admin-orders-table">
+          <thead>
+            <tr>
+              <th style="width: 70px;">Image</th>
+              <th>Product Name</th>
+              <th>Category</th>
+              <th>Price</th>
+              <th>Available Sizes</th>
+              <th>Stock Status</th>
+              <th style="text-align: right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="productsTableBody">
+            <!-- Rendered by admin.js -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Mobile Products Cards -->
+      <div class="mobile-orders-container" id="mobileProductsContainer">
+        <!-- Rendered by admin.js -->
+      </div>
+    </div>
+
 
     <!-- ════ CUSTOMERS VIEW ═════════════════════════════════════════ -->
     <div id="customersView" class="admin-tab-view" style="display: none;">
@@ -696,6 +896,107 @@
     }
   </style>
 
-  <script src="admin.js?v=2.2"></script>
+  <script src="admin.js?v=2.3"></script>
+
+  <!-- ═══ PRODUCT UPLOAD & EDIT MODAL ═════════════════════════════════ -->
+  <div class="admin-modal-overlay" id="productModal" onclick="if(event.target===this) closeProductModal()">
+    <div class="admin-modal-content" style="max-width: 580px;">
+      <div class="admin-modal-header" style="padding: 14px 18px;">
+        <div class="admin-modal-title" style="font-size: 1.05rem;">
+          <i class="fas fa-vest text-cyan"></i>
+          <span id="productModalTitle">Add New Product</span>
+        </div>
+        <button class="admin-modal-close" onclick="closeProductModal()" title="Close"><i class="fas fa-times"></i></button>
+      </div>
+
+      <div class="admin-modal-body" style="padding: 18px 20px;">
+        <form id="productForm" onsubmit="handleProductFormSubmit(event)">
+          <input type="hidden" id="editingProductId" value="">
+
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label class="form-label" for="prodNameInput">Product Name *</label>
+            <input type="text" id="prodNameInput" class="admin-search-input" style="width: 100%;" placeholder="e.g. Armored Cyber Riding Jacket" required>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+            <div class="form-group">
+              <label class="form-label" for="prodCategorySelect">Category *</label>
+              <select id="prodCategorySelect" class="form-control-select" style="width: 100%;" required>
+                <option value="jackets">Riding Jackets</option>
+                <option value="gloves">Motorcycle Gloves</option>
+                <option value="packs">Bags &amp; Packs</option>
+                <option value="masks">Face Masks &amp; Balaclavas</option>
+                <option value="apparel">Apparel &amp; Accessories</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="prodBadgeInput">Badge / Tag (Optional)</label>
+              <input type="text" id="prodBadgeInput" class="admin-search-input" style="width: 100%;" placeholder="e.g. Flagship Drop, New Arrival">
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+            <div class="form-group">
+              <label class="form-label" for="prodPriceInput">Price (PKR) *</label>
+              <input type="number" id="prodPriceInput" class="admin-search-input" style="width: 100%;" placeholder="14500" min="0" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="prodOldPriceInput">Old Price (PKR)</label>
+              <input type="number" id="prodOldPriceInput" class="admin-search-input" style="width: 100%;" placeholder="18000" min="0">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="prodStockInput">Stock Units *</label>
+              <input type="number" id="prodStockInput" class="admin-search-input" style="width: 100%;" placeholder="15" min="0" required>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label class="form-label" for="prodSizesInput">Available Sizes (Comma-separated)</label>
+            <input type="text" id="prodSizesInput" class="admin-search-input" style="width: 100%;" placeholder="M (38-40\"), L (41-43\"), XL (44-46\")" value="M, L, XL, XXL">
+          </div>
+
+          <!-- Product Image Upload / URL with Live Preview -->
+          <div class="form-group" style="margin-bottom: 14px;">
+            <label class="form-label">Product Image *</label>
+            <div style="display: flex; gap: 12px; align-items: flex-start;">
+              <div class="product-image-preview-box" id="productModalImgPreview">
+                <i class="fas fa-image" style="color: var(--text-muted); font-size: 1.5rem;"></i>
+              </div>
+              <div style="flex: 1;">
+                <input type="file" id="prodImageFileInput" accept="image/*" style="display: none;" onchange="handleProductImageFile(event)">
+                <button type="button" class="btn-admin btn-admin-subtle" onclick="document.getElementById('prodImageFileInput').click()" style="margin-bottom: 6px; font-size: 0.78rem;">
+                  <i class="fas fa-upload"></i> Upload Image from Device
+                </button>
+                <input type="text" id="prodImageUrlInput" class="admin-search-input" style="width: 100%; font-size: 0.8rem;" placeholder="Or paste image URL (e.g. assets/images/jacket.webp)" oninput="updateProductImagePreview(this.value)">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label class="form-label" for="prodTaglineInput">Tagline / Key Features</label>
+            <input type="text" id="prodTaglineInput" class="admin-search-input" style="width: 100%;" placeholder="e.g. Molded Carbon Armor Plates · High-Flow Airflow Mesh">
+          </div>
+
+          <div class="form-group" style="margin-bottom: 18px;">
+            <label class="form-label" for="prodDescInput">Product Description</label>
+            <textarea id="prodDescInput" class="admin-search-input" style="width: 100%;" rows="3" placeholder="Full product details, safety specifications, and riding fit..."></textarea>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 10px;">
+            <button type="button" class="btn-admin btn-admin-subtle" onclick="closeProductModal()" style="height: 40px; padding: 0 18px;">
+              Cancel
+            </button>
+            <button type="submit" class="btn-admin btn-admin-primary" style="height: 40px; padding: 0 22px;">
+              <i class="fas fa-save"></i> Save Product
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>

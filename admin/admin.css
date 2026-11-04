@@ -1875,3 +1875,126 @@ button.status-badge:active {
   from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+
+/* ═══════════════════════════════════════════════════════════════
+   ADMIN DASHBOARD — Sales & Product Management Styles
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Product Table Thumbnail */
+.product-table-img {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  border: 1px solid var(--border-subtle);
+  background: #f1f5f9;
+  flex-shrink: 0;
+}
+
+/* Stock Toggle Pill */
+.stock-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: var(--radius-pill);
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.16s ease;
+  user-select: none;
+}
+
+.stock-pill-btn.in-stock {
+  background: var(--status-delivered-bg);
+  color: var(--status-delivered-text);
+  border-color: var(--status-delivered-border);
+}
+
+.stock-pill-btn.out-of-stock {
+  background: var(--status-cancelled-bg);
+  color: var(--status-cancelled-text);
+  border-color: var(--status-cancelled-border);
+}
+
+.stock-pill-btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(0.96);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+/* Sales Rank Badge */
+.sales-rank-badge {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  color: var(--text-secondary);
+  font-weight: 800;
+  font-size: 0.74rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sales-rank-badge.top-1 {
+  background: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+.sales-rank-badge.top-2 {
+  background: #e2e8f0;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+}
+
+.sales-rank-badge.top-3 {
+  background: #ffedd5;
+  color: #c2410c;
+  border: 1px solid #fed7aa;
+}
+
+/* Sales Progress Bar */
+.sales-progress-wrap {
+  width: 100%;
+  max-width: 140px;
+  height: 6px;
+  background: #f1f5f9;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.sales-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-blue), #38bdf8);
+  border-radius: 10px;
+  transition: width 0.3s ease;
+}
+
+/* Product Modal Upload Preview */
+.product-image-preview-box {
+  width: 80px;
+  height: 80px;
+  border-radius: var(--radius-md);
+  border: 1.5px dashed var(--border-medium);
+  background: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.product-image-preview-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}

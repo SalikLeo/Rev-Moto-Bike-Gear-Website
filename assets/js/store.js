@@ -380,7 +380,29 @@ const MASTER_PRODUCTS = [
   },
 ];
 
-let STORE_PRODUCTS = [...MASTER_PRODUCTS];
+// Helper to retrieve catalog products (defaults to MASTER_PRODUCTS or custom products if added in Admin)
+function getCatalogProducts() {
+  try {
+    const custom = localStorage.getItem('revmoto_custom_products');
+    if (custom) {
+      const parsed = JSON.parse(custom);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch (e) {}
+  return [...MASTER_PRODUCTS];
+}
+
+let STORE_PRODUCTS = getCatalogProducts();
+
+// Listen to custom products updates from Admin
+window.addEventListener('revmoto_products_updated', (e) => {
+  if (Array.isArray(e.detail)) {
+    STORE_PRODUCTS = e.detail;
+  } else {
+    STORE_PRODUCTS = getCatalogProducts();
+  }
+});
+
 
 /* ── Cart & Wishlist Storage ── */
 function getCart() {

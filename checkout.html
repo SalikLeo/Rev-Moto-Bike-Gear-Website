@@ -190,7 +190,7 @@
 
             <span style="color: var(--text-secondary); font-size: 0.85rem;">Order Number:</span>
 
-            <strong style="color: var(--accent-cyan); font-size: 1.15rem; font-family: monospace;" id="successOrderId">RM-78219</strong>
+            <strong style="color: var(--accent-cyan); font-size: 1.15rem; font-family: monospace;" id="successOrderId">INV-1</strong>
 
           </div>
 
@@ -542,7 +542,26 @@
       }
 
       const { fullName, phone, email, address, notes, cart, subtotal, deliveryCost, grandTotal } = pendingOrderData;
-      const orderId = 'RM-' + Math.floor(10000 + Math.random() * 90000);
+
+      // Generate clean sequential invoice ID (e.g. INV-1, INV-2...)
+      let nextInvoiceNum = 1;
+      try {
+        const stored = JSON.parse(localStorage.getItem('rm_orders') || '[]');
+        if (Array.isArray(stored) && stored.length > 0) {
+          let maxNum = 0;
+          stored.forEach(o => {
+            if (o && o.id) {
+              const m = String(o.id).match(/^INV-(\d+)$/i);
+              if (m) {
+                const n = parseInt(m[1], 10);
+                if (!isNaN(n) && n > maxNum) maxNum = n;
+              }
+            }
+          });
+          nextInvoiceNum = maxNum > 0 ? maxNum + 1 : (stored.length + 1);
+        }
+      } catch (e) {}
+      const orderId = 'INV-' + nextInvoiceNum;
 
       placedOrderPayload = {
         orderId,

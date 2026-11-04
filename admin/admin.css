@@ -1205,13 +1205,27 @@ body::before {
 .order-id-link {
   font-family: var(--font-display);
   font-weight: 800;
-  color: var(--primary-blue);
+  color: #2563eb;
+  font-size: 0.95rem;
+  letter-spacing: -0.01em;
   text-decoration: none;
   cursor: pointer;
+  transition: color 0.15s ease;
 }
 
 .order-id-link:hover {
+  color: #1d4ed8;
   text-decoration: underline;
+}
+
+.order-table-date {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #334155;
+  margin-top: 3px;
+  white-space: nowrap;
+  letter-spacing: -0.01em;
+  line-height: 1.35;
 }
 
 .customer-meta-row {
@@ -1270,8 +1284,11 @@ body::before {
 }
 
 .m-order-time {
-  font-size: 0.72rem;
-  color: var(--text-muted);
+  font-size: 0.80rem;
+  font-weight: 600;
+  color: #334155;
+  margin-top: 2px;
+  display: inline-block;
 }
 
 .m-customer-row {

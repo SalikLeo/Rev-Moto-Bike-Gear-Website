@@ -16,7 +16,7 @@ const STORAGE_MY_ORDER_IDS = 'revmoto_my_order_ids';
 const DEFAULT_REVIEWS = [
   {
     id: 'rev-1',
-    orderId: 'RM-85623',
+    orderId: 'INV-14',
     customerName: 'Shahid Afridi',
     rating: 5,
     comment: 'The Armored Mesh Riding Jacket is top tier! Ventilation is amazing on highway rides in Islamabad heat, and CE armor fits snugly.',
@@ -25,7 +25,7 @@ const DEFAULT_REVIEWS = [
   },
   {
     id: 'rev-2',
-    orderId: 'RM-85619',
+    orderId: 'INV-13',
     customerName: 'Kamran Akmal',
     rating: 5,
     comment: 'Carbon knuckle gloves fit like a glove! Fast 3-day delivery to Islamabad and clean COD packaging.',
@@ -34,7 +34,7 @@ const DEFAULT_REVIEWS = [
   },
   {
     id: 'rev-3',
-    orderId: 'RM-85590',
+    orderId: 'INV-12',
     customerName: 'Bilal Haider',
     rating: 5,
     comment: 'Touring pants kept me completely dry during heavy rain. Material and stitching quality is 10/10.',
@@ -43,7 +43,7 @@ const DEFAULT_REVIEWS = [
   },
   {
     id: 'rev-4',
-    orderId: 'RM-85480',
+    orderId: 'INV-11',
     customerName: 'Usman Tariq',
     rating: 4,
     comment: 'Magnetic tank bag has very strong grip even at 120 km/h. Clear mobile touch window works perfectly.',
@@ -52,7 +52,7 @@ const DEFAULT_REVIEWS = [
   },
   {
     id: 'rev-5',
-    orderId: 'RM-85412',
+    orderId: 'INV-10',
     customerName: 'Zain Ali',
     rating: 5,
     comment: 'Thermal windproof balaclava cuts cold wind completely on morning commutes. Great customer service.',
@@ -290,7 +290,7 @@ function getCustomerOrders() {
   // Filter orders related to this user/device
   const matched = allOrders.filter(o => {
     if (!o) return false;
-    if (myIds.includes(String(o.id || o.orderId))) return true;
+    if (myIds.includes(String(o.id || o.orderId)) || (o.legacy_id && myIds.includes(String(o.legacy_id)))) return true;
     if (googleUser?.email && (o.email || '').toLowerCase() === googleUser.email.toLowerCase()) return true;
     if (profile.phone && (o.phone || '').replace(/\D/g, '') === profile.phone.replace(/\D/g, '')) return true;
     if (profile.name && (o.customer_name || '').toLowerCase() === profile.name.toLowerCase()) return true;
@@ -543,7 +543,7 @@ function renderUserProfileModalContent() {
               <div class="user-order-card">
                 <div class="user-order-top">
                   <div>
-                    <span class="user-order-num">#${escapeUserHtml(orderId)}</span>
+                    <span class="user-order-num">${escapeUserHtml(orderId.startsWith('#') || orderId.startsWith('INV-') ? orderId : '#' + orderId)}</span>
                     <span class="user-order-date">• ${dateStr}</span>
                   </div>
                   <span class="status-badge ${status}">${status}</span>

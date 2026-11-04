@@ -83,7 +83,7 @@ const timeAgo = (mins = 0, hours = 0, days = 0, months = 0) => {
 const DEFAULT_SAMPLE_ORDERS = [
   // ── TODAY'S ORDERS ──
   {
-    id: 'RM-85623',
+    id: 'INV-14',
     customer_name: 'Shahid Afridi',
     phone: '03095369472',
     email: 'shahid.afridi@gmail.com',
@@ -101,7 +101,7 @@ const DEFAULT_SAMPLE_ORDERS = [
     created_at: timeAgo(25, 0, 0, 0)
   },
   {
-    id: 'RM-85619',
+    id: 'INV-13',
     customer_name: 'Kamran Akmal',
     phone: '03214567890',
     email: 'kamran.akmal@gmail.com',
@@ -120,7 +120,7 @@ const DEFAULT_SAMPLE_ORDERS = [
     created_at: timeAgo(50, 1, 0, 0)
   },
   {
-    id: 'RM-85590',
+    id: 'INV-12',
     customer_name: 'Bilal Haider',
     phone: '03001234567',
     email: 'bilal.h@gmail.com',
@@ -140,7 +140,7 @@ const DEFAULT_SAMPLE_ORDERS = [
 
   // ── YESTERDAY'S ORDERS ──
   {
-    id: 'RM-85480',
+    id: 'INV-11',
     customer_name: 'Usman Tariq',
     phone: '03219876543',
     email: 'usman.moto@yahoo.com',
@@ -159,7 +159,7 @@ const DEFAULT_SAMPLE_ORDERS = [
     created_at: timeAgo(0, 10, 1, 0)
   },
   {
-    id: 'RM-85442',
+    id: 'INV-10',
     customer_name: 'Hamza Khan',
     phone: '03335551234',
     email: 'hamza.k@gmail.com',
@@ -179,7 +179,7 @@ const DEFAULT_SAMPLE_ORDERS = [
 
   // ── EARLIER THIS WEEK / THIS MONTH ──
   {
-    id: 'RM-85310',
+    id: 'INV-9',
     customer_name: 'Danyal Baig',
     phone: '03129988776',
     email: 'danyal.b@gmail.com',
@@ -197,7 +197,7 @@ const DEFAULT_SAMPLE_ORDERS = [
     created_at: timeAgo(0, 0, 3, 0)
   },
   {
-    id: 'RM-85265',
+    id: 'INV-8',
     customer_name: 'Ahmed Raza',
     phone: '03456677889',
     email: 'ahmed.raza@outlook.com',
@@ -215,7 +215,7 @@ const DEFAULT_SAMPLE_ORDERS = [
     created_at: timeAgo(0, 0, 4, 0)
   },
   {
-    id: 'RM-85199',
+    id: 'INV-7',
     customer_name: 'Farhan Ali',
     phone: '03023344556',
     email: 'farhan.ali@gmail.com',
@@ -234,7 +234,7 @@ const DEFAULT_SAMPLE_ORDERS = [
     created_at: timeAgo(0, 0, 5, 0)
   },
   {
-    id: 'RM-84950',
+    id: 'INV-6',
     customer_name: 'Zain Ul Abideen',
     phone: '03451122334',
     email: 'zain.abideen@gmail.com',
@@ -252,7 +252,7 @@ const DEFAULT_SAMPLE_ORDERS = [
     created_at: timeAgo(0, 0, 10, 0)
   },
   {
-    id: 'RM-84880',
+    id: 'INV-5',
     customer_name: 'Omer Farooq',
     phone: '03134455667',
     email: 'omer.farooq@live.com',
@@ -270,7 +270,7 @@ const DEFAULT_SAMPLE_ORDERS = [
     created_at: timeAgo(0, 0, 14, 0)
   },
   {
-    id: 'RM-84720',
+    id: 'INV-4',
     customer_name: 'Waleed Malik',
     phone: '03087788990',
     email: 'waleed.m@gmail.com',
@@ -290,7 +290,7 @@ const DEFAULT_SAMPLE_ORDERS = [
 
   // ── LAST MONTH (October 2026) ──
   {
-    id: 'RM-83910',
+    id: 'INV-3',
     customer_name: 'Saad Rafique',
     phone: '03225566778',
     email: 'saad.rafique@gmail.com',
@@ -308,7 +308,7 @@ const DEFAULT_SAMPLE_ORDERS = [
     created_at: timeAgo(0, 0, 0, 1)
   },
   {
-    id: 'RM-83844',
+    id: 'INV-2',
     customer_name: 'Tariq Mehmood',
     phone: '03314455889',
     email: 'tariq.m@yahoo.com',
@@ -328,7 +328,7 @@ const DEFAULT_SAMPLE_ORDERS = [
 
   // ── EARLIER THIS YEAR (Annual 2026) ──
   {
-    id: 'RM-81200',
+    id: 'INV-1',
     customer_name: 'Hassan Sheikh',
     phone: '03157788991',
     email: 'hassan.sheikh@hotmail.com',
@@ -486,7 +486,7 @@ async function fetchOrders() {
         .order('created_at', { ascending: false });
 
       if (!error && data) {
-        ordersList = data;
+        ordersList = normalizeInvoiceNumbers(data);
         renderDashboard();
         return;
       }
@@ -502,6 +502,8 @@ async function fetchOrders() {
       if (!Array.isArray(ordersList) || ordersList.length < 5) {
         ordersList = DEFAULT_SAMPLE_ORDERS;
         saveLocalOrders(ordersList);
+      } else {
+        ordersList = normalizeInvoiceNumbers(ordersList);
       }
     } catch (e) {
       ordersList = DEFAULT_SAMPLE_ORDERS;
@@ -850,7 +852,7 @@ function getFilteredOrders() {
     }
     // 3. Search Query
     if (searchQuery) {
-      const idMatch = (order.id || '').toLowerCase().includes(searchQuery);
+      const idMatch = (order.id || '').toLowerCase().includes(searchQuery) || (order.legacy_id || '').toLowerCase().includes(searchQuery);
       const nameMatch = (order.customer_name || '').toLowerCase().includes(searchQuery);
       const phoneMatch = (order.phone || '').toLowerCase().includes(searchQuery);
       const addressMatch = (order.address || '').toLowerCase().includes(searchQuery);
@@ -1186,10 +1188,10 @@ function renderDesktopTable() {
       <tr>
         <td>
           <div style="display: flex; align-items: center; gap: 6px;">
-            <a class="order-id-link" onclick="openOrderModal('${order.id}')">#${order.id}</a>
+            <a class="order-id-link" onclick="openOrderModal('${order.id}')">${escapeHtml(order.id)}</a>
             ${order._isCarryover ? `<span class="order-carryover-tag" title="Undelivered order from previous period"><i class="fas fa-clock-rotate-left"></i> Carryover</span>` : ''}
           </div>
-          <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 2px; white-space: nowrap;">${formatOrderDateTime(order.created_at)}</div>
+          <div class="order-table-date">${formatOrderDateTime(order.created_at)}</div>
         </td>
         <td>
           <div class="customer-meta-row">
@@ -1286,7 +1288,7 @@ function renderMobileCards() {
         <div class="m-order-header">
           <div>
             <div style="display: flex; align-items: center; gap: 4px;">
-              <span class="m-order-id" onclick="openOrderModal('${order.id}')">#${order.id}</span>
+              <span class="m-order-id" onclick="openOrderModal('${order.id}')">${escapeHtml(order.id)}</span>
               ${order._isCarryover ? `<span class="order-carryover-tag" style="font-size: 0.58rem; padding: 1px 4px;"><i class="fas fa-clock-rotate-left"></i> Earlier</span>` : ''}
             </div>
             <span class="m-order-time">${formatOrderDateTime(order.created_at)}</span>
@@ -1344,12 +1346,12 @@ function getWhatsAppLink(order) {
 
 // ── ORDER DETAILS MODAL ────────────────────────────────────
 function openOrderModal(orderId) {
-  const order = ordersList.find(o => String(o.id) === String(orderId));
+  const order = ordersList.find(o => String(o.id) === String(orderId) || (o.legacy_id && String(o.legacy_id) === String(orderId)));
   if (!order) return;
 
   currentSelectedOrder = order;
 
-  document.getElementById('modalOrderId').textContent = '#' + order.id;
+  document.getElementById('modalOrderId').textContent = order.id;
   document.getElementById('modalCustomerName').textContent = order.customer_name || 'Guest Rider';
   document.getElementById('modalPhone').textContent = order.phone || 'No phone';
   document.getElementById('modalEmail').textContent = order.email || 'No email';
@@ -1442,7 +1444,7 @@ async function deleteOrder() {
 function openReceiptModal(orderId) {
   let order = null;
   if (orderId) {
-    order = ordersList.find(o => String(o.id) === String(orderId));
+    order = ordersList.find(o => String(o.id) === String(orderId) || (o.legacy_id && String(o.legacy_id) === String(orderId)));
   }
   if (!order && currentSelectedOrder) {
     order = currentSelectedOrder;
@@ -1495,7 +1497,7 @@ function openReceiptModal(orderId) {
       <div style="font-size: 11.5px; line-height: 1.6; color: #000;">
         <div style="display: flex; justify-content: space-between; align-items: baseline;">
           <span style="font-weight: 700;">Order ID:</span>
-          <span style="font-weight: 800;">#${escapeHtml(order.id)}</span>
+          <span style="font-weight: 800;">${escapeHtml(order.id)}</span>
         </div>
         <div style="display: flex; justify-content: space-between; align-items: baseline;">
           <span style="font-weight: 700;">Date &amp; Time:</span>
@@ -2055,7 +2057,7 @@ on public.orders for all using (true);
 }
 
 function simulateTestOrder() {
-  const testId = 'RM-' + Math.floor(10000 + Math.random() * 90000);
+  const testId = getNextInvoiceId(ordersList);
   const testNames = ['Shahid Afridi', 'Kamran Akmal', 'Farhan Ali', 'Ahmed Raza', 'Danyal Baig'];
   const testCities = ['Rawalpindi', 'Peshawar', 'Multan', 'Faisalabad', 'Gujranwala'];
   const randomName = testNames[Math.floor(Math.random() * testNames.length)];
@@ -2174,7 +2176,7 @@ const STATUS_DEFINITIONS = [
 ];
 
 function openQuickStatusModal(orderId) {
-  const order = ordersList.find(o => String(o.id) === String(orderId));
+  const order = ordersList.find(o => String(o.id) === String(orderId) || (o.legacy_id && String(o.legacy_id) === String(orderId)));
   if (!order) return;
 
   qsTargetOrder = order;
@@ -2183,7 +2185,7 @@ function openQuickStatusModal(orderId) {
   const currentStatus = order.status || 'pending';
 
   const orderIdEl = document.getElementById('qsModalOrderId');
-  if (orderIdEl) orderIdEl.textContent = '#' + order.id;
+  if (orderIdEl) orderIdEl.textContent = order.id;
 
   const nameEl = document.getElementById('qsModalCustomerName');
   if (nameEl) nameEl.textContent = order.customer_name || 'Guest Rider';
@@ -2272,7 +2274,7 @@ function selectQuickStatusOption(statusId) {
       confirmPanel.style.display = 'block';
       const msg = document.getElementById('qsConfirmMessage');
       if (msg) {
-        msg.innerHTML = `Change Order <strong>#${qsTargetOrder.id}</strong> status from <span class="status-badge ${currentStatus}" style="font-size: 0.65rem; vertical-align: middle;">${currentStatus}</span> to <span class="status-badge ${statusId}" style="font-size: 0.65rem; vertical-align: middle;">${statusId}</span>?`;
+        msg.innerHTML = `Change Order <strong>${qsTargetOrder.id}</strong> status from <span class="status-badge ${currentStatus}" style="font-size: 0.65rem; vertical-align: middle;">${currentStatus}</span> to <span class="status-badge ${statusId}" style="font-size: 0.65rem; vertical-align: middle;">${statusId}</span>?`;
       }
       const actionBtn = document.getElementById('qsConfirmActionBtn');
       if (actionBtn) {
@@ -2619,7 +2621,7 @@ function getAdminReviews() {
   const defaults = [
     {
       id: 'rev-1',
-      orderId: 'RM-85623',
+      orderId: 'INV-14',
       customerName: 'Shahid Afridi',
       rating: 5,
       comment: 'The Armored Mesh Riding Jacket is top tier! Ventilation is amazing on highway rides in Islamabad heat, and CE armor fits snugly.',
@@ -2627,7 +2629,7 @@ function getAdminReviews() {
     },
     {
       id: 'rev-2',
-      orderId: 'RM-85619',
+      orderId: 'INV-13',
       customerName: 'Kamran Akmal',
       rating: 5,
       comment: 'Carbon knuckle gloves fit like a glove! Fast 3-day delivery to Islamabad and clean COD packaging.',
@@ -2635,7 +2637,7 @@ function getAdminReviews() {
     },
     {
       id: 'rev-3',
-      orderId: 'RM-85590',
+      orderId: 'INV-12',
       customerName: 'Bilal Haider',
       rating: 5,
       comment: 'Touring pants kept me completely dry during heavy rain. Material and stitching quality is 10/10.',
@@ -2643,7 +2645,7 @@ function getAdminReviews() {
     },
     {
       id: 'rev-4',
-      orderId: 'RM-85480',
+      orderId: 'INV-11',
       customerName: 'Usman Tariq',
       rating: 4,
       comment: 'Magnetic tank bag has very strong grip even at 120 km/h. Clear mobile touch window works perfectly.',
@@ -2651,7 +2653,7 @@ function getAdminReviews() {
     },
     {
       id: 'rev-5',
-      orderId: 'RM-85412',
+      orderId: 'INV-10',
       customerName: 'Zain Ali',
       rating: 5,
       comment: 'Thermal windproof balaclava cuts cold wind completely on morning commutes. Great customer service.',

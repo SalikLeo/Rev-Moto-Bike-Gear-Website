@@ -675,6 +675,8 @@ body::before {
 
 .filter-count-badge {
   font-size: 0.74rem;
+  white-space: nowrap;
+  flex-shrink: 0;
   padding: 2px 8px;
   min-width: 22px;
   border-radius: var(--radius-pill);
@@ -1850,21 +1852,43 @@ body::before {
   .controls-bar {
     flex-direction: column;
     align-items: stretch;
-    gap: 12px;
-    padding: 12px 14px;
-    overflow: hidden;
+    gap: 10px;
+    padding: 10px 12px;
+    overflow: visible;
   }
   .filter-tabs-track {
-    width: calc(100% + 28px);
-    margin-left: -14px;
-    margin-right: -14px;
-    padding-left: 14px;
-    padding-right: 14px;
-    padding-bottom: 6px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: visible;
+  }
+  .filter-tabs-track::-webkit-scrollbar {
+    display: none;
   }
   .filter-pill-btn {
-    padding: 6px 11px;
-    font-size: 0.78rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    width: 100%;
+    min-width: 0;
+    padding: 7px 4px;
+    font-size: 0.76rem;
+    white-space: nowrap;
+    text-align: center;
+    box-sizing: border-box;
+    letter-spacing: -0.01em;
+  }
+  .filter-count-badge {
+    padding: 1px 5px;
+    font-size: 0.68rem;
+    min-width: 18px;
+    line-height: 1.2;
+    flex-shrink: 0;
+    white-space: nowrap;
   }
   .period-filter-bar {
     flex-direction: column;
@@ -1915,6 +1939,24 @@ body::before {
 }
 
 @media (max-width: 600px) {
+  .controls-bar {
+    padding: 8px 10px;
+  }
+  .filter-tabs-track {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px;
+  }
+  .filter-pill-btn {
+    padding: 6px 2px;
+    font-size: 0.71rem;
+    gap: 3px;
+    letter-spacing: -0.02em;
+  }
+  .filter-count-badge {
+    padding: 1px 4px;
+    font-size: 0.64rem;
+    min-width: 16px;
+  }
   .admin-navbar {
     padding: 10px 14px;
   }

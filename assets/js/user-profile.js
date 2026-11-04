@@ -293,13 +293,9 @@ function getCustomerOrders() {
     if (myIds.includes(String(o.id || o.orderId))) return true;
     if (googleUser?.email && (o.email || '').toLowerCase() === googleUser.email.toLowerCase()) return true;
     if (profile.phone && (o.phone || '').replace(/\D/g, '') === profile.phone.replace(/\D/g, '')) return true;
+    if (profile.name && (o.customer_name || '').toLowerCase() === profile.name.toLowerCase()) return true;
     return false;
   });
-
-  // If user has no specific orders yet, show the first 2-3 recent orders for testing convenience
-  if (matched.length === 0 && allOrders.length > 0) {
-    return allOrders.slice(0, 3);
-  }
 
   return matched;
 }
@@ -586,76 +582,154 @@ function renderUserProfileModalContent() {
     }
   }
 
-  // 3. REVIEWS TAB
+  // 3. REVIEWS TAB — Show ONLY customer's orders eligible for review
   else if (activeUserTab === 'reviews') {
-    const reviews = getStoreReviews();
-    body.innerHTML = `
-      <!-- Leave a Review Form -->
-      <div class="user-form-card" style="margin-bottom: 18px;">
-        <div style="font-size: 0.88rem; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px;">
-          <i class="fas fa-star text-gold" style="color: #f59e0b;"></i> Leave Your Review
+    const orders = getCustomerOrders();
+    const storeReviews = getStoreReviews();
+
+    // Filter reviews submitted specifically by this customer or on their order IDs
+    const myReviews = storeReviews.filter(r => {
+      const matchOrder = orders.some(o => String(o.id || o.orderId) === String(r.orderId));
+      const matchName = profile.name && r.customerName && (r.customerName.toLowerCase() === profile.name.toLowerCase());
+      return matchOrder || matchName;
+    });
+
+    if (orders.length === 0) {
+      body.innerHTML = `
+        <div class="user-empty-state" style="padding: 32px 16px;">
+          <div style="width: 52px; height: 52px; border-radius: 50%; background: #fef3c7; color: #d97706; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; margin: 0 auto 14px;">
+            <i class="fas fa-star"></i>
+          </div>
+          <h4 style="margin: 0 0 6px 0; color: #0f172a; font-size: 1.05rem;">No Orders to Review Yet</h4>
+          <p style="margin: 0 0 16px 0; font-size: 0.82rem; color: #64748b; line-height: 1.5; max-width: 320px; margin-left: auto; margin-right: auto;">
+            Reviews can only be submitted on your verified orders. Once you place an order, you can share feedback here.
+          </p>
+          <a href="shop.html" class="btn btn-primary" onclick="closeUserProfileModal()">
+            <i class="fas fa-th-large"></i> Explore Gear Catalog
+          </a>
         </div>
-        <div style="font-size: 0.76rem; color: #64748b; margin-bottom: 12px;">Share your experience with our motorcycle armor and gear quality.</div>
+      `;
+      return;
+    }
 
-        <form id="userReviewForm" onsubmit="handleCustomerReviewSubmit(event)">
-          <div class="user-field-group">
-            <label class="user-field-label">Your Rating *</label>
-            <div class="star-rating-select" id="starRatingSelect">
-              ${[1, 2, 3, 4, 5].map(star => `
-                <button type="button" class="star-btn ${star <= 5 ? 'active' : ''}" data-star="${star}" onclick="setReviewStarRating(${star})">
-                  <i class="fas fa-star"></i>
-                </button>
-              `).join('')}
-              <input type="hidden" id="selectedStarRating" value="5">
-              <span id="starRatingLabel" style="font-size: 0.8rem; font-weight: 700; color: #f59e0b; margin-left: 8px;">5 - Excellent</span>
-            </div>
+    // Unreviewed orders
+    const unreviewedOrders = orders.filter(o => {
+      const oid = String(o.id || o.orderId);
+      return !myReviews.some(r => String(r.orderId) === oid);
+    });
+
+    let formHtml = '';
+    if (unreviewedOrders.length > 0) {
+      const defaultOrder = unreviewedOrders[0];
+      const defaultOrderId = String(defaultOrder.id || defaultOrder.orderId);
+      const itemsText = (defaultOrder.items || []).map(i => `${i.name}${i.size ? ' (' + i.size + ')' : ''}`).join(', ') || 'Motorcycle Gear';
+
+      formHtml = `
+        <div class="user-form-card" style="margin-bottom: 18px;">
+          <div style="font-size: 0.88rem; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px;">
+            <i class="fas fa-star text-gold" style="color: #f59e0b;"></i> Submit Review on Your Order
           </div>
+          <div style="font-size: 0.76rem; color: #64748b; margin-bottom: 12px;">Share your verified experience for items purchased.</div>
 
-          <div class="user-field-group">
-            <label class="user-field-label">Your Name *</label>
-            <input type="text" id="reviewAuthorName" class="user-field-input" placeholder="e.g. Shahid Afridi" value="${escapeUserHtml(profile.name || googleUser?.name || '')}" required>
-          </div>
-
-          <div class="user-field-group">
-            <label class="user-field-label">Your Review &amp; Gear Feedback *</label>
-            <textarea id="reviewCommentText" class="user-field-input" rows="3" placeholder="Tell riders about armor comfort, fit, material quality, and delivery speed..." required></textarea>
-          </div>
-
-          <div id="reviewSuccessNotice" style="display: none; padding: 8px 12px; background: #dcfce7; border: 1px solid #bbf7d0; border-radius: 8px; color: #166534; font-size: 0.8rem; margin-bottom: 12px;">
-            <i class="fas fa-check-circle"></i> Thank you! Your review has been submitted and posted.
-          </div>
-
-          <button type="submit" class="btn btn-primary btn-full" style="height: 42px; font-weight: 700;">
-            <i class="fas fa-paper-plane"></i> Submit Review
-          </button>
-        </form>
-      </div>
-
-      <!-- Published Reviews Stream -->
-      <div style="font-size: 0.85rem; font-weight: 800; color: #0f172a; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: baseline;">
-        <span>Customer Feedback (${reviews.length})</span>
-        <span style="font-size: 0.74rem; color: #64748b;">4.9 ★ Rating Average</span>
-      </div>
-
-      <div class="user-reviews-stream">
-        ${reviews.map(rev => `
-          <div class="user-review-item">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px;">
-              <div>
-                <strong style="font-size: 0.88rem; color: #0f172a;">${escapeUserHtml(rev.customerName || 'Verified Rider')}</strong>
-                <div class="review-stars-rendered" style="color: #f59e0b; font-size: 0.75rem; margin-top: 2px;">
-                  ${Array(rev.rating || 5).fill('<i class="fas fa-star"></i>').join('')}
+          <form id="userReviewForm" onsubmit="handleCustomerReviewSubmit(event)">
+            <!-- Order Selector -->
+            <div class="user-field-group">
+              <label class="user-field-label">Order To Review *</label>
+              ${unreviewedOrders.length === 1 ? `
+                <div style="background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 8px; padding: 10px 12px; display: flex; align-items: center; justify-content: space-between;">
+                  <div>
+                    <span style="font-size: 0.85rem; font-weight: 800; color: #2563eb;">ORDER #${escapeUserHtml(defaultOrderId)}</span>
+                    <div style="font-size: 0.76rem; color: #334155; margin-top: 2px;">${escapeUserHtml(itemsText)}</div>
+                  </div>
+                  <input type="hidden" id="selectedReviewOrderId" value="${escapeUserHtml(defaultOrderId)}">
                 </div>
-              </div>
-              <span style="font-size: 0.72rem; color: #94a3b8;">${escapeUserHtml(rev.date || 'Recent')}</span>
+              ` : `
+                <select id="selectedReviewOrderId" class="user-field-input" style="font-weight: 600;">
+                  ${unreviewedOrders.map(o => {
+                    const oid = String(o.id || o.orderId);
+                    const it = (o.items || []).map(i => i.name).join(', ') || 'Gear';
+                    return `<option value="${escapeUserHtml(oid)}">Order #${escapeUserHtml(oid)} (${escapeUserHtml(it)})</option>`;
+                  }).join('')}
+                </select>
+              `}
             </div>
-            <p style="margin: 6px 0 0 0; font-size: 0.8rem; color: #334155; line-height: 1.45;">
-              ${escapeUserHtml(rev.comment || '')}
-            </p>
-          </div>
-        `).join('')}
-      </div>
-    `;
+
+            <div class="user-field-group">
+              <label class="user-field-label">Your Rating *</label>
+              <div class="star-rating-select" id="starRatingSelect">
+                ${[1, 2, 3, 4, 5].map(star => `
+                  <button type="button" class="star-btn ${star <= 5 ? 'active' : ''}" data-star="${star}" onclick="setReviewStarRating(${star})">
+                    <i class="fas fa-star"></i>
+                  </button>
+                `).join('')}
+                <input type="hidden" id="selectedStarRating" value="5">
+                <span id="starRatingLabel" style="font-size: 0.8rem; font-weight: 700; color: #f59e0b; margin-left: 8px;">5 - Excellent</span>
+              </div>
+            </div>
+
+            <div class="user-field-group">
+              <label class="user-field-label">Your Name *</label>
+              <input type="text" id="reviewAuthorName" class="user-field-input" placeholder="e.g. Shahid Afridi" value="${escapeUserHtml(profile.name || googleUser?.name || 'Salik')}" required>
+            </div>
+
+            <div class="user-field-group">
+              <label class="user-field-label">Your Review &amp; Gear Feedback *</label>
+              <textarea id="reviewCommentText" class="user-field-input" rows="3" placeholder="Tell riders about armor comfort, fit, material quality, and delivery speed..." required></textarea>
+            </div>
+
+            <div id="reviewSuccessNotice" style="display: none; padding: 8px 12px; background: #dcfce7; border: 1px solid #bbf7d0; border-radius: 8px; color: #166534; font-size: 0.8rem; margin-bottom: 12px;">
+              <i class="fas fa-check-circle"></i> Thank you! Your review for this order has been submitted.
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-full" style="height: 42px; font-weight: 700;">
+              <i class="fas fa-paper-plane"></i> Submit Order Review
+            </button>
+          </form>
+        </div>
+      `;
+    }
+
+    let myReviewsHtml = '';
+    if (myReviews.length > 0) {
+      myReviewsHtml = `
+        <div style="font-size: 0.85rem; font-weight: 800; color: #0f172a; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: baseline;">
+          <span>Your Submitted Reviews (${myReviews.length})</span>
+          <span style="font-size: 0.72rem; color: #16a34a; font-weight: 700;"><i class="fas fa-shield-check"></i> Verified Rider</span>
+        </div>
+        <div class="user-reviews-stream">
+          ${myReviews.map(rev => `
+            <div class="user-review-item" style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 14px; margin-bottom: 10px;">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px;">
+                <div>
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <strong style="font-size: 0.88rem; color: #0f172a;">${escapeUserHtml(rev.customerName || profile.name || 'You')}</strong>
+                    ${rev.orderId ? `<span style="font-size: 0.68rem; background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; padding: 1px 6px; border-radius: 6px; font-weight: 800;">Order #${escapeUserHtml(rev.orderId)}</span>` : ''}
+                  </div>
+                  <div class="review-stars-rendered" style="color: #f59e0b; font-size: 0.75rem; margin-top: 3px;">
+                    ${Array(rev.rating || 5).fill('<i class="fas fa-star"></i>').join('')}
+                    <span style="font-size: 0.72rem; color: #64748b; margin-left: 4px;">${rev.rating || 5} Stars</span>
+                  </div>
+                </div>
+                <span style="font-size: 0.72rem; color: #94a3b8;">${escapeUserHtml(rev.date || 'Recent')}</span>
+              </div>
+              <p style="margin: 6px 0 0 0; font-size: 0.82rem; color: #334155; line-height: 1.45;">
+                ${escapeUserHtml(rev.comment || '')}
+              </p>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    } else if (unreviewedOrders.length === 0 && orders.length > 0) {
+      myReviewsHtml = `
+        <div class="user-empty-state" style="padding: 24px 14px;">
+          <i class="fas fa-check-double user-empty-icon" style="color: #10b981; font-size: 1.8rem; margin-bottom: 8px;"></i>
+          <h4 style="margin: 0 0 4px 0; color: #0f172a; font-size: 0.95rem;">All Orders Reviewed</h4>
+          <p style="margin: 0; font-size: 0.8rem; color: #64748b;">You have submitted reviews for all your placed orders. Thank you!</p>
+        </div>
+      `;
+    }
+
+    body.innerHTML = formHtml + myReviewsHtml;
   }
 }
 
@@ -680,11 +754,15 @@ function setReviewStarRating(rating) {
 
 function handleCustomerReviewSubmit(e) {
   e.preventDefault();
-  const name = document.getElementById('reviewAuthorName')?.value || 'Rider';
+  const orderIdInput = document.getElementById('selectedReviewOrderId');
+  const orderId = orderIdInput ? orderIdInput.value.trim() : null;
+  const profile = getStoredUserProfile();
+  const name = document.getElementById('reviewAuthorName')?.value || profile.name || 'Verified Rider';
   const comment = document.getElementById('reviewCommentText')?.value || '';
   const rating = Number(document.getElementById('selectedStarRating')?.value || 5);
 
   saveStoreReview({
+    orderId: orderId,
     customerName: name,
     comment: comment,
     rating: rating
@@ -695,8 +773,10 @@ function handleCustomerReviewSubmit(e) {
 
   setTimeout(() => {
     renderUserProfileModalContent();
-    showToast('Review submitted! Thank you.', 'love');
-  }, 1200);
+    if (typeof showToast === 'function') {
+      showToast('Review submitted for Order #' + (orderId || '') + '! Thank you.', 'love');
+    }
+  }, 900);
 }
 
 // ── SAVE PROFILE FORM ──

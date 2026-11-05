@@ -1574,7 +1574,7 @@ function openReceiptModal(orderId) {
   `).join('');
 
   receiptEl.innerHTML = `
-    <div style="font-family: 'Plus Jakarta Sans', 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #fff; color: #000;">
+    <div style="font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #fff; color: #000;">
       <!-- Store Header -->
       <div style="text-align: center;">
         <h2 style="font-size: 16px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; margin: 0; color: #000; line-height: 1.2;">REV MOTO</h2>
@@ -1696,7 +1696,7 @@ function drawRevMotoReceiptCanvas(order, scale = 2) {
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, baseWidth, baseHeight);
 
-  const fontSans = '"Plus Jakarta Sans", "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+  const fontSans = '"Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
 
   // --- Store Header ---
   ctx.fillStyle = '#000000';
@@ -2070,7 +2070,7 @@ function printThermalReceipt() {
           padding: 3mm 4mm;
           background: #ffffff;
           color: #000000;
-          font-family: 'Plus Jakarta Sans', 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+          font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
           width: 80mm;
           max-width: 80mm;
           -webkit-print-color-adjust: exact;

@@ -46,6 +46,7 @@ public class MainActivity extends Activity {
         progressBar = findViewById(R.id.progressBar);
 
         setupWebView();
+        webView.clearCache(true);
         webView.loadUrl(ADMIN_URL);
     }
 
@@ -66,6 +67,9 @@ public class MainActivity extends Activity {
         ws.setCacheMode(WebSettings.LOAD_DEFAULT);
 
         webView.setBackgroundColor(Color.parseColor("#090d16"));
+        webView.setVerticalScrollBarEnabled(false);
+        webView.setHorizontalScrollBarEnabled(false);
+        webView.setOverScrollMode(View.OVER_SCROLL_IF_CONTENT_SCROLLS);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             ws.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);

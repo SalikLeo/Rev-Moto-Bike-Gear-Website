@@ -424,6 +424,67 @@ function playOrderChime() {
   }
 }
 
+// ── ORDER NOTIFICATION & CHIME SYSTEM (WEB & ANDROID APK) ──
+let knownOrderIdsSet = new Set();
+let isInitialOrderFetch = true;
+
+function triggerOrderNotification(order) {
+  if (!order) return;
+
+  // 1. Audio chime alert
+  playOrderChime();
+
+  const orderId = order.id || 'New';
+  const customerName = (order.customer && order.customer.name) ? order.customer.name : (order.name || 'Customer');
+  const amountVal = order.total || order.amount || 0;
+  const amountStr = typeof formatPKR === 'function' ? formatPKR(amountVal) : ('Rs. ' + amountVal);
+
+  // 2. Native Android App Bridge (if running inside rev-moto-admin.apk)
+  try {
+    if (window.Android && typeof window.Android.showOrderNotification === 'function') {
+      window.Android.showOrderNotification(String(orderId), String(customerName), String(amountVal));
+    }
+  } catch (err) {
+    console.warn('Native Android notification bridge notice:', err);
+  }
+
+  // 3. Browser Push / System Notification (Desktop & Mobile Browser)
+  try {
+    if ('Notification' in window && Notification.permission === 'granted') {
+      const n = new Notification('🚨 New Order: #' + orderId, {
+        body: customerName + ' • ' + amountStr + '\nTap to open order in Admin',
+        icon: '../assets/images/logo.png',
+        badge: '../assets/images/logo.png',
+        tag: 'order-' + orderId,
+        renotify: true
+      });
+      n.onclick = function() {
+        window.focus();
+        if (typeof openOrderModal === 'function') {
+          openOrderModal(order.id);
+        }
+      };
+    }
+  } catch (err) {
+    console.warn('Browser system notification notice:', err);
+  }
+
+  // 4. In-App Interactive Toast
+  if (typeof showToast === 'function') {
+    showToast('🔔 New Order #' + orderId + ' (' + amountStr + ') received!', 'success');
+  }
+}
+
+function requestNotificationPermission() {
+  if ('Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission().then(permission => {
+      if (permission === 'granted' && typeof showToast === 'function') {
+        showToast('🔔 Order push notifications enabled!', 'success');
+      }
+    });
+  }
+}
+
 // ── SUPABASE CONNECTION & SYNC ──────────────────────────────
 function initSupabase() {
   const url = localStorage.getItem('rm_supabase_url');
@@ -448,8 +509,7 @@ function setupRealtimeSubscription() {
       .channel('public:orders')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, (payload) => {
         if (payload.eventType === 'INSERT') {
-          playOrderChime();
-          showToast(`⚡ New Order Received: #${payload.new.id}`, 'info');
+          triggerOrderNotification(payload.new);
         }
         fetchOrders();
       })
@@ -518,6 +578,7 @@ async function fetchOrders() {
 
       if (!error && data) {
         ordersList = normalizeInvoiceNumbers(data);
+        checkNewIncomingOrders();
         renderDashboard();
         return;
       }
@@ -546,7 +607,23 @@ async function fetchOrders() {
     saveLocalOrders(ordersList);
   }
 
+  checkNewIncomingOrders();
   renderDashboard();
+}
+
+function checkNewIncomingOrders() {
+  if (!isInitialOrderFetch && Array.isArray(ordersList)) {
+    const freshOrders = ordersList.filter(o => o && o.id && !knownOrderIdsSet.has(String(o.id)));
+    if (freshOrders.length > 0) {
+      triggerOrderNotification(freshOrders[0]);
+    }
+  }
+  if (Array.isArray(ordersList)) {
+    ordersList.forEach(o => {
+      if (o && o.id) knownOrderIdsSet.add(String(o.id));
+    });
+  }
+  isInitialOrderFetch = false;
 }
 
 function saveLocalOrders(orders) {
@@ -4384,3 +4461,49 @@ function handleProductFormSubmit(e) {
   closeProductModal();
   renderProductsView();
 }
+
+// ── DOWNLOAD MOBILE APP MODAL CONTROLS ─────────────────────
+function openDownloadAppModal() {
+  const modal = document.getElementById('downloadAppModal');
+  if (modal) {
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+  requestNotificationPermission();
+}
+
+function closeDownloadAppModal() {
+  const modal = document.getElementById('downloadAppModal');
+  if (modal) {
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+}
+
+function copyApkLink() {
+  const fullUrl = window.location.origin + window.location.pathname.replace(/\/+$/, '') + '/rev-moto-admin.apk';
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(fullUrl).then(() => {
+      showToast('APK download link copied to clipboard!', 'success');
+    }).catch(() => {
+      prompt('Copy APK Download URL:', fullUrl);
+    });
+  } else {
+    prompt('Copy APK Download URL:', fullUrl);
+  }
+}
+
+// Auto-request notifications on first user gesture
+document.addEventListener('click', function autoReqNotifOnce() {
+  if ('Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission();
+  }
+  document.removeEventListener('click', autoReqNotifOnce);
+}, { once: true });
+
+// Auto background sync interval every 25 seconds for reliable mobile sync
+setInterval(() => {
+  if (document.visibilityState === 'visible' || (window.Android)) {
+    fetchOrders();
+  }
+}, 25000);

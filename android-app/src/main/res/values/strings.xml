@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Rev Moto Admin</string>
+    <string name="notification_channel_name">Rev Moto Order Alerts</string>
+    <string name="notification_channel_desc">Notifications for new incoming customer orders</string>
+</resources>

@@ -25,7 +25,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
   <!-- Admin Portal CSS -->
-  <link rel="stylesheet" href="admin.css?v=4.5">
+  <link rel="stylesheet" href="admin.css?v=4.6">
 </head>
 <body>
 
@@ -65,9 +65,9 @@
       </nav>
 
       <div class="admin-nav-actions">
-        <!-- Add Test Order -->
-        <button class="btn-admin btn-admin-subtle" onclick="simulateTestOrder()" title="Simulate a new incoming customer order">
-          <i class="fas fa-plus"></i> <span class="hide-on-mobile">Test Order</span>
+        <!-- Download Mobile App -->
+        <button class="btn-admin btn-admin-primary" onclick="openDownloadAppModal()" title="Download Rev Moto Admin APK for Mobile" style="gap: 6px; font-weight: 700; background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 2px 8px rgba(37,99,235,0.25);">
+          <i class="fab fa-android"></i> <span class="hide-on-mobile">Download App</span>
         </button>
 
         <!-- Sound Alert Toggle -->
@@ -874,9 +874,78 @@
     }
   </style>
 
-  <script src="admin.js?v=4.9"></script>
+  <script src="admin.js?v=5.0"></script>
 
   
+  <!-- ═══ DOWNLOAD MOBILE APP MODAL ═══════════════════════════════════ -->
+  <div class="admin-modal-overlay" id="downloadAppModal" onclick="if(event.target===this) closeDownloadAppModal()">
+    <div class="admin-modal-content" style="max-width: 480px; text-align: center;">
+      <div class="admin-modal-header" style="padding: 14px 18px;">
+        <div class="admin-modal-title" style="font-size: 1.05rem;">
+          <i class="fab fa-android" style="color: #10b981;"></i>
+          <span>Rev Moto Admin Mobile App</span>
+        </div>
+        <button class="admin-modal-close" onclick="closeDownloadAppModal()" title="Close"><i class="fas fa-times"></i></button>
+      </div>
+
+      <div class="admin-modal-body" style="padding: 24px 22px;">
+        <!-- App Icon & Badge -->
+        <div style="width: 72px; height: 72px; margin: 0 auto 14px; background: #0f172a; border-radius: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.2); border: 2px solid #2563eb;">
+          <img src="../assets/images/logo.png" alt="Rev Moto" style="max-width: 54px; height: auto;">
+        </div>
+
+        <h3 style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 800; color: var(--text-pure); margin-bottom: 4px;">
+          Rev Moto Admin for Android
+        </h3>
+        <div style="display: inline-flex; align-items: center; gap: 6px; background: #ecfdf5; border: 1px solid #a7f3d0; color: #047857; font-size: 0.76rem; font-weight: 700; padding: 3px 10px; border-radius: 99px; margin-bottom: 16px;">
+          <i class="fas fa-check-circle"></i> Official APK v1.0.0 • 98 KB (Lightning Fast)
+        </div>
+
+        <p style="font-size: 0.84rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 20px; text-align: left;">
+          Install this lightweight mobile app on your Android phone to receive <strong>instant sound &amp; vibration notifications</strong> the moment a customer places an order, chat on WhatsApp with 1 tap, and manage your entire store on the go!
+        </p>
+
+        <!-- Feature Pills -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 22px; text-align: left;">
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 10px; font-size: 0.78rem; font-weight: 600; color: #334155; display: flex; align-items: center; gap: 7px;">
+            <i class="fas fa-bell" style="color: #f59e0b;"></i> Real-Time Alerts
+          </div>
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 10px; font-size: 0.78rem; font-weight: 600; color: #334155; display: flex; align-items: center; gap: 7px;">
+            <i class="fab fa-whatsapp" style="color: #10b981;"></i> 1-Tap WhatsApp
+          </div>
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 10px; font-size: 0.78rem; font-weight: 600; color: #334155; display: flex; align-items: center; gap: 7px;">
+            <i class="fas fa-receipt" style="color: #6366f1;"></i> Thermal POS Slips
+          </div>
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 10px; font-size: 0.78rem; font-weight: 600; color: #334155; display: flex; align-items: center; gap: 7px;">
+            <i class="fas fa-bolt" style="color: #2563eb;"></i> 0.2s Instant Open
+          </div>
+        </div>
+
+        <!-- Download Button -->
+        <a href="rev-moto-admin.apk" download="rev-moto-admin.apk" class="btn-admin btn-admin-primary" style="height: 48px; font-size: 0.96rem; font-weight: 800; border-radius: 10px; width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 4px 16px rgba(37,99,235,0.3); margin-bottom: 12px; text-decoration: none;">
+          <i class="fas fa-download"></i> Download APK File (98 KB)
+        </a>
+
+        <!-- Copy Link Button -->
+        <button type="button" class="btn-admin btn-admin-subtle" onclick="copyApkLink()" style="height: 38px; width: 100%; font-size: 0.82rem; font-weight: 700; margin-bottom: 18px;">
+          <i class="fas fa-link"></i> Copy Direct Download Link
+        </button>
+
+        <!-- Installation Instructions -->
+        <div style="background: #f1f5f9; border-radius: 8px; padding: 12px; text-align: left; font-size: 0.78rem; color: #475569; line-height: 1.45;">
+          <div style="font-weight: 800; color: #1e293b; margin-bottom: 6px; display: flex; align-items: center; gap: 5px;">
+            <i class="fas fa-info-circle text-blue"></i> Quick Install Guide:
+          </div>
+          <ol style="margin: 0; padding-left: 18px;">
+            <li>Tap <strong>Download APK File</strong> above.</li>
+            <li>Open the downloaded file on your phone and tap <strong>Install</strong> (Allow installation if prompted).</li>
+            <li>Open <strong>Rev Moto Admin</strong> and grant Notification permission for real-time order chimes!</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ═══ CATEGORY MANAGEMENT MODAL ═══════════════════════════════════ -->
   <div class="admin-modal-overlay" id="categoryManagerModal" onclick="if(event.target===this) closeCategoryManagerModal()">
     <div class="admin-modal-content" style="max-width: 520px;">

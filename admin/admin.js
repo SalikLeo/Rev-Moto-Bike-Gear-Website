@@ -1027,36 +1027,6 @@ function updateMetrics() {
     }
   }
 
-  // Dynamic subtitle describing the selected period
-  let periodLabelText = '';
-  if (periodMode === 'daily') {
-    periodLabelText = `Sales for ${formatDateMMDDYYYY(periodDate)}`;
-  } else if (periodMode === 'monthly') {
-    periodLabelText = `Sales for ${MONTH_NAMES[periodDate.getMonth()]} ${periodDate.getFullYear()}`;
-  } else if (periodMode === 'annual') {
-    periodLabelText = `Annual Sales for ${periodDate.getFullYear()}`;
-  } else {
-    periodLabelText = 'All-time total sales';
-  }
-
-  const cards = document.querySelectorAll('.metrics-grid .metric-card .metric-sub');
-  if (cards && cards[0]) cards[0].textContent = periodLabelText;
-  if (cards && cards[1]) {
-    cards[1].textContent = prevTotal > 0
-      ? `Found ${totalOrders} order(s) in this period • (${prevTotal}) undelivered from earlier`
-      : `Found ${totalOrders} order(s) in this period`;
-  }
-  if (cards && cards[2]) {
-    cards[2].textContent = prevPending > 0
-      ? `Requires WhatsApp/Call check • (${prevPending}) from earlier`
-      : `Requires WhatsApp/Call check`;
-  }
-  if (cards && cards[3]) {
-    cards[3].textContent = prevDispatched > 0
-      ? `Booked with Courier • (${prevDispatched}) from earlier`
-      : `Booked with Courier`;
-  }
-
   renderCarryoverPill(prevTotal);
 }
 
@@ -3335,9 +3305,6 @@ function renderSalesView() {
 
   const topEl = document.getElementById('salesMetricTopItem');
   if (topEl) topEl.textContent = topItemName;
-
-  const topHintEl = document.getElementById('salesMetricTopItemHint');
-  if (topHintEl) topHintEl.textContent = topItemQty > 0 ? `${topItemQty} units sold` : 'No sales in period';
 
   const skusEl = document.getElementById('salesMetricSkus');
   if (skusEl) skusEl.textContent = totalSkus;

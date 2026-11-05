@@ -25,7 +25,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
   <!-- Admin Portal CSS -->
-  <link rel="stylesheet" href="admin.css?v=5.5">
+  <link rel="stylesheet" href="admin.css?v=5.6">
 </head>
 <body>
 
@@ -74,11 +74,6 @@
         <button class="admin-icon-btn active" id="soundToggleBtn" onclick="toggleSound()" title="Toggle Order Sound Chime">
           <i class="fas fa-volume-up"></i>
         </button>
-
-        <!-- Back to Storefront Link -->
-        <a href="../index.html" class="admin-icon-btn" title="View Customer Storefront" target="_blank">
-          <i class="fas fa-external-link-alt"></i>
-        </a>
       </div>
     </div>
   </header>
@@ -100,7 +95,6 @@
           <div class="metric-icon-wrap rev"><i class="fas fa-coins"></i></div>
         </div>
         <div class="metric-value" id="metricRevenueVal">Rs. 0</div>
-        <div class="metric-sub">Delivered Orders Only</div>
       </div>
 
       <!-- Total Orders -->
@@ -110,27 +104,24 @@
           <div class="metric-icon-wrap orders"><i class="fas fa-boxes-stacked"></i></div>
         </div>
         <div class="metric-value" id="metricOrdersVal">0</div>
-        <div class="metric-sub">All-time order count</div>
       </div>
 
-      <!-- Pending Confirmation -->
+      <!-- Pending Orders -->
       <div class="metric-card">
         <div class="metric-label">
-          <span>Pending Confirmation</span>
+          <span>Pending Orders</span>
           <div class="metric-icon-wrap pending"><i class="fas fa-clock"></i></div>
         </div>
         <div class="metric-value" id="metricPendingVal">0</div>
-        <div class="metric-sub">Requires WhatsApp/Call check</div>
       </div>
 
-      <!-- Dispatched / In Transit -->
+      <!-- Shipped Orders -->
       <div class="metric-card">
         <div class="metric-label">
-          <span>Dispatched / In Transit</span>
+          <span>Shipped Orders</span>
           <div class="metric-icon-wrap dispatched"><i class="fas fa-truck-fast"></i></div>
         </div>
         <div class="metric-value" id="metricDispatchedVal">0</div>
-        <div class="metric-sub">Booked with Courier</div>
       </div>
     </section>
 
@@ -209,38 +200,34 @@
       <section class="metrics-grid">
         <div class="metric-card">
           <div class="metric-label">
-            <span>Total Units Sold</span>
+            <span>Items Sold</span>
             <div class="metric-icon-wrap orders" style="background: rgba(37,99,235,0.1); color: #2563eb;"><i class="fas fa-boxes-packing"></i></div>
           </div>
           <div class="metric-value" id="salesMetricUnits">0</div>
-          <div class="metric-sub" id="salesMetricUnitsHint">In selected period</div>
         </div>
 
         <div class="metric-card">
           <div class="metric-label">
-            <span>Gear Sales Revenue</span>
+            <span>Total Sales</span>
             <div class="metric-icon-wrap rev" style="background: rgba(16,185,129,0.1); color: #10b981;"><i class="fas fa-chart-line"></i></div>
           </div>
           <div class="metric-value" id="salesMetricRevenue">Rs. 0</div>
-          <div class="metric-sub">Item sales total</div>
         </div>
 
         <div class="metric-card">
           <div class="metric-label">
-            <span>Top Selling Gear</span>
+            <span>Top Product</span>
             <div class="metric-icon-wrap pending" style="background: rgba(245,158,11,0.1); color: #f59e0b;"><i class="fas fa-trophy"></i></div>
           </div>
           <div class="metric-value" id="salesMetricTopItem" style="font-size: 1.15rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">—</div>
-          <div class="metric-sub" id="salesMetricTopItemHint">Highest volume</div>
         </div>
 
         <div class="metric-card">
           <div class="metric-label">
-            <span>Active SKUs Sold</span>
+            <span>Products Sold</span>
             <div class="metric-icon-wrap dispatched" style="background: rgba(168,85,247,0.1); color: #a855f7;"><i class="fas fa-tags"></i></div>
           </div>
           <div class="metric-value" id="salesMetricSkus">0</div>
-          <div class="metric-sub">Distinct products sold</div>
         </div>
       </section>
 
@@ -314,25 +301,22 @@
             <div class="metric-icon-wrap orders" style="background: rgba(37,99,235,0.1); color: #2563eb;"><i class="fas fa-vest"></i></div>
           </div>
           <div class="metric-value" id="prodMetricTotal">0</div>
-          <div class="metric-sub">Active gear items in catalog</div>
         </div>
 
         <div class="metric-card">
           <div class="metric-label">
-            <span>Available In Stock</span>
+            <span>In Stock</span>
             <div class="metric-icon-wrap dispatched" style="background: rgba(16,185,129,0.1); color: #10b981;"><i class="fas fa-cubes"></i></div>
           </div>
           <div class="metric-value" id="prodMetricUnits">0</div>
-          <div class="metric-sub">Catalog products ready to order</div>
         </div>
 
         <div class="metric-card">
           <div class="metric-label">
-            <span>Gear Categories</span>
+            <span>Categories</span>
             <div class="metric-icon-wrap pending" style="background: rgba(245,158,11,0.1); color: #f59e0b;"><i class="fas fa-layer-group"></i></div>
           </div>
           <div class="metric-value" id="prodMetricCategories">4</div>
-          <div class="metric-sub">Jackets, Gloves, Bags, Masks</div>
         </div>
       </section>
 
@@ -393,11 +377,10 @@
       <section class="metrics-grid metrics-grid-3">
         <div class="metric-card">
           <div class="metric-label">
-            <span>Total Unique Customers</span>
+            <span>Total Customers</span>
             <div class="metric-icon-wrap orders" style="background: rgba(37,99,235,0.1); color: #2563eb;"><i class="fas fa-users"></i></div>
           </div>
           <div class="metric-value" id="custMetricTotal">0</div>
-          <div class="metric-sub">Aggregated via customer history</div>
         </div>
 
         <div class="metric-card">
@@ -406,16 +389,14 @@
             <div class="metric-icon-wrap dispatched" style="background: rgba(16,185,129,0.1); color: #10b981;"><i class="fas fa-rotate"></i></div>
           </div>
           <div class="metric-value" id="custMetricRepeat">0</div>
-          <div class="metric-sub">Placed 2+ orders</div>
         </div>
 
         <div class="metric-card">
           <div class="metric-label">
-            <span>Average Customer LTV</span>
+            <span>Average Spend</span>
             <div class="metric-icon-wrap rev" style="background: rgba(245,158,11,0.1); color: #f59e0b;"><i class="fas fa-sack-dollar"></i></div>
           </div>
           <div class="metric-value" id="custMetricAvgSpend">Rs. 0</div>
-          <div class="metric-sub">Average spend per rider</div>
         </div>
       </section>
 
@@ -459,11 +440,10 @@
       <section class="metrics-grid metrics-grid-3">
         <div class="metric-card">
           <div class="metric-label">
-            <span>Average Store Rating</span>
+            <span>Average Rating</span>
             <div class="metric-icon-wrap pending" style="background: rgba(245,158,11,0.1); color: #f59e0b;"><i class="fas fa-star"></i></div>
           </div>
           <div class="metric-value" id="revMetricAvg">5.0 ★</div>
-          <div class="metric-sub">Based on verified rider reviews</div>
         </div>
 
         <div class="metric-card">
@@ -472,16 +452,14 @@
             <div class="metric-icon-wrap orders" style="background: rgba(37,99,235,0.1); color: #2563eb;"><i class="fas fa-comments"></i></div>
           </div>
           <div class="metric-value" id="revMetricTotal">0</div>
-          <div class="metric-sub">Customer feedback received</div>
         </div>
 
         <div class="metric-card">
           <div class="metric-label">
-            <span>5-Star Satisfaction</span>
+            <span>5-Star Reviews</span>
             <div class="metric-icon-wrap dispatched" style="background: rgba(16,185,129,0.1); color: #10b981;"><i class="fas fa-thumbs-up"></i></div>
           </div>
           <div class="metric-value" id="revMetric5StarPct">100%</div>
-          <div class="metric-sub">Top satisfaction rating</div>
         </div>
       </section>
 
@@ -917,7 +895,7 @@
     }
   </style>
 
-  <script src="admin.js?v=6.4"></script>
+  <script src="admin.js?v=6.5"></script>
 
   <!-- ═══ CATEGORY MANAGEMENT MODAL ═══════════════════════════════════ -->
   <div class="admin-modal-overlay" id="categoryManagerModal" onclick="if(event.target===this) closeCategoryManagerModal()">

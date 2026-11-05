@@ -638,9 +638,7 @@ body::before {
 }
 
 .metric-sub {
-  font-size: 0.68rem;
-  color: var(--text-muted);
-  margin-top: 2px;
+  display: none !important;
 }
 
 /* Filter Bar & Search */

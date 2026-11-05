@@ -362,7 +362,7 @@ body::before {
   align-items: center;
   justify-content: center;
   border-radius: 8px;
-  border: 1.5px solid #cbd5e1;
+  border: 1px solid #e2e8f0;
   background: #ffffff;
   color: var(--text-secondary);
   cursor: pointer;
@@ -381,7 +381,7 @@ body::before {
 }
 
 .btn-action-icon:hover {
-  transform: translateY(-1.5px);
+  transform: translateY(-2px);
   box-shadow: 0 4px 10px rgba(15, 23, 42, 0.08);
 }
 
@@ -393,7 +393,7 @@ body::before {
   transform: translateY(0);
 }
 
-/* Receipt Action Button */
+/* Receipt Action Button (POS Slate) */
 .btn-action-receipt {
   background: #f8fafc;
   border-color: #cbd5e1;
@@ -401,13 +401,13 @@ body::before {
 }
 
 .btn-action-receipt:hover {
-  background: #f0fdfa;
-  border-color: #5eead4;
-  color: #0f766e;
-  box-shadow: 0 4px 12px rgba(13, 148, 136, 0.16);
+  background: #f1f5f9;
+  border-color: #94a3b8;
+  color: #0f172a;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
 }
 
-/* WhatsApp Action Button */
+/* WhatsApp Action Button (Emerald) */
 .btn-action-wa {
   background: #f0fdf4;
   border-color: #bbf7d0;
@@ -418,10 +418,10 @@ body::before {
   background: #dcfce7;
   border-color: #86efac;
   color: #15803d;
-  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.2);
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.22);
 }
 
-/* Call Action Button */
+/* Call Action Button (Royal Blue) */
 .btn-action-call {
   background: #eff6ff;
   border-color: #bfdbfe;
@@ -432,21 +432,21 @@ body::before {
   background: #dbeafe;
   border-color: #93c5fd;
   color: #1d4ed8;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.22);
 }
 
-/* View Details Action Button */
+/* View Details Action Button (Modern Violet) */
 .btn-action-view {
-  background: #f8fafc;
-  border-color: #cbd5e1;
-  color: #475569;
+  background: #f5f3ff;
+  border-color: #ddd6fe;
+  color: #7c3aed;
 }
 
 .btn-action-view:hover {
-  background: #f1f5f9;
-  border-color: #94a3b8;
-  color: #1e293b;
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
+  background: #ede9fe;
+  border-color: #c4b5fd;
+  color: #6d28d9;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.22);
 }
 
 .m-actions-row .btn-action-icon {

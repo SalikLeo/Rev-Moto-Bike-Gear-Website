@@ -61,28 +61,11 @@
   --shadow-card-hover: 0 10px 25px -4px rgba(15, 23, 42, 0.08), 0 4px 10px -2px rgba(15, 23, 42, 0.04);
 }
 
-/* Universal Typography Uniformity: Plus Jakarta Sans */
-*,
-*::before,
-*::after {
+* {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-
-/* Preserve Font Awesome Icon Fonts */
-.fa,
-.fas,
-.far,
-.fab,
-.fa-solid,
-.fa-regular,
-.fa-brands,
-[class*="fa-"],
-[class^="fa-"] {
-  font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands", "FontAwesome" !important;
 }
 
 html, body {
@@ -91,7 +74,11 @@ html, body {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: var(--font-body);
+}
+
+button, input, select, textarea {
+  font-family: inherit;
 }
 
 html {
@@ -2962,9 +2949,9 @@ button.status-badge:active {
 }
 
 
-/* Uniform Font Consistency — Plus Jakarta Sans across all content */
-body, button, input, select, textarea, table, th, td, h1, h2, h3, h4, h5, h6, span, a, label, div {
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+/* Uniform Font Consistency */
+body, button, input, select, textarea, table, th, td {
+  font-family: var(--font-body);
 }
 
 

@@ -372,7 +372,8 @@ body::before {
   line-height: 1;
 }
 
-.btn-action-icon svg {
+.btn-action-icon svg,
+.btn-action-icon i {
   width: 15px;
   height: 15px;
   display: block;
@@ -380,13 +381,19 @@ body::before {
   transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+.btn-action-icon.btn-action-wa svg {
+  width: 15.5px;
+  height: 15.5px;
+}
+
 .btn-action-icon:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 10px rgba(15, 23, 42, 0.08);
 }
 
-.btn-action-icon:hover svg {
-  transform: scale(1.1);
+.btn-action-icon:hover svg,
+.btn-action-icon:hover i {
+  transform: scale(1.12);
 }
 
 .btn-action-icon:active {

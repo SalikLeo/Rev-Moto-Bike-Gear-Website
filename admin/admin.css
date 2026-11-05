@@ -77,12 +77,12 @@ html, body {
 html {
   font-size: 15.4px; /* Scaled +10% (from 14px) for comfortable readability and balanced spacious design */
   -webkit-text-size-adjust: 100%;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-  -webkit-overflow-scrolling: touch !important;
-  overscroll-behavior-y: auto !important;
-  height: auto !important;
-  min-height: 100% !important;
+  overflow-y: auto;
+  overflow-x: clip;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: auto;
+  height: auto;
+  min-height: 100%;
 }
 
 body {
@@ -92,10 +92,10 @@ body {
   min-height: 100vh;
   min-height: 100dvh;
   line-height: 1.5;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-  -webkit-overflow-scrolling: touch !important;
-  touch-action: pan-y pinch-zoom !important;
+  overflow-y: visible;
+  overflow-x: clip;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y pinch-zoom;
   position: relative;
 }
 
@@ -114,15 +114,16 @@ body::before {
 
 /* Top Navigation Bar */
 .admin-navbar {
+  position: -webkit-sticky;
   position: sticky;
   top: 0;
-  z-index: 50;
-  background: rgba(255, 255, 255, 0.94);
+  z-index: 90;
+  background: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border-subtle);
   padding: 10px 20px;
-  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.03);
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
 }
 
 .admin-nav-container {
@@ -1381,7 +1382,7 @@ body::before {
   background: rgba(15, 23, 42, 0.45);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  z-index: 100;
+  z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1534,7 +1535,7 @@ body::before {
   position: fixed;
   bottom: 24px;
   right: 24px;
-  z-index: 200;
+  z-index: 2000;
   background: #ffffff;
   border: 1px solid var(--border-medium);
   color: var(--text-pure);
@@ -1985,7 +1986,11 @@ body::before {
     min-width: 16px;
   }
   .admin-navbar {
-    padding: 10px 14px;
+    position: -webkit-sticky !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 90 !important;
+    padding: 8px 10px !important;
   }
   .admin-main {
     padding: 16px 14px 70px;
@@ -2427,14 +2432,23 @@ button.status-badge:active {
     display: none !important;
   }
 
-  /* Universal unblocked vertical mobile scrolling */
-  html, body {
+  /* Universal unblocked vertical mobile scrolling with sticky header support */
+  html {
     overflow-y: auto !important;
-    overflow-x: hidden !important;
+    overflow-x: clip !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior-y: auto !important;
+    height: auto !important;
+  }
+
+  body {
+    overflow-y: visible !important;
+    overflow-x: clip !important;
     -webkit-overflow-scrolling: touch !important;
     overscroll-behavior-y: auto !important;
     touch-action: pan-y pinch-zoom !important;
     height: auto !important;
+    position: relative !important;
   }
 
   .admin-main,
@@ -2450,8 +2464,17 @@ button.status-badge:active {
     touch-action: pan-y pinch-zoom !important;
   }
 
-  /* 1. Header & Brand Bar */
+  /* 1. Header & Brand Bar (Sticky on Mobile) */
   .admin-navbar {
+    position: -webkit-sticky !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 90 !important;
+    background: rgba(255, 255, 255, 0.98) !important;
+    backdrop-filter: blur(14px) !important;
+    -webkit-backdrop-filter: blur(14px) !important;
+    border-bottom: 1px solid var(--border-subtle) !important;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.08) !important;
     padding: 8px 10px !important;
   }
   .admin-brand {

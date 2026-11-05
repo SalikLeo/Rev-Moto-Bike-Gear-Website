@@ -424,7 +424,7 @@ function playOrderChime() {
   }
 }
 
-// ── ORDER NOTIFICATION & CHIME SYSTEM (WEB & ANDROID APK) ──
+// ── ORDER NOTIFICATION & CHIME SYSTEM (WEB AUDIO & BROWSER NOTIFICATIONS) ──
 let knownOrderIdsSet = new Set();
 let isInitialOrderFetch = true;
 
@@ -439,16 +439,7 @@ function triggerOrderNotification(order) {
   const amountVal = order.total || order.amount || 0;
   const amountStr = typeof formatPKR === 'function' ? formatPKR(amountVal) : ('Rs. ' + amountVal);
 
-  // 2. Native Android App Bridge (if running inside rev-moto-admin.apk)
-  try {
-    if (window.Android && typeof window.Android.showOrderNotification === 'function') {
-      window.Android.showOrderNotification(String(orderId), String(customerName), String(amountVal));
-    }
-  } catch (err) {
-    console.warn('Native Android notification bridge notice:', err);
-  }
-
-  // 3. Browser Push / System Notification (Desktop & Mobile Browser)
+  // 2. Browser Push / System Notification (Desktop & Mobile Browser)
   try {
     if ('Notification' in window && Notification.permission === 'granted') {
       const n = new Notification('🚨 New Order: #' + orderId, {
@@ -469,7 +460,7 @@ function triggerOrderNotification(order) {
     console.warn('Browser system notification notice:', err);
   }
 
-  // 4. In-App Interactive Toast
+  // 3. In-App Interactive Toast
   if (typeof showToast === 'function') {
     showToast('🔔 New Order #' + orderId + ' (' + amountStr + ') received!', 'success');
   }
@@ -4466,81 +4457,9 @@ function handleProductFormSubmit(e) {
   renderProductsView();
 }
 
-// ── DOWNLOAD MOBILE APP MODAL CONTROLS ─────────────────────
-function openDownloadAppModal() {
-  const modal = document.getElementById('downloadAppModal');
-  if (modal) {
-    modal.classList.add('active');
-    document.body.style.overflow = 'hidden';
-  }
-  requestNotificationPermission();
-}
-
-function closeDownloadAppModal() {
-  const modal = document.getElementById('downloadAppModal');
-  if (modal) {
-    modal.classList.remove('active');
-    document.body.style.overflow = '';
-  }
-}
-
-function handleDownloadApk(e) {
-  if (e && e.preventDefault) e.preventDefault();
-
-  const isLocalFile = window.location.protocol === 'file:' || window.location.origin === 'null' || !window.location.origin;
-  const directCdnUrl = 'https://github.com/SalikLeo/Rev-Moto-Bike-Gear-Website/raw/main/rev-moto-admin.apk';
-  
-  if (isLocalFile) {
-    showToast('APK is saved in folder: APK_FOR_MOBILE and on your Desktop!', 'info');
-    window.open(directCdnUrl, '_blank');
-    return;
-  }
-
-  const siteUrl = window.location.origin + window.location.pathname.replace(/\/+$/, '') + '/rev-moto-admin.apk';
-  
-  // Try direct anchor download
-  try {
-    const a = document.createElement('a');
-    a.href = siteUrl;
-    a.download = 'rev-moto-admin.apk';
-    a.target = '_blank';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    showToast('Downloading Rev Moto Admin APK...', 'success');
-  } catch(err) {
-    window.open(directCdnUrl, '_blank');
-  }
-}
-
-function copyApkLink() {
-  const isLocalFile = window.location.protocol === 'file:' || window.location.origin === 'null' || !window.location.origin;
-  const fullUrl = isLocalFile
-    ? 'https://github.com/SalikLeo/Rev-Moto-Bike-Gear-Website/raw/main/rev-moto-admin.apk'
-    : (window.location.origin + window.location.pathname.replace(/\/+$/, '') + '/rev-moto-admin.apk');
-
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(fullUrl).then(() => {
-      showToast('APK download link copied to clipboard!', 'success');
-    }).catch(() => {
-      prompt('Copy APK Download URL:', fullUrl);
-    });
-  } else {
-    prompt('Copy APK Download URL:', fullUrl);
-  }
-}
-
-// Auto-request notifications on first user gesture
-document.addEventListener('click', function autoReqNotifOnce() {
-  if ('Notification' in window && Notification.permission === 'default') {
-    Notification.requestPermission();
-  }
-  document.removeEventListener('click', autoReqNotifOnce);
-}, { once: true });
-
-// Auto background sync interval every 25 seconds for reliable mobile sync
+// Auto background sync interval every 25 seconds
 setInterval(() => {
-  if (document.visibilityState === 'visible' || (window.Android)) {
+  if (document.visibilityState === 'visible') {
     fetchOrders();
   }
 }, 25000);

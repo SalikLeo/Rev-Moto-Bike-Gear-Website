@@ -25,7 +25,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
   <!-- Admin Portal CSS -->
-  <link rel="stylesheet" href="admin.css?v=5.2">
+  <link rel="stylesheet" href="admin.css?v=5.3">
 </head>
 <body>
 
@@ -65,6 +65,11 @@
       </nav>
 
       <div class="admin-nav-actions">
+        <!-- Quick Lock Button -->
+        <button class="admin-icon-btn" id="quickLockBtn" onclick="lockAdminPanel(true)" title="Lock Admin Panel Now (PIN Security)">
+          <i class="fas fa-lock"></i>
+        </button>
+
         <!-- Sound Alert Toggle -->
         <button class="admin-icon-btn active" id="soundToggleBtn" onclick="toggleSound()" title="Toggle Order Sound Chime">
           <i class="fas fa-volume-up"></i>
@@ -628,6 +633,92 @@
           </div>
         </div>
 
+        <!-- Admin Security & PIN Lock Card -->
+        <div class="settings-card" id="securitySettingsCard">
+          <div class="settings-card-header">
+            <div class="settings-card-icon" style="background: rgba(99, 102, 241, 0.1); color: #6366f1;">
+              <i class="fas fa-shield-halved"></i>
+            </div>
+            <div style="flex: 1;">
+              <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+                <h3 style="margin: 0; font-size: 1.05rem; font-weight: 800; color: var(--text-pure);">Admin Security &amp; 4-Digit PIN Lock</h3>
+                <span class="badge-tag" id="pinLockStatusBadge" style="background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; font-size: 0.72rem; padding: 2px 8px; border-radius: 99px;">
+                  <i class="fas fa-lock"></i> PIN Lock Active
+                </span>
+              </div>
+              <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">
+                Protect sensitive orders, financial metrics, and customer contacts with a clean 4-digit PIN lock screen and inactivity auto-lock.
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-card-body">
+            <!-- Toggle & Auto-Lock Options -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 18px;">
+              <div class="form-group">
+                <label class="form-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                  <input type="checkbox" id="settingPinEnabled" checked onchange="handlePinToggleChange(this.checked)" style="width: 16px; height: 16px; accent-color: var(--accent-blue);">
+                  <span style="font-weight: 700;">Enable 4-Digit PIN Protection</span>
+                </label>
+                <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 4px;">
+                  When enabled, the PIN keypad appears upon opening the admin panel or after inactivity.
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="settingAutoLockTimeout">Auto-Lock Inactivity Timeout</label>
+                <select id="settingAutoLockTimeout" class="form-control-select" style="width: 100%; height: 38px;" onchange="handleTimeoutChange(this.value)">
+                  <option value="5">5 Minutes</option>
+                  <option value="15" selected>15 Minutes (Recommended)</option>
+                  <option value="30">30 Minutes</option>
+                  <option value="60">1 Hour</option>
+                  <option value="0">Never (Only manual lock)</option>
+                </select>
+                <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 4px;">
+                  Automatically locks the panel when no mouse, tap, or keyboard activity is detected.
+                </div>
+              </div>
+            </div>
+
+            <!-- Change PIN Section -->
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; margin-bottom: 16px;">
+              <div style="font-size: 0.85rem; font-weight: 700; color: #1e293b; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+                <i class="fas fa-key" style="color: #6366f1;"></i> Change Security PIN
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px;">
+                <div class="form-group" style="margin: 0;">
+                  <label class="form-label" for="settingOldPin" style="font-size: 0.74rem;">Current PIN *</label>
+                  <input type="password" id="settingOldPin" class="admin-search-input" style="width: 100%; height: 36px; text-align: center; letter-spacing: 0.25em; font-weight: 700;" maxlength="4" placeholder="••••">
+                </div>
+                <div class="form-group" style="margin: 0;">
+                  <label class="form-label" for="settingNewPin" style="font-size: 0.74rem;">New 4-Digit PIN *</label>
+                  <input type="password" id="settingNewPin" class="admin-search-input" style="width: 100%; height: 36px; text-align: center; letter-spacing: 0.25em; font-weight: 700;" maxlength="4" placeholder="••••">
+                </div>
+                <div class="form-group" style="margin: 0;">
+                  <label class="form-label" for="settingConfirmPin" style="font-size: 0.74rem;">Confirm New PIN *</label>
+                  <input type="password" id="settingConfirmPin" class="admin-search-input" style="width: 100%; height: 36px; text-align: center; letter-spacing: 0.25em; font-weight: 700;" maxlength="4" placeholder="••••">
+                </div>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; flex-wrap: wrap; gap: 8px;">
+                <div style="font-size: 0.72rem; color: #64748b;">Default PIN is <strong>1234</strong>. Exactly 4 numeric digits.</div>
+                <button type="button" class="btn-admin btn-admin-subtle" onclick="updateAdminPin()" style="height: 32px; font-size: 0.76rem; padding: 0 14px; gap: 5px;">
+                  <i class="fas fa-check"></i> Update PIN
+                </button>
+              </div>
+            </div>
+
+            <!-- Quick Lock Action Button -->
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; padding-top: 4px;">
+              <div style="font-size: 0.76rem; color: var(--text-secondary);">
+                Need to step away right now? Lock the admin panel immediately.
+              </div>
+              <button type="button" class="btn-admin btn-admin-primary" onclick="lockAdminPanel(true)" style="gap: 6px; height: 34px; font-size: 0.8rem; background: #0f172a;">
+                <i class="fas fa-lock"></i> Lock Admin Panel Now
+              </button>
+            </div>
+          </div>
+        </div>
+
         <!-- Save Button Bar -->
         <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
           <button type="button" class="btn-admin btn-admin-primary" style="height: 42px; padding: 0 24px; font-size: 0.9rem;" onclick="saveStoreSettings()">
@@ -865,7 +956,7 @@
     }
   </style>
 
-  <script src="admin.js?v=6.1"></script>
+  <script src="admin.js?v=6.2"></script>
 
   <!-- ═══ CATEGORY MANAGEMENT MODAL ═══════════════════════════════════ -->
   <div class="admin-modal-overlay" id="categoryManagerModal" onclick="if(event.target===this) closeCategoryManagerModal()">
@@ -1113,6 +1204,61 @@
             </button>
           </div>
         </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       ADMIN 4-DIGIT PIN KEYPAD LOCK SCREEN
+       ═══════════════════════════════════════════════════════════════ -->
+  <div id="adminPinLockOverlay" class="pin-lock-overlay" style="display: none;">
+    <div class="pin-lock-container">
+      <!-- Brand & Security Shield -->
+      <div class="pin-brand-wrapper">
+        <div class="pin-shield-icon">
+          <i class="fas fa-shield-halved"></i>
+        </div>
+        <div class="pin-brand-title">REV MOTO ADMIN</div>
+        <div class="pin-brand-sub">Security Lock Active</div>
+      </div>
+
+      <!-- Instructions / Prompt -->
+      <div class="pin-prompt-text" id="pinPromptText">Enter 4-Digit Security PIN</div>
+
+      <!-- 4 Dots Indicators -->
+      <div class="pin-dots" id="pinDots">
+        <div class="pin-dot" id="pinDot0"></div>
+        <div class="pin-dot" id="pinDot1"></div>
+        <div class="pin-dot" id="pinDot2"></div>
+        <div class="pin-dot" id="pinDot3"></div>
+      </div>
+
+      <!-- Error / Status Message -->
+      <div class="pin-status-msg" id="pinStatusMsg"></div>
+
+      <!-- Numeric Keypad Grid -->
+      <div class="pin-keypad">
+        <button type="button" class="pin-key" onclick="pinKeypadPress('1')"><span>1</span></button>
+        <button type="button" class="pin-key" onclick="pinKeypadPress('2')"><span>2</span><small>ABC</small></button>
+        <button type="button" class="pin-key" onclick="pinKeypadPress('3')"><span>3</span><small>DEF</small></button>
+        <button type="button" class="pin-key" onclick="pinKeypadPress('4')"><span>4</span><small>GHI</small></button>
+        <button type="button" class="pin-key" onclick="pinKeypadPress('5')"><span>5</span><small>JKL</small></button>
+        <button type="button" class="pin-key" onclick="pinKeypadPress('6')"><span>6</span><small>MNO</small></button>
+        <button type="button" class="pin-key" onclick="pinKeypadPress('7')"><span>7</span><small>PQRS</small></button>
+        <button type="button" class="pin-key" onclick="pinKeypadPress('8')"><span>8</span><small>TUV</small></button>
+        <button type="button" class="pin-key" onclick="pinKeypadPress('9')"><span>9</span><small>WXYZ</small></button>
+        <button type="button" class="pin-key pin-key-fn" onclick="pinKeypadClear()" title="Clear">
+          <i class="fas fa-rotate-left"></i>
+        </button>
+        <button type="button" class="pin-key" onclick="pinKeypadPress('0')"><span>0</span></button>
+        <button type="button" class="pin-key pin-key-fn" onclick="pinKeypadBackspace()" title="Backspace">
+          <i class="fas fa-delete-left"></i>
+        </button>
+      </div>
+
+      <!-- Footer Actions -->
+      <div class="pin-footer-actions">
+        <button type="button" class="pin-forgot-btn" onclick="promptForgotPin()">Forgot PIN?</button>
       </div>
     </div>
   </div>

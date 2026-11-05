@@ -2445,10 +2445,7 @@ function escapeHtml(str) {
 
 // ── INITIALIZATION ─────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  try {
-    localStorage.removeItem('revmoto_pin_config');
-    sessionStorage.removeItem('revmoto_admin_unlocked');
-  } catch(e) {}
+  initAdminPinModule();
   renderPeriodNavigator();
   initSupabase();
   fetchOrders();
@@ -4463,3 +4460,337 @@ setInterval(() => {
     fetchOrders();
   }
 }, 25000);
+
+
+// ═══════════════════════════════════════════════════════════════
+// ADMIN 4-DIGIT PIN SECURITY & INACTIVITY AUTO-LOCK MODULE
+// ═══════════════════════════════════════════════════════════════
+
+const DEFAULT_PIN = '1234';
+const DEFAULT_TIMEOUT_MINUTES = 15;
+let enteredPin = '';
+let pinConfig = {
+  enabled: true,
+  pin: DEFAULT_PIN,
+  timeoutMinutes: DEFAULT_TIMEOUT_MINUTES
+};
+let isKeypadLocked = false;
+let lastActivityTimestamp = Date.now();
+let autoLockTimerInterval = null;
+
+function getPinConfig() {
+  try {
+    const raw = localStorage.getItem('revmoto_pin_config');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      return {
+        enabled: parsed.enabled !== false,
+        pin: (parsed.pin && /^\d{4}$/.test(parsed.pin)) ? String(parsed.pin) : DEFAULT_PIN,
+        timeoutMinutes: (parsed.timeoutMinutes !== undefined) ? Number(parsed.timeoutMinutes) : DEFAULT_TIMEOUT_MINUTES
+      };
+    }
+  } catch(e) {
+    console.warn('Failed to parse PIN config', e);
+  }
+  return {
+    enabled: true,
+    pin: DEFAULT_PIN,
+    timeoutMinutes: DEFAULT_TIMEOUT_MINUTES
+  };
+}
+
+function savePinConfig(cfg) {
+  pinConfig = cfg;
+  localStorage.setItem('revmoto_pin_config', JSON.stringify(cfg));
+  updatePinSettingsUI();
+}
+
+function updatePinSettingsUI() {
+  const chk = document.getElementById('settingPinEnabled');
+  if (chk) chk.checked = pinConfig.enabled;
+
+  const timeoutSelect = document.getElementById('settingAutoLockTimeout');
+  if (timeoutSelect) timeoutSelect.value = String(pinConfig.timeoutMinutes);
+
+  const badge = document.getElementById('pinLockStatusBadge');
+  if (badge) {
+    if (pinConfig.enabled) {
+      badge.style.background = '#ecfdf5';
+      badge.style.color = '#047857';
+      badge.style.borderColor = '#a7f3d0';
+      badge.innerHTML = '<i class="fas fa-lock"></i> PIN Lock Active';
+    } else {
+      badge.style.background = '#fef2f2';
+      badge.style.color = '#b91c1c';
+      badge.style.borderColor = '#fecaca';
+      badge.innerHTML = '<i class="fas fa-lock-open"></i> PIN Lock Disabled';
+    }
+  }
+
+  const quickLockBtn = document.getElementById('quickLockBtn');
+  if (quickLockBtn) {
+    quickLockBtn.style.display = pinConfig.enabled ? 'inline-flex' : 'none';
+  }
+}
+
+function renderPinDots() {
+  for (let i = 0; i < 4; i++) {
+    const dot = document.getElementById('pinDot' + i);
+    if (!dot) continue;
+    dot.className = 'pin-dot' + (i < enteredPin.length ? ' filled' : '');
+  }
+}
+
+function lockAdminPanel(manual = false) {
+  if (!pinConfig.enabled) return;
+
+  isKeypadLocked = true;
+  sessionStorage.setItem('revmoto_admin_unlocked', 'false');
+  enteredPin = '';
+  renderPinDots();
+
+  const overlay = document.getElementById('adminPinLockOverlay');
+  if (overlay) {
+    overlay.classList.remove('hidden');
+    overlay.style.display = 'flex';
+  }
+
+  const statusMsg = document.getElementById('pinStatusMsg');
+  if (statusMsg) {
+    statusMsg.className = 'pin-status-msg';
+    statusMsg.textContent = manual ? 'Panel locked manually' : 'Enter 4-digit security PIN';
+  }
+
+  const prompt = document.getElementById('pinPromptText');
+  if (prompt) prompt.textContent = 'Enter 4-Digit Security PIN';
+
+  if (manual) {
+    if (navigator.vibrate) navigator.vibrate(30);
+  }
+}
+
+function unlockAdminPanel() {
+  isKeypadLocked = false;
+  sessionStorage.setItem('revmoto_admin_unlocked', 'true');
+  lastActivityTimestamp = Date.now();
+  enteredPin = '';
+
+  const dots = document.getElementById('pinDots');
+  if (dots) dots.classList.remove('shake');
+
+  const overlay = document.getElementById('adminPinLockOverlay');
+  if (overlay) {
+    overlay.classList.add('hidden');
+    setTimeout(() => {
+      overlay.style.display = 'none';
+      renderPinDots();
+    }, 280);
+  }
+
+  if (navigator.vibrate) navigator.vibrate(35);
+  showToast('Admin panel unlocked', 'success');
+}
+
+function pinKeypadPress(digit) {
+  if (!isKeypadLocked) return;
+  if (enteredPin.length >= 4) return;
+
+  enteredPin += String(digit);
+  renderPinDots();
+
+  if (navigator.vibrate) navigator.vibrate(20);
+
+  if (enteredPin.length === 4) {
+    setTimeout(verifyEnteredPin, 120);
+  }
+}
+
+function pinKeypadBackspace() {
+  if (!isKeypadLocked) return;
+  if (enteredPin.length > 0) {
+    enteredPin = enteredPin.slice(0, -1);
+    renderPinDots();
+    if (navigator.vibrate) navigator.vibrate(15);
+  }
+}
+
+function pinKeypadClear() {
+  if (!isKeypadLocked) return;
+  enteredPin = '';
+  renderPinDots();
+  const statusMsg = document.getElementById('pinStatusMsg');
+  if (statusMsg) {
+    statusMsg.className = 'pin-status-msg';
+    statusMsg.textContent = '';
+  }
+}
+
+function verifyEnteredPin() {
+  const currentPin = pinConfig.pin || DEFAULT_PIN;
+  const statusMsg = document.getElementById('pinStatusMsg');
+  const dots = document.getElementById('pinDots');
+
+  if (enteredPin === currentPin) {
+    // SUCCESS
+    for (let i = 0; i < 4; i++) {
+      const dot = document.getElementById('pinDot' + i);
+      if (dot) dot.className = 'pin-dot success';
+    }
+    if (statusMsg) {
+      statusMsg.className = 'pin-status-msg success';
+      statusMsg.textContent = '✓ PIN verified! Unlocking...';
+    }
+    setTimeout(() => {
+      unlockAdminPanel();
+    }, 260);
+  } else {
+    // ERROR
+    for (let i = 0; i < 4; i++) {
+      const dot = document.getElementById('pinDot' + i);
+      if (dot) dot.className = 'pin-dot error';
+    }
+    if (dots) dots.classList.add('shake');
+    if (statusMsg) {
+      statusMsg.className = 'pin-status-msg error';
+      statusMsg.textContent = '⚠️ Incorrect PIN. Try again.';
+    }
+    if (navigator.vibrate) navigator.vibrate([80, 50, 80]);
+
+    setTimeout(() => {
+      enteredPin = '';
+      if (dots) dots.classList.remove('shake');
+      renderPinDots();
+      if (statusMsg) statusMsg.textContent = '';
+    }, 650);
+  }
+}
+
+function promptForgotPin() {
+  if (pinConfig.pin === DEFAULT_PIN) {
+    alert('Security Notice:\nThe default Admin PIN is 1234.\n\nUse 1234 to unlock, then change it in the Settings tab.');
+    return;
+  }
+
+  const ans = prompt('PIN Reset / Recovery:\nEnter the store recovery code "REVMOTO" to reset PIN back to default 1234:');
+  if (ans && ans.trim().toUpperCase() === 'REVMOTO') {
+    pinConfig.pin = DEFAULT_PIN;
+    savePinConfig(pinConfig);
+    alert('Success! Your PIN has been reset to default: 1234\nPlease enter 1234 to unlock.');
+    pinKeypadClear();
+  } else if (ans !== null) {
+    alert('Invalid recovery code. Please try again or enter the correct PIN.');
+  }
+}
+
+function handlePinToggleChange(enabled) {
+  pinConfig.enabled = enabled;
+  savePinConfig(pinConfig);
+  showToast(enabled ? 'PIN protection enabled' : 'PIN protection disabled', 'info');
+}
+
+function handleTimeoutChange(val) {
+  pinConfig.timeoutMinutes = Number(val);
+  savePinConfig(pinConfig);
+  showToast(`Auto-lock timeout set to ${val === '0' ? 'Never' : val + ' minutes'}`, 'info');
+}
+
+function updateAdminPin() {
+  const oldPin = document.getElementById('settingOldPin')?.value.trim();
+  const newPin = document.getElementById('settingNewPin')?.value.trim();
+  const confirmPin = document.getElementById('settingConfirmPin')?.value.trim();
+
+  if (!oldPin || !newPin || !confirmPin) {
+    showToast('Please fill out all 3 PIN fields', 'warning');
+    return;
+  }
+
+  if (oldPin !== pinConfig.pin) {
+    showToast('Current PIN is incorrect', 'error');
+    return;
+  }
+
+  if (!/^\d{4}$/.test(newPin)) {
+    showToast('New PIN must be exactly 4 digits (0-9)', 'warning');
+    return;
+  }
+
+  if (newPin !== confirmPin) {
+    showToast('New PIN and Confirm PIN do not match', 'warning');
+    return;
+  }
+
+  pinConfig.pin = newPin;
+  savePinConfig(pinConfig);
+
+  // Clear inputs
+  const oEl = document.getElementById('settingOldPin');
+  const nEl = document.getElementById('settingNewPin');
+  const cEl = document.getElementById('settingConfirmPin');
+  if (oEl) oEl.value = '';
+  if (nEl) nEl.value = '';
+  if (cEl) cEl.value = '';
+
+  showToast('Admin Security PIN updated successfully!', 'success');
+}
+
+function initAdminPinModule() {
+  pinConfig = getPinConfig();
+  updatePinSettingsUI();
+
+  // Track user activity for auto-lock
+  const activityEvents = ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll', 'click'];
+  let throttleTimer = null;
+  const onActivity = () => {
+    if (!throttleTimer) {
+      lastActivityTimestamp = Date.now();
+      throttleTimer = setTimeout(() => { throttleTimer = null; }, 2000);
+    }
+  };
+
+  activityEvents.forEach(evt => {
+    window.addEventListener(evt, onActivity, { passive: true });
+  });
+
+  // Physical keyboard listener for PIN entry
+  window.addEventListener('keydown', (e) => {
+    if (!isKeypadLocked) return;
+
+    if (e.key >= '0' && e.key <= '9') {
+      e.preventDefault();
+      pinKeypadPress(e.key);
+    } else if (e.key === 'Backspace') {
+      e.preventDefault();
+      pinKeypadBackspace();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      pinKeypadClear();
+    }
+  });
+
+  // Check initial locked state:
+  // If PIN enabled AND session is not unlocked yet, lock immediately
+  const sessionUnlocked = sessionStorage.getItem('revmoto_admin_unlocked') === 'true';
+  if (pinConfig.enabled) {
+    if (!sessionUnlocked) {
+      lockAdminPanel(false);
+    }
+  }
+
+  // Interval to check inactivity auto-lock every 10 seconds
+  if (autoLockTimerInterval) clearInterval(autoLockTimerInterval);
+  autoLockTimerInterval = setInterval(() => {
+    if (!pinConfig.enabled || isKeypadLocked) return;
+    if (pinConfig.timeoutMinutes <= 0) return; // 0 = never
+
+    const elapsedMs = Date.now() - lastActivityTimestamp;
+    const timeoutMs = pinConfig.timeoutMinutes * 60 * 1000;
+
+    if (elapsedMs >= timeoutMs) {
+      lockAdminPanel(false);
+      const statusMsg = document.getElementById('pinStatusMsg');
+      if (statusMsg) {
+        statusMsg.textContent = `Auto-locked after ${pinConfig.timeoutMinutes} min of inactivity`;
+      }
+    }
+  }, 10000);
+}

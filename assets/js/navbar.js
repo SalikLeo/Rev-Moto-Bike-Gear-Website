@@ -444,7 +444,13 @@
       </div>
       <div class="qv-info-col" style="display: flex; flex-direction: column; gap: 14px;">
         <span class="qv-category" style="font-size: 0.75rem; color: var(--accent-cyan); font-weight: 700; text-transform: uppercase;">${product.categoryLabel || product.category}</span>
-        <h2 class="qv-title" style="font-size: 1.6rem; line-height: 1.2;">${product.name}</h2>
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;">
+          <h2 class="qv-title" style="font-size: 1.6rem; line-height: 1.2; margin: 0;">${product.name}</h2>
+          <span class="pdp-stock-status ${product.inStock === false ? 'out-of-stock' : 'in-stock'}">
+            <i class="fas ${product.inStock === false ? 'fa-circle-xmark' : 'fa-circle-check'}"></i>
+            ${product.inStock === false ? 'Out of Stock' : 'In Stock'}
+          </span>
+        </div>
         <div class="qv-price-row" style="display: flex; align-items: baseline; gap: 12px;">
           <span id="qvCurrentPrice" class="qv-price-val" style="font-family: var(--font-display); font-size: 1.8rem; font-weight: 800; color: var(--accent-cyan);">${formatPKR(variants[0].price)}</span>
           <span id="qvOldPrice" class="qv-old-price" style="color: var(--text-muted); text-decoration: line-through; ${variants[0].oldPrice ? '' : 'display:none;'}">${variants[0].oldPrice ? formatPKR(variants[0].oldPrice) : ''}</span>
@@ -464,9 +470,15 @@
         </div>
 
         <div class="qv-actions-row" style="display: flex; gap: 12px; margin-top: auto; padding-top: 14px;">
-          <button class="btn btn-primary" onclick="addFromQuickView('${product.id}')" style="flex: 1.35; white-space: nowrap;">
-            <i class="fas fa-shopping-bag"></i> Add to Bag
-          </button>
+          ${product.inStock === false ? `
+            <button class="btn btn-primary btn-out-of-stock" disabled style="flex: 1.35; white-space: nowrap;">
+              <i class="fas fa-ban"></i> Out of Stock
+            </button>
+          ` : `
+            <button class="btn btn-primary" onclick="addFromQuickView('${product.id}')" style="flex: 1.35; white-space: nowrap;">
+              <i class="fas fa-shopping-bag"></i> Add to Bag
+            </button>
+          `}
           <a href="product.html?id=${product.id}" class="btn btn-glass" style="flex: 1; white-space: nowrap; justify-content: center;">
             Full Details <i class="fas fa-arrow-right"></i>
           </a>
@@ -515,6 +527,12 @@
       : (typeof MASTER_PRODUCTS !== 'undefined' ? MASTER_PRODUCTS : []);
     const product = products.find(p => String(p.id) === String(productId));
     if (!product) return;
+    if (product.inStock === false) {
+      if (typeof showToast === 'function') {
+        showToast(`"${product.name}" is currently out of stock.`, 'info');
+      }
+      return;
+    }
 
     const activeSizeBtn = document.querySelector('.qv-modal-body .size-option-btn.active');
     const variantIdx = activeSizeBtn ? Number(activeSizeBtn.dataset.index || 0) : 0;

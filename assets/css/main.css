@@ -1262,6 +1262,83 @@ h1, h2, h3, h4, h5, h6 {
   display: none !important;
 }
 
+/* Out of Stock Card Overlay & State */
+.product-card.is-out-of-stock .product-card-img {
+  opacity: 0.65;
+  filter: grayscale(20%);
+}
+
+.stock-badge-overlay {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #ffffff;
+  font-family: var(--font-body);
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  z-index: 3;
+  pointer-events: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.product-card-action-btn.disabled-stock-btn {
+  background: #f1f5f9 !important;
+  color: #94a3b8 !important;
+  border-color: #cbd5e1 !important;
+  cursor: not-allowed !important;
+  opacity: 0.7;
+}
+
+.product-card-action-btn.disabled-stock-btn:hover {
+  transform: none !important;
+  background: #f1f5f9 !important;
+}
+
+/* Product Detail Page Stock Status Indicator */
+.pdp-stock-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 4px 11px;
+  border-radius: var(--radius-pill);
+  line-height: 1.2;
+}
+
+.pdp-stock-status.in-stock {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.pdp-stock-status.out-of-stock {
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+.btn-out-of-stock {
+  background: #94a3b8 !important;
+  border-color: #94a3b8 !important;
+  color: #ffffff !important;
+  cursor: not-allowed !important;
+  opacity: 0.75 !important;
+}
+
+.btn-out-of-stock:hover {
+  transform: none !important;
+  box-shadow: none !important;
+}
+
 .product-card-wish {
   position: absolute;
   top: 14px;

@@ -39,8 +39,9 @@
 
         <!-- Details Column -->
         <div class="pdp-details reveal-left">
-          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 6px;">
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px; flex-wrap: wrap;">
             <span class="section-badge" id="pdpBadge">Riding Jackets</span>
+            <span class="pdp-stock-status in-stock" id="pdpStockStatus"><i class="fas fa-circle-check"></i> In Stock &amp; Ready to Dispatch</span>
           </div>
 
           <h1 style="font-size: clamp(2rem, 3.8vw, 2.9rem); line-height: 1.1;" id="pdpTitle">
@@ -203,10 +204,10 @@
     </div>
   </div>
 
-  <script src="assets/js/store.js?v=4.6"></script>
+  <script src="assets/js/store.js?v=4.7"></script>
   <script src="assets/js/smooth-scroll.js?v=4.4"></script>
   <script src="assets/js/user-profile.js?v=1.3"></script>
-  <script src="assets/js/navbar.js?v=4.7"></script>
+  <script src="assets/js/navbar.js?v=4.8"></script>
   <script>
     let currentProduct = null;
     let selectedSize = '';
@@ -249,6 +250,42 @@
       if (pdpCat) pdpCat.textContent = currentProduct.categoryLabel;
       const pdpBadgeEl = document.getElementById('pdpBadge');
       if (pdpBadgeEl) pdpBadgeEl.textContent = currentProduct.categoryLabel;
+
+      const isOutOfStock = currentProduct.inStock === false;
+      const stockBadgeEl = document.getElementById('pdpStockStatus');
+      if (stockBadgeEl) {
+        stockBadgeEl.className = `pdp-stock-status ${isOutOfStock ? 'out-of-stock' : 'in-stock'}`;
+        stockBadgeEl.innerHTML = isOutOfStock
+          ? '<i class="fas fa-circle-xmark"></i> Out of Stock'
+          : '<i class="fas fa-circle-check"></i> In Stock &amp; Ready to Dispatch';
+      }
+
+      const addBtn = document.getElementById('pdpAddToCartBtn');
+      if (addBtn) {
+        if (isOutOfStock) {
+          addBtn.disabled = true;
+          addBtn.classList.add('btn-out-of-stock');
+          addBtn.innerHTML = '<i class="fas fa-ban"></i> Out of Stock';
+        } else {
+          addBtn.disabled = false;
+          addBtn.classList.remove('btn-out-of-stock');
+          addBtn.innerHTML = '<i class="fas fa-shopping-bag"></i> Add to Bag';
+        }
+      }
+
+      const stickyAddBtn = document.getElementById('pdpStickyAddBtn');
+      if (stickyAddBtn) {
+        if (isOutOfStock) {
+          stickyAddBtn.disabled = true;
+          stickyAddBtn.classList.add('btn-out-of-stock');
+          stickyAddBtn.innerHTML = '<i class="fas fa-ban"></i> Out of Stock';
+        } else {
+          stickyAddBtn.disabled = false;
+          stickyAddBtn.classList.remove('btn-out-of-stock');
+          stickyAddBtn.innerHTML = '<i class="fas fa-shopping-bag"></i> Add to Bag';
+        }
+      }
+
       document.getElementById('pdpCurrentPrice').textContent = formatPKR(selectedVariantPrice);
       document.getElementById('pdpReviewsCount').textContent = `(${currentProduct.reviews || 48} verified dispatches)`;
 
@@ -477,12 +514,15 @@
       if (!grid) return;
 
       const related = STORE_PRODUCTS.filter(p => String(p.id) !== String(prod.id)).slice(0, 3);
-      grid.innerHTML = related.map((p, idx) => `
-        <div class="product-card reveal-zoom-up stagger-${idx + 1}" data-product-id="${p.id}">
+      grid.innerHTML = related.map((p, idx) => {
+        const isOutOfStock = p.inStock === false;
+        return `
+        <div class="product-card reveal-zoom-up stagger-${idx + 1} ${isOutOfStock ? 'is-out-of-stock' : ''}" data-product-id="${p.id}">
           <div class="product-card-media">
             <a href="product.html?id=${p.id}">
               <img src="${p.img}" alt="${p.name}" class="product-card-img" loading="lazy" decoding="async" onerror="this.src='assets/images/jacket_cyber.jpg'">
             </a>
+            ${isOutOfStock ? '<span class="stock-badge-overlay">Out of Stock</span>' : ''}
             <button class="product-card-wish ${isWishlisted(p.id) ? 'active' : ''}" onclick="handleWishToggle('${p.id}', this)" aria-label="Save to Wishlist">
               <i class="fas fa-heart"></i>
             </button>
@@ -505,14 +545,14 @@
                 <button class="product-card-action-btn product-card-qv-btn" onclick="openQuickView('${p.id}', event)" aria-label="Quick View" title="Quick View">
                   <i class="fas fa-eye"></i>
                 </button>
-                <button class="product-card-action-btn product-card-add-btn" onclick="handleRelatedAdd('${p.id}', event)" aria-label="Add to Bag" title="Add to Bag">
-                  <i class="fas fa-shopping-bag"></i>
+                <button class="product-card-action-btn product-card-add-btn ${isOutOfStock ? 'disabled-stock-btn' : ''}" ${isOutOfStock ? 'disabled title="Out of Stock"' : `onclick="handleRelatedAdd('${p.id}', event)" title="Add to Bag"`} aria-label="${isOutOfStock ? 'Out of Stock' : 'Add to Bag'}">
+                  <i class="fas ${isOutOfStock ? 'fa-ban' : 'fa-shopping-bag'}"></i>
                 </button>
               </div>
             </div>
           </div>
         </div>
-      `).join('');
+      `; }).join('');
 
       if (typeof initScrollReveal === 'function') {
         setTimeout(initScrollReveal, 50);
@@ -521,6 +561,13 @@
 
     function handleRelatedAdd(productId, event) {
       const p = STORE_PRODUCTS.find(item => String(item.id) === String(productId));
+      if (!p) return;
+      if (p.inStock === false) {
+        if (typeof showToast === 'function') {
+          showToast(`"${p.name}" is currently out of stock.`, 'info');
+        }
+        return;
+      }
       if (p) {
         addToCart(p, {
           sourceEl: event.currentTarget,
@@ -633,6 +680,12 @@
 
     function handlePdpAddToCart(event) {
       if (!currentProduct) return;
+      if (currentProduct.inStock === false) {
+        if (typeof showToast === 'function') {
+          showToast(`"${currentProduct.name}" is currently out of stock.`, 'info');
+        }
+        return;
+      }
       addToCart(currentProduct, {
         size: selectedSize || (currentProduct.sizes ? currentProduct.sizes[0] : 'Standard'),
         price: selectedVariantPrice || currentProduct.price,
@@ -806,7 +859,8 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      initProductDetails();
+      window.renderProduct = initProductDetails;
+    initProductDetails();
       initPdpHoverZoom();
     });
   </script>

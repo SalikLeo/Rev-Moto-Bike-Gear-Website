@@ -25,7 +25,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
   <!-- Admin Portal CSS -->
-  <link rel="stylesheet" href="admin.css?v=4.1">
+  <link rel="stylesheet" href="admin.css?v=4.2">
 </head>
 <body>
 
@@ -874,7 +874,7 @@
     }
   </style>
 
-  <script src="admin.js?v=4.5"></script>
+  <script src="admin.js?v=4.6"></script>
 
   
   <!-- ═══ CATEGORY MANAGEMENT MODAL ═══════════════════════════════════ -->
@@ -971,22 +971,13 @@
               <input type="text" id="prodNameInput" class="admin-search-input" style="width: 100%; height: 40px; font-size: 0.88rem;" placeholder="e.g. Armored Cyber Riding Jacket" required>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-              <div class="form-group">
-                <label class="form-label" for="prodCategorySelect" style="font-weight: 700; font-size: 0.8rem; color: #334155; margin-bottom: 6px; display: block;">
-                  Category <span style="color: #ef4444;">*</span>
-                </label>
-                <select id="prodCategorySelect" class="form-control-select" style="width: 100%; height: 40px; font-size: 0.86rem;" required>
-                  <!-- Populated dynamically -->
-                </select>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label" for="prodBadgeInput" style="font-weight: 700; font-size: 0.8rem; color: #334155; margin-bottom: 6px; display: block;">
-                  Badge / Tag <span style="font-size: 0.72rem; color: #94a3b8; font-weight: normal;">(Optional)</span>
-                </label>
-                <input type="text" id="prodBadgeInput" class="admin-search-input" style="width: 100%; height: 40px; font-size: 0.86rem;" placeholder="e.g. Flagship Drop, New Arrival">
-              </div>
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label class="form-label" for="prodCategorySelect" style="font-weight: 700; font-size: 0.8rem; color: #334155; margin-bottom: 6px; display: block;">
+                Category <span style="color: #ef4444;">*</span>
+              </label>
+              <select id="prodCategorySelect" class="form-control-select" style="width: 100%; height: 40px; font-size: 0.86rem;" required>
+                <!-- Populated dynamically -->
+              </select>
             </div>
           </div>
 

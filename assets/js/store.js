@@ -36,7 +36,6 @@ const RM_CONFIG = {
       label: 'Jackets & Apparel',
       shortLabel: 'Jackets',
       icon: 'fa-vest',
-      badge: 'CE Armor',
       desc: 'Breathable ballistic mesh jackets with CE Level-2 armor plates and cooling vents.',
       image: 'assets/images/jacket_cyber.jpg',
       sub: [
@@ -50,7 +49,6 @@ const RM_CONFIG = {
       label: 'Motorcycle Gloves',
       shortLabel: 'Gloves',
       icon: 'fa-mitten',
-      badge: 'Carbon Knuckle',
       desc: 'Molded carbon knuckle protectors, palm sliders, and touchscreen fingertips.',
       image: 'assets/images/gloves_carbon.jpg',
       sub: [
@@ -63,7 +61,6 @@ const RM_CONFIG = {
       label: 'Tank Bags & Packs',
       shortLabel: 'Bags',
       icon: 'fa-box',
-      badge: 'Magnetic',
       desc: 'Durable ballistic fabric with strong magnetic tank mounts and waterproof construction.',
       image: 'assets/images/tankbag.jpeg',
       sub: [
@@ -76,7 +73,6 @@ const RM_CONFIG = {
       label: 'Face Masks & Balaclavas',
       shortLabel: 'Masks',
       icon: 'fa-mask',
-      badge: 'Anti-Fog',
       desc: 'Anti-fog exhale check valves with carbon dust filtration for clear vision.',
       image: 'assets/images/halfmask.jpeg',
       sub: [
@@ -120,12 +116,12 @@ const MASTER_PRODUCTS = [
     id: 'rm-cyber-jacket-01',
     name: 'Armored Mesh Riding Jacket',
     slug: 'armored-mesh-riding-jacket',
+    inStock: true,
     category: 'jackets',
     subcategory: 'apparel',
     categoryLabel: 'Riding Jackets',
     price: 14500,
     oldPrice: 18000,
-    badge: 'Flagship Drop',
     rating: 5.0,
     reviews: 48,
     img: 'assets/images/jacket_cyber.jpg',
@@ -159,12 +155,12 @@ const MASTER_PRODUCTS = [
     id: 'rm-carbon-gloves-01',
     name: 'Carbon Fiber Riding Gloves',
     slug: 'carbon-fiber-riding-gloves',
+    inStock: true,
     category: 'race-gloves',
     subcategory: 'gloves',
     categoryLabel: 'Motorcycle Gloves',
     price: 5200,
     oldPrice: 6500,
-    badge: 'Carbon Knuckle',
     rating: 4.9,
     reviews: 64,
     img: 'assets/images/gloves_carbon.jpg',
@@ -202,7 +198,6 @@ const MASTER_PRODUCTS = [
     categoryLabel: 'Tank Bags & Packs',
     price: 8900,
     oldPrice: 10500,
-    badge: 'Touring Essential',
     rating: 4.9,
     reviews: 31,
     img: 'assets/images/tankbag.jpeg',
@@ -239,7 +234,6 @@ const MASTER_PRODUCTS = [
     categoryLabel: 'Face Masks',
     price: 2600,
     oldPrice: 3200,
-    badge: 'Anti-Fog',
     rating: 4.8,
     reviews: 52,
     img: 'assets/images/halfmask.jpeg',
@@ -275,7 +269,6 @@ const MASTER_PRODUCTS = [
     categoryLabel: 'Streetwear',
     price: 3200,
     oldPrice: 3900,
-    badge: 'Heavyweight Cotton',
     rating: 5.0,
     reviews: 29,
     img: 'assets/images/tshirt.jpeg',
@@ -312,7 +305,6 @@ const MASTER_PRODUCTS = [
     categoryLabel: 'Riding Jackets',
     price: 11800,
     oldPrice: 14500,
-    badge: 'CE Level-2 Certified',
     rating: 4.9,
     reviews: 36,
     img: 'assets/images/jacket.jpeg',
@@ -350,7 +342,6 @@ const MASTER_PRODUCTS = [
     categoryLabel: 'Motorcycle Gloves',
     price: 4200,
     oldPrice: 5200,
-    badge: 'Street Grip',
     rating: 4.8,
     reviews: 42,
     img: 'assets/images/glove.jpeg',
@@ -389,8 +380,10 @@ function getCatalogProducts() {
       if (Array.isArray(parsed) && parsed.length > 0) {
         return parsed.map(p => {
           const master = MASTER_PRODUCTS.find(m => m.id === p.id);
+          const { badge, ...rest } = p;
           return {
-            ...p,
+            ...rest,
+            inStock: (p.inStock !== false),
             rating: p.rating || (master && master.rating) || 5.0,
             reviews: p.reviews || (master && master.reviews) || 36,
             slug: p.slug || (master && master.slug) || (p.name ? p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-') : 'product')
@@ -399,17 +392,42 @@ function getCatalogProducts() {
       }
     }
   } catch (e) {}
-  return [...MASTER_PRODUCTS];
+  return MASTER_PRODUCTS.map(m => {
+    const { badge, ...rest } = m;
+    return { ...rest, inStock: (m.inStock !== false) };
+  });
 }
 
 let STORE_PRODUCTS = getCatalogProducts();
 
-// Listen to custom products updates from Admin
+function reloadStoreProducts() {
+  STORE_PRODUCTS = getCatalogProducts();
+  if (typeof window.renderHomeProducts === 'function') window.renderHomeProducts();
+  if (typeof window.renderShopProducts === 'function') window.renderShopProducts();
+  if (typeof window.renderProduct === 'function') window.renderProduct();
+  window.dispatchEvent(new CustomEvent('rev:products-reloaded', { detail: STORE_PRODUCTS }));
+}
+
+// Listen to custom products updates from Admin (same window)
 window.addEventListener('revmoto_products_updated', (e) => {
   if (Array.isArray(e.detail)) {
-    STORE_PRODUCTS = e.detail;
+    STORE_PRODUCTS = e.detail.map(p => ({
+      ...p,
+      inStock: p.inStock !== false,
+      slug: p.slug || (p.name ? p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-') : 'product')
+    }));
   } else {
     STORE_PRODUCTS = getCatalogProducts();
+  }
+  if (typeof window.renderHomeProducts === 'function') window.renderHomeProducts();
+  if (typeof window.renderShopProducts === 'function') window.renderShopProducts();
+  if (typeof window.renderProduct === 'function') window.renderProduct();
+});
+
+// Cross-tab real-time sync when Admin toggles stock or edits products
+window.addEventListener('storage', (e) => {
+  if (e.key === 'revmoto_custom_products') {
+    reloadStoreProducts();
   }
 });
 
@@ -470,6 +488,13 @@ function formatPKR(val) {
 
 /* ── Cart Operations ── */
 function addToCart(product, options = {}) {
+  if (!product) return false;
+  if (product.inStock === false) {
+    if (typeof showToast === 'function') {
+      showToast(`"${product.name}" is currently out of stock.`, 'info');
+    }
+    return false;
+  }
   const cart = getCart();
   const selectedSize = options.size || (product.sizes ? product.sizes[0] : 'Standard');
   const safeSizeSlug = String(selectedSize).replace(/[^a-zA-Z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '') || 'std';

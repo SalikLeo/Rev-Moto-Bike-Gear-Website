@@ -1,23 +1,5 @@
 function formatProductBadge(badge) {
-  if (!badge) return '';
-  const b = badge.toLowerCase();
-  let bg = '#eff6ff', color = '#1d4ed8', border = '#bfdbfe';
-  if (b.includes('flagship') || b.includes('cyber')) {
-    bg = '#eff6ff'; color = '#1d4ed8'; border = '#bfdbfe';
-  } else if (b.includes('carbon') || b.includes('knuckle')) {
-    bg = '#ecfeff'; color = '#0e7490'; border = '#a5f3fc';
-  } else if (b.includes('18l') || b.includes('modular') || b.includes('bag')) {
-    bg = '#fffbeb'; color = '#b45309'; border = '#fde68a';
-  } else if (b.includes('ce') || b.includes('hip') || b.includes('knee')) {
-    bg = '#f5f3ff'; color = '#6d28d9'; border = '#ddd6fe';
-  } else if (b.includes('fog') || b.includes('vent') || b.includes('mask')) {
-    bg = '#ecfdf5'; color = '#047857'; border = '#a7f3d0';
-  } else if (b.includes('short') || b.includes('titanium')) {
-    bg = '#fdf2f8'; color = '#be185d'; border = '#fbcfe8';
-  } else if (b.includes('quick') || b.includes('dry') || b.includes('tee')) {
-    bg = '#fff7ed'; color = '#c2410c'; border = '#fed7aa';
-  }
-  return `<span style="font-size: 0.65rem; background: ${bg}; color: ${color}; border: 1px solid ${border}; padding: 2px 7px; border-radius: 5px; font-weight: 700; margin-left: 6px; display: inline-block;">${escapeHtml(badge)}</span>`;
+  return '';
 }
 
 function resolveAdminImgPath(src) {
@@ -3652,7 +3634,6 @@ const DEFAULT_CATALOG_PRODUCTS = [
     categoryLabel: 'Riding Jackets',
     price: 14500,
     oldPrice: 18000,
-    badge: 'Flagship Drop',
     rating: 5.0,
     reviews: 48,
     inStock: true,
@@ -3675,7 +3656,6 @@ const DEFAULT_CATALOG_PRODUCTS = [
     categoryLabel: 'Motorcycle Gloves',
     price: 5200,
     oldPrice: 6500,
-    badge: 'Carbon Knuckle',
     rating: 4.9,
     reviews: 64,
     inStock: true,
@@ -3697,7 +3677,6 @@ const DEFAULT_CATALOG_PRODUCTS = [
     categoryLabel: 'Bags & Packs',
     price: 8200,
     oldPrice: 9900,
-    badge: '18L Modular',
     rating: 4.8,
     reviews: 31,
     inStock: true,
@@ -3719,7 +3698,6 @@ const DEFAULT_CATALOG_PRODUCTS = [
     categoryLabel: 'Riding Pants',
     price: 11500,
     oldPrice: 14000,
-    badge: 'CE Hip & Knee',
     rating: 4.9,
     reviews: 52,
     inStock: true,
@@ -3737,7 +3715,6 @@ const DEFAULT_CATALOG_PRODUCTS = [
     categoryLabel: 'Face Masks',
     price: 1850,
     oldPrice: 2400,
-    badge: 'Anti-Fog Vents',
     rating: 4.8,
     reviews: 29,
     inStock: true,
@@ -3759,7 +3736,6 @@ const DEFAULT_CATALOG_PRODUCTS = [
     categoryLabel: 'Motorcycle Gloves',
     price: 4200,
     oldPrice: 5500,
-    badge: 'Short Cuff',
     rating: 4.9,
     reviews: 36,
     inStock: true,
@@ -3777,7 +3753,6 @@ const DEFAULT_CATALOG_PRODUCTS = [
     categoryLabel: 'Apparel',
     price: 3200,
     oldPrice: 3900,
-    badge: 'Quick-Dry',
     rating: 4.9,
     reviews: 42,
     inStock: true,
@@ -3809,6 +3784,7 @@ function getAdminProducts() {
           const defaultMatch = DEFAULT_CATALOG_PRODUCTS.find(d => d.id === p.id);
           return {
             ...p,
+            inStock: p.inStock !== false,
             rating: p.rating || (defaultMatch && defaultMatch.rating) || 5.0,
             reviews: p.reviews || (defaultMatch && defaultMatch.reviews) || 36,
             isVariable: (p.isVariable !== undefined) ? p.isVariable : (defaultMatch ? defaultMatch.isVariable : false),
@@ -3851,8 +3827,7 @@ function renderProductsView() {
     const matchesCat = (activeProductCategoryFilter === 'all') || (p.category === activeProductCategoryFilter);
     const matchesQuery = !productSearchQuery || 
       p.name.toLowerCase().includes(productSearchQuery.toLowerCase()) || 
-      (p.badge && p.badge.toLowerCase().includes(productSearchQuery.toLowerCase())) ||
-      (p.categoryLabel && p.categoryLabel.toLowerCase().includes(productSearchQuery.toLowerCase()));
+            (p.categoryLabel && p.categoryLabel.toLowerCase().includes(productSearchQuery.toLowerCase()));
     return matchesCat && matchesQuery;
   });
 
@@ -3889,7 +3864,7 @@ function renderProductsView() {
             </td>
             <td>
               <strong style="color: var(--text-pure); font-size: 0.88rem;">${escapeHtml(p.name)}</strong>
-              ${formatProductBadge(p.badge)}
+              
               <div style="font-size: 0.74rem; color: var(--text-muted); margin-top: 2px;">${escapeHtml(p.tagline || '')}</div>
             </td>
             <td>
@@ -4209,8 +4184,7 @@ function openProductModal(productId = null) {
   const idInput = document.getElementById('editingProductId');
   const nameInput = document.getElementById('prodNameInput');
   const catSelect = document.getElementById('prodCategorySelect');
-  const badgeInput = document.getElementById('prodBadgeInput');
-  const priceInput = document.getElementById('prodPriceInput');
+    const priceInput = document.getElementById('prodPriceInput');
   const oldPriceInput = document.getElementById('prodOldPriceInput');
   const sizesInput = document.getElementById('prodSizesInput');
   const imgUrlInput = document.getElementById('prodImageUrlInput');
@@ -4227,8 +4201,7 @@ function openProductModal(productId = null) {
     if (idInput) idInput.value = prod.id;
     if (nameInput) nameInput.value = prod.name;
     if (catSelect) catSelect.value = prod.category || 'jackets';
-    if (badgeInput) badgeInput.value = prod.badge || '';
-    if (priceInput) priceInput.value = prod.price || '';
+        if (priceInput) priceInput.value = prod.price || '';
     if (oldPriceInput) oldPriceInput.value = prod.oldPrice || '';
     if (sizesInput) sizesInput.value = prod.sizes || '';
     if (imgUrlInput) imgUrlInput.value = prod.img || '';
@@ -4313,8 +4286,7 @@ function handleProductFormSubmit(e) {
   const id = document.getElementById('editingProductId')?.value;
   const name = document.getElementById('prodNameInput')?.value.trim();
   const category = document.getElementById('prodCategorySelect')?.value || 'jackets';
-  const badge = document.getElementById('prodBadgeInput')?.value.trim();
-  const mode = currentProductPricingMode;
+    const mode = currentProductPricingMode;
   const img = document.getElementById('prodImageUrlInput')?.value.trim() || 'assets/images/jacket_cyber.jpg';
   const tagline = document.getElementById('prodTaglineInput')?.value.trim();
   const desc = document.getElementById('prodDescInput')?.value.trim();

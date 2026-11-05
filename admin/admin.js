@@ -4480,8 +4480,41 @@ function closeDownloadAppModal() {
   }
 }
 
+function handleDownloadApk(e) {
+  if (e && e.preventDefault) e.preventDefault();
+
+  const isLocalFile = window.location.protocol === 'file:' || window.location.origin === 'null' || !window.location.origin;
+  const directCdnUrl = 'https://github.com/SalikLeo/Rev-Moto-Bike-Gear-Website/raw/main/rev-moto-admin.apk';
+  
+  if (isLocalFile) {
+    showToast('APK is saved in folder: APK_FOR_MOBILE and on your Desktop!', 'info');
+    window.open(directCdnUrl, '_blank');
+    return;
+  }
+
+  const siteUrl = window.location.origin + window.location.pathname.replace(/\/+$/, '') + '/rev-moto-admin.apk';
+  
+  // Try direct anchor download
+  try {
+    const a = document.createElement('a');
+    a.href = siteUrl;
+    a.download = 'rev-moto-admin.apk';
+    a.target = '_blank';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    showToast('Downloading Rev Moto Admin APK...', 'success');
+  } catch(err) {
+    window.open(directCdnUrl, '_blank');
+  }
+}
+
 function copyApkLink() {
-  const fullUrl = window.location.origin + window.location.pathname.replace(/\/+$/, '') + '/rev-moto-admin.apk';
+  const isLocalFile = window.location.protocol === 'file:' || window.location.origin === 'null' || !window.location.origin;
+  const fullUrl = isLocalFile
+    ? 'https://github.com/SalikLeo/Rev-Moto-Bike-Gear-Website/raw/main/rev-moto-admin.apk'
+    : (window.location.origin + window.location.pathname.replace(/\/+$/, '') + '/rev-moto-admin.apk');
+
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(fullUrl).then(() => {
       showToast('APK download link copied to clipboard!', 'success');

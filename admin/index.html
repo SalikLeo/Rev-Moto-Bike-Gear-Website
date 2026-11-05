@@ -874,7 +874,7 @@
     }
   </style>
 
-  <script src="admin.js?v=5.0"></script>
+  <script src="admin.js?v=5.1"></script>
 
   
   <!-- ═══ DOWNLOAD MOBILE APP MODAL ═══════════════════════════════════ -->
@@ -921,13 +921,25 @@
           </div>
         </div>
 
-        <!-- Download Button -->
-        <a href="rev-moto-admin.apk" download="rev-moto-admin.apk" class="btn-admin btn-admin-primary" style="height: 48px; font-size: 0.96rem; font-weight: 800; border-radius: 10px; width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 4px 16px rgba(37,99,235,0.3); margin-bottom: 12px; text-decoration: none;">
+        <!-- Local PC Folder Callout -->
+        <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 10px 12px; margin-bottom: 14px; text-align: left; font-size: 0.78rem; color: #1e40af;">
+          <i class="fas fa-folder-open" style="margin-right: 5px;"></i> <strong>Saved on your PC at:</strong><br>
+          <code style="background: #ffffff; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-top: 4px; font-size: 0.75rem; word-break: break-all; border: 1px solid #dbeafe;">APK_FOR_MOBILE\RevMoto-Admin-v1.0.apk</code><br>
+          <span style="font-size: 0.72rem; color: #3b82f6; margin-top: 3px; display: block;">Also copied to your <strong>Desktop</strong> for 1-click transfer to WhatsApp!</span>
+        </div>
+
+        <!-- Primary Download Button -->
+        <button type="button" onclick="handleDownloadApk(event)" class="btn-admin btn-admin-primary" style="height: 48px; font-size: 0.96rem; font-weight: 800; border-radius: 10px; width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 4px 16px rgba(37,99,235,0.3); margin-bottom: 10px; cursor: pointer;">
           <i class="fas fa-download"></i> Download APK File (98 KB)
+        </button>
+
+        <!-- Direct Mirror Download Link (GitHub Raw CDN) -->
+        <a href="https://github.com/SalikLeo/Rev-Moto-Bike-Gear-Website/raw/main/rev-moto-admin.apk" target="_blank" rel="noopener" class="btn-admin btn-admin-subtle" style="height: 38px; width: 100%; font-size: 0.80rem; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px; text-decoration: none;">
+          <i class="fas fa-cloud-download-alt text-blue"></i> Mirror Download Link (Direct Raw)
         </a>
 
         <!-- Copy Link Button -->
-        <button type="button" class="btn-admin btn-admin-subtle" onclick="copyApkLink()" style="height: 38px; width: 100%; font-size: 0.82rem; font-weight: 700; margin-bottom: 18px;">
+        <button type="button" class="btn-admin btn-admin-subtle" onclick="copyApkLink()" style="height: 36px; width: 100%; font-size: 0.80rem; font-weight: 700; margin-bottom: 16px;">
           <i class="fas fa-link"></i> Copy Direct Download Link
         </button>
 

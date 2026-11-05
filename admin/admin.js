@@ -510,6 +510,122 @@ function setupRealtimeSubscription() {
   }
 }
 
+// ═══════════════════════════════════════════════════════════════
+// PERMANENT ORDER STATUS LOCK REGISTRY (Locks status permanently)
+// ═══════════════════════════════════════════════════════════════
+const STORAGE_STATUS_LOCKS = 'rm_order_status_locks';
+
+function getLockedOrderStatuses() {
+  try {
+    const raw = localStorage.getItem(STORAGE_STATUS_LOCKS);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === 'object') return parsed;
+    }
+  } catch (e) {
+    console.warn('Failed to parse status locks:', e);
+  }
+  return {};
+}
+
+function lockOrderStatus(orderOrId, newStatus) {
+  if (!orderOrId || !newStatus) return;
+  const locks = getLockedOrderStatuses();
+  const timestamp = new Date().toISOString();
+
+  let targetId = typeof orderOrId === 'string' ? orderOrId : (orderOrId.id || orderOrId.orderId);
+  let legacyId = typeof orderOrId === 'object' ? orderOrId.legacy_id : null;
+
+  // Look up order in ordersList if legacy_id not yet provided
+  if (!legacyId && Array.isArray(ordersList)) {
+    const found = ordersList.find(o => String(o.id) === String(targetId) || (o.legacy_id && String(o.legacy_id) === String(targetId)));
+    if (found) {
+      targetId = found.id || targetId;
+      legacyId = found.legacy_id || null;
+    }
+  }
+
+  const record = {
+    status: newStatus,
+    lockedAt: timestamp,
+    lockedBy: 'admin'
+  };
+
+  if (targetId) {
+    locks[String(targetId)] = record;
+  }
+  if (legacyId && legacyId !== targetId) {
+    locks[String(legacyId)] = record;
+  }
+
+  try {
+    localStorage.setItem(STORAGE_STATUS_LOCKS, JSON.stringify(locks));
+  } catch (e) {
+    console.error('Failed to save status lock:', e);
+  }
+
+  // Also update in-memory DEFAULT_SAMPLE_ORDERS so fallbacks retain the locked status
+  if (Array.isArray(DEFAULT_SAMPLE_ORDERS)) {
+    DEFAULT_SAMPLE_ORDERS.forEach(o => {
+      if (String(o.id) === String(targetId) || (legacyId && String(o.id) === String(legacyId))) {
+        o.status = newStatus;
+      }
+    });
+  }
+
+  return record;
+}
+
+function unlockOrderStatus(targetId) {
+  if (!targetId) return;
+  const locks = getLockedOrderStatuses();
+  delete locks[String(targetId)];
+  try {
+    localStorage.setItem(STORAGE_STATUS_LOCKS, JSON.stringify(locks));
+  } catch (e) {}
+}
+
+function applyLockedStatuses(orders) {
+  if (!Array.isArray(orders) || orders.length === 0) return orders;
+  const locks = getLockedOrderStatuses();
+  if (!locks || Object.keys(locks).length === 0) return orders;
+
+  const staleSupabaseUpdates = [];
+
+  orders.forEach(order => {
+    if (!order) return;
+    const idKey = order.id ? String(order.id) : null;
+    const legacyKey = order.legacy_id ? String(order.legacy_id) : null;
+
+    const lock = (idKey && locks[idKey]) || (legacyKey && locks[legacyKey]);
+    if (lock && lock.status) {
+      if (order.status !== lock.status) {
+        console.info('[StatusLock] Enforcing locked status "' + lock.status + '" on ' + order.id + ' (was "' + order.status + '")');
+        order.status = lock.status;
+        staleSupabaseUpdates.push({ id: order.id, legacy_id: order.legacy_id, status: lock.status });
+      }
+      order.is_status_locked = true;
+      order.status_locked_at = lock.lockedAt;
+    }
+  });
+
+  // Re-sync stale Supabase records in the background if connected
+  if (staleSupabaseUpdates.length > 0 && supabaseClient) {
+    staleSupabaseUpdates.forEach(async (item) => {
+      try {
+        await supabaseClient.from('orders').update({ status: item.status }).eq('id', item.id);
+        if (item.legacy_id && item.legacy_id !== item.id) {
+          await supabaseClient.from('orders').update({ status: item.status }).eq('id', item.legacy_id);
+        }
+      } catch (err) {
+        console.warn('Background Supabase status lock sync notice:', err);
+      }
+    });
+  }
+
+  return orders;
+}
+
 // ── INVOICE NUMBER SEQUENCING & NORMALIZATION ──────────────
 function getNextInvoiceId(orders) {
   let maxNum = 0;
@@ -528,35 +644,45 @@ function getNextInvoiceId(orders) {
 function normalizeInvoiceNumbers(orders) {
   if (!Array.isArray(orders) || orders.length === 0) return orders;
 
-  const needsMigration = orders.some(o => !o.id || !String(o.id).startsWith('INV-'));
-  if (!needsMigration) return orders;
-
-  // Clone array and sort chronologically ascending (earliest order gets INV-1)
-  const sorted = [...orders].sort((a, b) => {
-    const da = new Date(a.created_at || 0).getTime();
-    const db = new Date(b.created_at || 0).getTime();
-    return da - db;
-  });
-
-  sorted.forEach((order, index) => {
-    if (!order.legacy_id) {
-      order.legacy_id = order.id;
+  // Determine highest existing INV number without altering existing valid INV IDs
+  let maxNum = 0;
+  orders.forEach(o => {
+    if (o && o.id) {
+      const match = String(o.id).match(/^INV-(\d+)$/i);
+      if (match) {
+        const n = parseInt(match[1], 10);
+        if (!isNaN(n) && n > maxNum) maxNum = n;
+      }
     }
-    order.id = 'INV-' + (index + 1);
   });
 
-  // Re-sort descending (newest order first for UI)
-  sorted.sort((a, b) => {
+  // Only assign sequential INV-X to orders lacking an INV- formatted ID
+  orders.forEach(order => {
+    if (!order) return;
+    if (!order.id || !String(order.id).match(/^INV-\d+$/i)) {
+      if (!order.legacy_id) {
+        order.legacy_id = order.id || ('LEGACY-' + Date.now());
+      }
+      maxNum++;
+      order.id = 'INV-' + maxNum;
+    }
+  });
+
+  // Always apply locked statuses immediately
+  applyLockedStatuses(orders);
+
+  // Maintain chronological descending order (newest first)
+  orders.sort((a, b) => {
     const da = new Date(a.created_at || 0).getTime();
     const db = new Date(b.created_at || 0).getTime();
     return db - da;
   });
 
   try {
-    localStorage.setItem('rm_orders', JSON.stringify(sorted));
+    localStorage.setItem('rm_orders', JSON.stringify(orders));
   } catch (e) {}
 
-  return sorted;
+  return orders;
 }
 
 async function fetchOrders() {
@@ -567,8 +693,10 @@ async function fetchOrders() {
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (!error && data) {
+      if (!error && Array.isArray(data) && data.length > 0) {
         ordersList = normalizeInvoiceNumbers(data);
+        applyLockedStatuses(ordersList);
+        saveLocalOrders(ordersList);
         checkNewIncomingOrders();
         renderDashboard();
         return;
@@ -598,6 +726,7 @@ async function fetchOrders() {
     saveLocalOrders(ordersList);
   }
 
+  applyLockedStatuses(ordersList);
   checkNewIncomingOrders();
   renderDashboard();
 }
@@ -618,7 +747,12 @@ function checkNewIncomingOrders() {
 }
 
 function saveLocalOrders(orders) {
-  localStorage.setItem('rm_orders', JSON.stringify(orders));
+  applyLockedStatuses(orders);
+  try {
+    localStorage.setItem('rm_orders', JSON.stringify(orders));
+  } catch (e) {
+    console.error('Failed to save orders to localStorage:', e);
+  }
 }
 
 // ── PERIOD FILTER LOGIC (Daily / Monthly / Annual / All) ──
@@ -1458,26 +1592,37 @@ async function saveOrderChanges() {
   const newStatus = document.getElementById('orderStatusSelect').value;
   const targetId = currentSelectedOrder.id;
 
-  if (supabaseClient) {
-    try {
-      const { error } = await supabaseClient
-        .from('orders')
-        .update({ status: newStatus })
-        .eq('id', targetId);
+  // 1. Permanently lock status in local lock registry
+  lockOrderStatus(currentSelectedOrder, newStatus);
 
-      if (error) throw error;
-    } catch (e) {
-      console.warn('Supabase update failed, saving locally:', e);
-    }
-  }
-
+  // 2. Update in-memory orders list
   const idx = ordersList.findIndex(o => String(o.id) === String(targetId) || (o.legacy_id && String(o.legacy_id) === String(targetId)));
   if (idx !== -1) {
     ordersList[idx].status = newStatus;
-    saveLocalOrders(ordersList);
+    ordersList[idx].is_status_locked = true;
+  }
+  if (currentSelectedOrder) {
+    currentSelectedOrder.status = newStatus;
+    currentSelectedOrder.is_status_locked = true;
   }
 
-  showToast(`Order #${targetId} updated to ${newStatus.toUpperCase()}`, 'success');
+  // 3. Persist to localStorage
+  saveLocalOrders(ordersList);
+
+  // 4. Update Supabase with both id and legacy_id
+  if (supabaseClient) {
+    try {
+      const updatePayload = { status: newStatus };
+      await supabaseClient.from('orders').update(updatePayload).eq('id', targetId);
+      if (currentSelectedOrder.legacy_id && currentSelectedOrder.legacy_id !== targetId) {
+        await supabaseClient.from('orders').update(updatePayload).eq('id', currentSelectedOrder.legacy_id);
+      }
+    } catch (e) {
+      console.warn('Supabase status update notice (local lock is active):', e);
+    }
+  }
+
+  showToast(`Order #${targetId} status locked as ${newStatus.toUpperCase()}`, 'success');
   closeOrderModal();
   renderDashboard();
 }
@@ -1487,10 +1632,15 @@ async function deleteOrder() {
   if (!confirm(`Are you sure you want to delete Order #${currentSelectedOrder.id}?`)) return;
 
   const targetId = currentSelectedOrder.id;
+  unlockOrderStatus(targetId);
+  if (currentSelectedOrder.legacy_id) unlockOrderStatus(currentSelectedOrder.legacy_id);
 
   if (supabaseClient) {
     try {
       await supabaseClient.from('orders').delete().eq('id', targetId);
+      if (currentSelectedOrder.legacy_id && currentSelectedOrder.legacy_id !== targetId) {
+        await supabaseClient.from('orders').delete().eq('id', currentSelectedOrder.legacy_id);
+      }
     } catch (e) {
       console.warn('Supabase delete failed:', e);
     }
@@ -2364,29 +2514,40 @@ async function executeQuickStatusChange() {
   const actionBtn = document.getElementById('qsConfirmActionBtn');
   if (actionBtn) {
     actionBtn.disabled = true;
-    actionBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+    actionBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Locking Status...';
   }
 
-  if (supabaseClient) {
-    try {
-      const { error } = await supabaseClient
-        .from('orders')
-        .update({ status: newStatus })
-        .eq('id', targetId);
+  // 1. Permanently lock status in local lock registry
+  lockOrderStatus(qsTargetOrder, newStatus);
 
-      if (error) throw error;
-    } catch (e) {
-      console.warn('Supabase update failed, saving locally:', e);
-    }
-  }
-
+  // 2. Update in-memory orders list
   const idx = ordersList.findIndex(o => String(o.id) === String(targetId) || (o.legacy_id && String(o.legacy_id) === String(targetId)));
   if (idx !== -1) {
     ordersList[idx].status = newStatus;
-    saveLocalOrders(ordersList);
+    ordersList[idx].is_status_locked = true;
+  }
+  if (qsTargetOrder) {
+    qsTargetOrder.status = newStatus;
+    qsTargetOrder.is_status_locked = true;
   }
 
-  showToast(`Order #${targetId} updated to ${newStatus.toUpperCase()}`, 'success');
+  // 3. Persist to localStorage
+  saveLocalOrders(ordersList);
+
+  // 4. Update Supabase with both id and legacy_id
+  if (supabaseClient) {
+    try {
+      const updatePayload = { status: newStatus };
+      await supabaseClient.from('orders').update(updatePayload).eq('id', targetId);
+      if (qsTargetOrder.legacy_id && qsTargetOrder.legacy_id !== targetId) {
+        await supabaseClient.from('orders').update(updatePayload).eq('id', qsTargetOrder.legacy_id);
+      }
+    } catch (e) {
+      console.warn('Supabase status update notice (local lock is active):', e);
+    }
+  }
+
+  showToast(`Order #${targetId} status locked as ${newStatus.toUpperCase()}`, 'success');
   closeQuickStatusModal();
   renderDashboard();
 }

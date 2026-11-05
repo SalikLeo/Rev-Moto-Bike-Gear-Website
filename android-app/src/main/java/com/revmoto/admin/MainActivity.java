@@ -55,11 +55,17 @@ public class MainActivity extends Activity {
         ws.setDomStorageEnabled(true);
         ws.setDatabaseEnabled(true);
         ws.setAllowFileAccess(true);
-        ws.setUseWideViewPort(true);
-        ws.setLoadWithOverviewMode(true);
+        ws.setAllowContentAccess(true);
+        ws.setUseWideViewPort(false);
+        ws.setLoadWithOverviewMode(false);
         ws.setSupportZoom(false);
+        ws.setBuiltInZoomControls(false);
+        ws.setDisplayZoomControls(false);
+        ws.setTextZoom(100);
         ws.setMediaPlaybackRequiresUserGesture(false);
         ws.setCacheMode(WebSettings.LOAD_DEFAULT);
+
+        webView.setBackgroundColor(Color.parseColor("#090d16"));
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             ws.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
@@ -104,6 +110,18 @@ public class MainActivity extends Activity {
                     return true;
                 }
                 return false;
+            }
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                view.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        view.requestLayout();
+                        view.invalidate();
+                    }
+                });
             }
         });
 

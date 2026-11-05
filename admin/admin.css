@@ -66,6 +66,14 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+html, body {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 html {
   font-size: 15.4px; /* Scaled +10% (from 14px) for comfortable readability and balanced spacious design */
   -webkit-text-size-adjust: 100%;
@@ -76,6 +84,7 @@ body {
   background-color: var(--bg-body);
   color: var(--text-primary);
   min-height: 100vh;
+  min-height: 100dvh;
   line-height: 1.5;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
@@ -3275,17 +3284,22 @@ body, button, input, select, textarea, table, th, td {
    ═══════════════════════════════════════════════════════════════ */
 .pin-lock-overlay {
   position: fixed;
-  inset: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 999999;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  z-index: 9999999;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: #090d16;
   background: radial-gradient(circle at 50% 25%, #1e293b 0%, #090d16 100%);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
   padding: 16px;
+  box-sizing: border-box;
   opacity: 1;
   transition: opacity 0.3s ease, visibility 0.3s ease;
   user-select: none;

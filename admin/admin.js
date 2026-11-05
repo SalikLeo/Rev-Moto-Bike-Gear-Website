@@ -2301,18 +2301,12 @@ function renderQuickStatusOptions(currentStatus) {
           <div class="qs-opt-icon" style="background: ${st.iconBg}; color: ${st.iconColor};">
             <i class="fas ${st.icon} fa-fw"></i>
           </div>
-          <div>
-            <div class="qs-opt-title" style="display: flex; align-items: center; gap: 8px;">
-              <span>${st.label}</span>
-              ${isCurrent ? `<span class="qs-current-tag"><i class="fas fa-check-circle"></i> Current Status</span>` : ''}
-            </div>
-            <div class="qs-opt-desc">${st.desc}</div>
-          </div>
+          <span class="qs-opt-title">${st.label}</span>
+          ${isCurrent ? '<span class="qs-current-tag">Current</span>' : ''}
         </div>
         <div class="qs-opt-right">
-          ${isCurrent && !isSelected ? `<span class="qs-active-pill"><i class="fas fa-circle-dot"></i> Active</span>` : ''}
           <div class="qs-opt-check">
-            <i class="fas fa-circle-check"></i>
+            <i class="fas fa-check"></i>
           </div>
         </div>
       </button>
@@ -2344,12 +2338,12 @@ function selectQuickStatusOption(statusId) {
       confirmPanel.style.display = 'block';
       const msg = document.getElementById('qsConfirmMessage');
       if (msg) {
-        msg.innerHTML = `Change Order <strong>${qsTargetOrder.id}</strong> status from <span class="status-badge ${currentStatus}" style="font-size: 0.65rem; vertical-align: middle;">${currentStatus}</span> to <span class="status-badge ${statusId}" style="font-size: 0.65rem; vertical-align: middle;">${statusId}</span>?`;
+        msg.innerHTML = `Change <strong>#${qsTargetOrder.id}</strong> to <span class="status-badge ${statusId}" style="font-size: 0.70rem; vertical-align: middle; padding: 2px 7px;">${statusId.toUpperCase()}</span>?`;
       }
       const actionBtn = document.getElementById('qsConfirmActionBtn');
       if (actionBtn) {
         actionBtn.disabled = false;
-        actionBtn.innerHTML = `<i class="fas fa-check"></i> Yes, Change to ${statusId.toUpperCase()}`;
+        actionBtn.innerHTML = `<i class="fas fa-check"></i> Save as ${statusId.toUpperCase()}`;
       }
     }
   }

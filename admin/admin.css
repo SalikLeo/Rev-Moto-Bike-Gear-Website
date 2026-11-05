@@ -2441,7 +2441,7 @@ button.status-badge:active {
     justify-content: center !important;
     gap: 5px !important;
     padding: 5px 2px !important;
-    font-size: calc(0.70rem + 1px) !important;
+    font-size: calc(0.70rem + 2px) !important;
     font-weight: 700 !important;
     width: 100% !important;
     border-radius: 6px !important;
@@ -2449,7 +2449,7 @@ button.status-badge:active {
     white-space: nowrap !important;
   }
   .admin-top-tab i {
-    font-size: calc(0.72rem + 1px) !important;
+    font-size: calc(0.72rem + 2px) !important;
   }
 
   /* 3. Main Container Spacing */

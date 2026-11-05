@@ -109,6 +109,8 @@ try {
   if (dynamicSettings.address) {
     RM_CONFIG.brand.address = dynamicSettings.address;
   }
+  RM_CONFIG.isStoreClosed = dynamicSettings.isStoreClosed === true || localStorage.getItem('revmoto_store_closed') === 'true';
+  RM_CONFIG.closedNotice = dynamicSettings.closedNotice || localStorage.getItem('revmoto_closed_notice') || 'We are currently pausing new orders for inventory restocking. Resuming shortly!';
 } catch (e) {}
 
 const MASTER_PRODUCTS = [

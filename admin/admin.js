@@ -2585,6 +2585,20 @@ document.addEventListener('DOMContentLoaded', () => {
     searchInput.addEventListener('input', handleSearch);
   }
 
+  // Store Operating Status radio listeners
+  const openRadio = document.getElementById('storeStatusOpen');
+  const closedRadio = document.getElementById('storeStatusClosed');
+  if (openRadio && closedRadio) {
+    openRadio.addEventListener('change', () => {
+      const g = document.getElementById('closedNoticeGroup');
+      if (g) g.style.display = 'none';
+    });
+    closedRadio.addEventListener('change', () => {
+      const g = document.getElementById('closedNoticeGroup');
+      if (g) g.style.display = 'block';
+    });
+  }
+
   // Poll Supabase or check sync every 30s
   setInterval(() => {
     if (!supabaseClient) {
@@ -3064,7 +3078,7 @@ function loadStoreSettings() {
     const addrEl = document.getElementById('settingAddress');
     if (addrEl) addrEl.value = settings.address || 'Sialkot Manufacturing District, Punjab, Pakistan';
 
-    const isClosed = settings.isStoreClosed === true;
+    const isClosed = settings.isStoreClosed === true || localStorage.getItem('revmoto_store_closed') === 'true';
     const openRadio = document.getElementById('storeStatusOpen');
     const closedRadio = document.getElementById('storeStatusClosed');
     if (openRadio && closedRadio) {
@@ -3075,6 +3089,11 @@ function loadStoreSettings() {
     const closedNoticeGroup = document.getElementById('closedNoticeGroup');
     if (closedNoticeGroup) {
       closedNoticeGroup.style.display = isClosed ? 'block' : 'none';
+    }
+
+    const noticeEl = document.getElementById('settingClosedNotice');
+    if (noticeEl) {
+      noticeEl.value = settings.closedNotice || localStorage.getItem('revmoto_closed_notice') || 'We are currently pausing new orders for inventory restocking. Resuming shortly!';
     }
   } catch (e) {
     console.error('Error loading store settings:', e);
@@ -3096,7 +3115,7 @@ function saveStoreSettings() {
   const email = document.getElementById('settingEmail')?.value || existingSettings.email || 'revmoto.pk@gmail.com';
   const address = document.getElementById('settingAddress')?.value || existingSettings.address || 'Sialkot Manufacturing District, Punjab, Pakistan';
   const isStoreClosed = document.getElementById('storeStatusClosed')?.checked === true;
-  const closedNotice = document.getElementById('settingClosedNotice')?.value || '';
+  const closedNotice = document.getElementById('settingClosedNotice')?.value || 'We are currently pausing new orders for inventory restocking. Resuming shortly!';
 
   const settingsObj = {
     deliveryFee,
@@ -3112,7 +3131,14 @@ function saveStoreSettings() {
   };
 
   localStorage.setItem('revmoto_store_settings', JSON.stringify(settingsObj));
-  showToast(`Settings saved! Standard delivery fee set to Rs. ${deliveryFee}`, 'success');
+  localStorage.setItem('revmoto_store_closed', isStoreClosed ? 'true' : 'false');
+  localStorage.setItem('revmoto_closed_notice', closedNotice);
+
+  if (isStoreClosed) {
+    showToast('Store status set to CLOSED: Checkout will reject new orders.', 'warning');
+  } else {
+    showToast('Store status set to OPEN: Storefront is accepting orders.', 'success');
+  }
 }
 
 

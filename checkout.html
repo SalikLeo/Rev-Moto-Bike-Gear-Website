@@ -44,7 +44,29 @@
 
       </div>
 
-
+      <!-- Store Closed Screen (Shown when store is closed in admin) -->
+      <div id="storeClosedNotice" class="glass-card reveal-up" style="display: none; max-width: 640px; margin: 30px auto; text-align: center; padding: 48px 24px; border: 1.5px solid #ef4444; background: linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(15, 23, 42, 0.98) 100%);">
+        <div style="width: 74px; height: 74px; border-radius: 50%; background: rgba(239, 68, 68, 0.18); border: 2px solid #ef4444; color: #ef4444; font-size: 2.2rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; box-shadow: 0 0 25px rgba(239, 68, 68, 0.25);">
+          <i class="fas fa-store-slash"></i>
+        </div>
+        <span class="badge-tag" style="background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); font-size: 0.76rem; font-weight: 800; padding: 4px 14px; border-radius: 99px; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 14px; display: inline-block;">
+          Store Temporarily Closed
+        </span>
+        <h2 style="font-size: 2rem; margin-bottom: 12px; color: var(--text-pure); font-family: var(--font-display); font-weight: 800;">
+          Orders Are Temporarily Paused
+        </h2>
+        <p id="storeClosedMessageText" style="color: var(--text-secondary); font-size: 1.02rem; line-height: 1.6; max-width: 500px; margin: 0 auto 28px;">
+          We are currently pausing new orders for inventory restocking. Resuming shortly!
+        </p>
+        <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+          <a href="shop.html" class="btn btn-glass btn-md">
+            <i class="fas fa-eye"></i> Browse Gear Catalog
+          </a>
+          <a href="cart.html" class="btn btn-primary btn-md">
+            <i class="fas fa-shopping-bag"></i> View Saved Cart
+          </a>
+        </div>
+      </div>
 
       <div class="checkout-grid" id="checkoutGrid">
         <div class="checkout-forms-col">
@@ -331,7 +353,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <script src="assets/js/store.js?v=4.7"></script>
+  <script src="assets/js/store.js?v=4.8"></script>
 
   <script src="assets/js/smooth-scroll.js?v=4.4"></script>
 
@@ -346,9 +368,33 @@
 
     let placedOrderPayload = null;
 
-
+    function checkStoreOperatingStatus() {
+      try {
+        const raw = localStorage.getItem('revmoto_store_settings');
+        const settings = raw ? JSON.parse(raw) : {};
+        const isClosed = settings.isStoreClosed === true || localStorage.getItem('revmoto_store_closed') === 'true';
+        const message = settings.closedNotice || localStorage.getItem('revmoto_closed_notice') || 'We are currently pausing new orders for inventory restocking. Resuming shortly!';
+        return { isClosed, message };
+      } catch (e) {
+        return { isClosed: false, message: '' };
+      }
+    }
 
     function initCheckout() {
+      const storeStatus = checkStoreOperatingStatus();
+      if (storeStatus.isClosed) {
+        const grid = document.getElementById('checkoutGrid');
+        if (grid) grid.style.display = 'none';
+        const notice = document.getElementById('storeClosedNotice');
+        if (notice) {
+          notice.style.display = 'block';
+          const msgEl = document.getElementById('storeClosedMessageText');
+          if (msgEl && storeStatus.message) {
+            msgEl.textContent = storeStatus.message;
+          }
+        }
+        return;
+      }
 
       const cart = getCart();
 
@@ -430,6 +476,12 @@
 
     function handleCheckoutSubmit(e) {
       e.preventDefault();
+
+      const storeStatus = checkStoreOperatingStatus();
+      if (storeStatus.isClosed) {
+        showToast(storeStatus.message || 'Store is temporarily closed for orders', 'error');
+        return;
+      }
 
       const fullName = document.getElementById('coFullName').value.trim();
       const phone = document.getElementById('coPhone').value.trim();
@@ -534,6 +586,13 @@
 
     function executeFinalOrderPlacement() {
       if (!pendingOrderData) return;
+
+      const storeStatus = checkStoreOperatingStatus();
+      if (storeStatus.isClosed) {
+        showToast(storeStatus.message || 'Store is temporarily closed for orders', 'error');
+        closeOrderConfirmModal();
+        return;
+      }
 
       const btn = document.getElementById('btnFinalPlaceOrder');
       if (btn) {

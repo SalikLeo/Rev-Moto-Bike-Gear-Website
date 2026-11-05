@@ -89,7 +89,14 @@
             <div id="couponMessage" style="font-size: 0.78rem; margin-top: 8px; display: none;"></div>
           </div>
 
-          <a href="checkout.html" class="btn btn-primary btn-full btn-lg" style="margin-bottom: 12px;">
+          <div id="cartStoreClosedNotice" style="display: none; padding: 12px 14px; background: rgba(239, 68, 68, 0.12); border: 1.5px solid #ef4444; border-radius: var(--radius-sm); margin-bottom: 12px; font-size: 0.82rem; color: #f87171; line-height: 1.45;">
+            <div style="font-weight: 800; display: flex; align-items: center; gap: 6px; margin-bottom: 4px; color: #ef4444;">
+              <i class="fas fa-store-slash"></i> Orders Temporarily Paused
+            </div>
+            <span id="cartStoreClosedMsg">We are currently pausing new orders for inventory restocking. Resuming shortly!</span>
+          </div>
+
+          <a href="checkout.html" id="btnCartCheckout" class="btn btn-primary btn-full btn-lg" style="margin-bottom: 12px;">
             <i class="fas fa-lock"></i> Proceed to Checkout
           </a>
 
@@ -115,7 +122,7 @@
     </div>
   </section>
 
-  <script src="assets/js/store.js?v=4.7"></script>
+  <script src="assets/js/store.js?v=4.8"></script>
   <script src="assets/js/smooth-scroll.js?v=4.4"></script>
   <script src="assets/js/user-profile.js?v=1.3"></script>
   <script src="assets/js/navbar.js?v=4.8"></script>
@@ -200,6 +207,39 @@
       }
 
       totalEl.textContent = formatPKR(finalTotal + deliveryFee);
+      checkStoreStatusCart();
+    }
+
+    function checkStoreStatusCart() {
+      try {
+        const raw = localStorage.getItem('revmoto_store_settings');
+        const settings = raw ? JSON.parse(raw) : {};
+        const isClosed = settings.isStoreClosed === true || localStorage.getItem('revmoto_store_closed') === 'true';
+        const message = settings.closedNotice || localStorage.getItem('revmoto_closed_notice') || 'We are currently pausing new orders for inventory restocking. Resuming shortly!';
+        const noticeEl = document.getElementById('cartStoreClosedNotice');
+        const btnEl = document.getElementById('btnCartCheckout');
+        if (isClosed) {
+          if (noticeEl) {
+            noticeEl.style.display = 'block';
+            const msgEl = document.getElementById('cartStoreClosedMsg');
+            if (msgEl) msgEl.textContent = message;
+          }
+          if (btnEl) {
+            btnEl.classList.add('disabled');
+            btnEl.style.opacity = '0.6';
+            btnEl.style.pointerEvents = 'none';
+            btnEl.innerHTML = '<i class="fas fa-store-slash"></i> Orders Temporarily Paused';
+          }
+        } else {
+          if (noticeEl) noticeEl.style.display = 'none';
+          if (btnEl) {
+            btnEl.classList.remove('disabled');
+            btnEl.style.opacity = '1';
+            btnEl.style.pointerEvents = 'auto';
+            btnEl.innerHTML = '<i class="fas fa-lock"></i> Proceed to Checkout';
+          }
+        }
+      } catch (e) {}
     }
 
     function applyCouponCode() {

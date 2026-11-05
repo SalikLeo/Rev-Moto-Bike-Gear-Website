@@ -1309,9 +1309,6 @@ function renderDesktopTable() {
             <a href="tel:${phoneClean}" class="btn-action-icon btn-action-call" title="Call Customer">
               ${SVG_ICONS.phone}
             </a>
-            <button class="btn-action-icon btn-action-view" onclick="openOrderModal('${order.id}')" title="View Order Details">
-              ${SVG_ICONS.eye}
-            </button>
           </div>
         </td>
       </tr>
@@ -1396,9 +1393,6 @@ function renderMobileCards() {
           <a href="tel:${phoneClean}" class="btn-action-icon btn-action-call" title="Call Customer">
             ${SVG_ICONS.phone} <span>Call</span>
           </a>
-          <button class="btn-action-icon btn-action-view" onclick="openOrderModal('${order.id}')" title="View Order">
-            ${SVG_ICONS.eye} <span>View</span>
-          </button>
         </div>
       </div>
     `;

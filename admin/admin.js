@@ -2966,10 +2966,16 @@ function saveStoreSettings() {
   const deliveryFee = Number(document.getElementById('settingDeliveryFee')?.value || 350);
   const freeThreshold = Number(document.getElementById('settingFreeDeliveryThreshold')?.value || 0);
   const deliveryLabel = document.getElementById('settingDeliveryTimeline')?.value || 'Standard Tracked Delivery (3–5 Days)';
-  const phone = document.getElementById('settingPhone')?.value || '0337-4249450';
-  const whatsapp = document.getElementById('settingWhatsApp')?.value || '923374249450';
-  const email = document.getElementById('settingEmail')?.value || 'revmoto.pk@gmail.com';
-  const address = document.getElementById('settingAddress')?.value || 'Sialkot Manufacturing District, Punjab, Pakistan';
+  let existingSettings = {};
+  try {
+    const raw = localStorage.getItem('revmoto_store_settings');
+    if (raw) existingSettings = JSON.parse(raw);
+  } catch (e) {}
+
+  const phone = document.getElementById('settingPhone')?.value || existingSettings.phone || '0337-4249450';
+  const whatsapp = document.getElementById('settingWhatsApp')?.value || existingSettings.whatsapp || '923374249450';
+  const email = document.getElementById('settingEmail')?.value || existingSettings.email || 'revmoto.pk@gmail.com';
+  const address = document.getElementById('settingAddress')?.value || existingSettings.address || 'Sialkot Manufacturing District, Punjab, Pakistan';
   const isStoreClosed = document.getElementById('storeStatusClosed')?.checked === true;
   const closedNotice = document.getElementById('settingClosedNotice')?.value || '';
 

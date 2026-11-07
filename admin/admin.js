@@ -458,6 +458,16 @@ function lockOrderStatus(orderOrId, newStatus) {
     console.error('Failed to save status lock:', e);
   }
 
+  // Also update in-memory ordersList directly so locks are immediately reflected in memory
+  if (Array.isArray(ordersList)) {
+    ordersList.forEach(o => {
+      if (String(o.id) === String(targetId) || (legacyId && String(o.id) === String(legacyId)) || (o.legacy_id && (String(o.legacy_id) === String(targetId) || (legacyId && String(o.legacy_id) === String(legacyId))))) {
+        o.status = newStatus;
+        o.is_status_locked = true;
+      }
+    });
+  }
+
   // Also update in-memory DEFAULT_SAMPLE_ORDERS so fallbacks retain the locked status
   if (Array.isArray(DEFAULT_SAMPLE_ORDERS)) {
     DEFAULT_SAMPLE_ORDERS.forEach(o => {
@@ -467,61 +477,100 @@ function lockOrderStatus(orderOrId, newStatus) {
     });
   }
 
-  // Broadcast instant real-time sync notification to customer tabs
+  // Persist updated orders list immediately
+  try {
+    localStorage.setItem('rm_orders', JSON.stringify(ordersList));
+    localStorage.setItem('revmoto_orders_version', Date.now().toString() + '_' + Math.random().toString(36).slice(2));
+  } catch (e) {}
+
+  // Broadcast instant real-time sync notification to all admin tabs and customer view
   notifyCustomerOrderStatusChanged(targetId, newStatus, legacyId);
 
   return record;
 }
 
+// ═══════════════════════════════════════════════════════════════
+// REAL-TIME CROSS-TAB SYNC ENGINE (Multi-Tab Admin Sync < 2ms)
+// ═══════════════════════════════════════════════════════════════
+let adminCrossTabSyncChannel = null;
+
+function getAdminBroadcastChannel() {
+  if (!adminCrossTabSyncChannel && typeof BroadcastChannel !== 'undefined') {
+    try {
+      adminCrossTabSyncChannel = new BroadcastChannel('revmoto_order_sync');
+      adminCrossTabSyncChannel.onmessage = (event) => {
+        if (event && event.data) {
+          syncAdminFromStorageOrEvent(event.data);
+        }
+      };
+    } catch (e) {
+      console.warn('Admin BroadcastChannel initialization warning:', e);
+    }
+  }
+  return adminCrossTabSyncChannel;
+}
+
 function notifyCustomerOrderStatusChanged(orderId, newStatus, legacyId) {
-  // 1. BroadcastChannel for instant same-browser cross-tab sync (0-5ms)
+  const syncPayload = {
+    type: 'ORDER_STATUS_CHANGED',
+    orderId: String(orderId),
+    legacyId: legacyId ? String(legacyId) : null,
+    status: newStatus,
+    allOrders: ordersList,
+    statusLocks: getLockedOrderStatuses(),
+    timestamp: Date.now()
+  };
+
+  // 1. BroadcastChannel for instant same-browser cross-tab sync (0-2ms)
   try {
-    const ch = new BroadcastChannel('revmoto_order_sync');
-    ch.postMessage({
-      type: 'ORDER_STATUS_CHANGED',
-      orderId: String(orderId),
-      legacyId: legacyId ? String(legacyId) : null,
-      status: newStatus,
-      timestamp: Date.now()
-    });
-    ch.close();
+    const ch = getAdminBroadcastChannel();
+    if (ch) {
+      ch.postMessage(syncPayload);
+    }
   } catch (e) {}
 
   // 2. LocalStorage trigger for cross-tab storage event listeners
   try {
-    localStorage.setItem('revmoto_last_order_status_event', JSON.stringify({
-      orderId: String(orderId),
-      legacyId: legacyId ? String(legacyId) : null,
-      status: newStatus,
-      timestamp: Date.now()
-    }));
+    localStorage.setItem('revmoto_last_order_status_event', JSON.stringify(syncPayload));
+    localStorage.setItem('revmoto_orders_version', Date.now().toString() + '_' + Math.random().toString(36).slice(2));
   } catch (e) {}
 }
 
-// ═══════════════════════════════════════════════════════════════
-// REAL-TIME CROSS-TAB SYNC LISTENER (Multi-Tab Admin Sync < 2ms)
-// ═══════════════════════════════════════════════════════════════
-let adminCrossTabSyncChannel = null;
-
 function syncAdminFromStorageOrEvent(eventData) {
-  // 1. Re-read storage
-  const stored = localStorage.getItem('rm_orders');
-  if (stored) {
-    try {
-      const parsed = JSON.parse(stored);
-      if (Array.isArray(parsed)) {
-        const cleaned = purgeDummyOrders(parsed);
-        if (cleaned.length > 0) {
-          ordersList = normalizeInvoiceNumbers(cleaned);
-        }
-      }
-    } catch (e) {}
+  let updatedOrders = null;
+
+  // 1. If payload carries full allOrders array, adopt it directly
+  if (eventData && Array.isArray(eventData.allOrders) && eventData.allOrders.length > 0) {
+    const cleaned = purgeDummyOrders(eventData.allOrders);
+    if (cleaned.length > 0) {
+      updatedOrders = normalizeInvoiceNumbers(cleaned);
+    }
   }
 
-  // 2. Always apply locked statuses from local registry
+  // 2. Otherwise re-read storage
+  if (!updatedOrders) {
+    const stored = localStorage.getItem('rm_orders');
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) {
+          const cleaned = purgeDummyOrders(parsed);
+          if (cleaned.length > 0) {
+            updatedOrders = normalizeInvoiceNumbers(cleaned);
+          }
+        }
+      } catch (e) {}
+    }
+  }
+
+  if (updatedOrders && updatedOrders.length > 0) {
+    ordersList = updatedOrders;
+  }
+
+  // 3. Always apply locked statuses from local registry
   applyLockedStatuses(ordersList);
 
-  // 3. If a specific status change event arrived, apply to memory immediately
+  // 4. If a specific status change event arrived, apply to memory immediately
   if (eventData && (eventData.type === 'ORDER_STATUS_CHANGED' || eventData.type === 'ORDER_STATUS_UPDATED')) {
     const targetId = String(eventData.orderId || '').toLowerCase();
     const legId = eventData.legacyId ? String(eventData.legacyId).toLowerCase() : null;
@@ -534,6 +583,7 @@ function syncAdminFromStorageOrEvent(eventData) {
         const oLeg = o.legacy_id ? String(o.legacy_id).toLowerCase() : null;
         if (oId === targetId || (legId && oId === legId) || (oLeg && (oLeg === targetId || oLeg === legId))) {
           o.status = normStatus;
+          o.is_status_locked = true;
         }
       });
       // If quick status modal currently open for this order, update in-modal badge
@@ -541,6 +591,7 @@ function syncAdminFromStorageOrEvent(eventData) {
         const qId = String(qsTargetOrder.id || '').toLowerCase();
         if (qId === targetId || (legId && qId === legId)) {
           qsTargetOrder.status = normStatus;
+          qsTargetOrder.is_status_locked = true;
           const currentBadgeEl = document.getElementById('qsModalCurrentBadge');
           if (currentBadgeEl) {
             currentBadgeEl.innerHTML = `<span class="status-badge ${normStatus}">${normStatus}</span>`;
@@ -551,6 +602,7 @@ function syncAdminFromStorageOrEvent(eventData) {
         const cId = String(currentSelectedOrder.id || '').toLowerCase();
         if (cId === targetId || (legId && cId === legId)) {
           currentSelectedOrder.status = normStatus;
+          currentSelectedOrder.is_status_locked = true;
           const statusSelect = document.getElementById('orderStatusSelect');
           if (statusSelect) statusSelect.value = normStatus;
         }
@@ -558,29 +610,45 @@ function syncAdminFromStorageOrEvent(eventData) {
     }
   }
 
-  // 4. Check for any fresh incoming orders
+  // 5. If order deletion event arrived, close modal if open
+  if (eventData && eventData.type === 'ORDER_DELETED') {
+    const delTarget = String(eventData.orderId || '').toLowerCase();
+    if (typeof qsTargetOrder !== 'undefined' && qsTargetOrder && String(qsTargetOrder.id || '').toLowerCase() === delTarget) {
+      closeQuickStatusModal();
+    }
+    if (typeof currentSelectedOrder !== 'undefined' && currentSelectedOrder && String(currentSelectedOrder.id || '').toLowerCase() === delTarget) {
+      closeOrderModal();
+    }
+  }
+
+  // 6. Ensure localStorage is in sync
+  try {
+    localStorage.setItem('rm_orders', JSON.stringify(ordersList));
+  } catch (e) {}
+
+  // 7. Check for any fresh incoming orders
   checkNewIncomingOrders();
 
-  // 5. Re-render UI
-  renderDashboard();
+  // 8. Re-render UI components completely
+  updateMetrics();
+  renderFilterTabs();
+  renderDesktopTable();
+  renderMobileCards();
+  renderPagination();
 }
 
-// 1. BroadcastChannel Listener (Instant 0–2ms cross-tab sync)
+// Initialize broadcast channel listener immediately on script load
 try {
-  adminCrossTabSyncChannel = new BroadcastChannel('revmoto_order_sync');
-  adminCrossTabSyncChannel.onmessage = (event) => {
-    if (event.data) {
-      syncAdminFromStorageOrEvent(event.data);
-    }
-  };
+  getAdminBroadcastChannel();
 } catch (e) {}
 
-// 2. Window Storage Event Listener (Instant multi-tab local storage sync)
+// Window Storage Event Listener (Instant multi-tab local storage sync)
 window.addEventListener('storage', (e) => {
   if (
     e.key === 'rm_orders' ||
     e.key === 'rm_order_status_locks' ||
     e.key === 'revmoto_last_order_status_event' ||
+    e.key === 'revmoto_orders_version' ||
     e.key === 'revmoto_orders_updated_ts'
   ) {
     let evData = null;
@@ -591,7 +659,7 @@ window.addEventListener('storage', (e) => {
   }
 });
 
-// 3. Tab Focus & Page Visibility Listeners (sync on tab switch)
+// Tab Focus & Page Visibility Listeners (sync on tab switch)
 window.addEventListener('focus', () => {
   syncAdminFromStorageOrEvent();
 });
@@ -783,6 +851,7 @@ function saveLocalOrders(orders) {
   applyLockedStatuses(orders);
   try {
     localStorage.setItem('rm_orders', JSON.stringify(orders));
+    localStorage.setItem('revmoto_orders_version', Date.now().toString() + '_' + Math.random().toString(36).slice(2));
   } catch (e) {
     console.error('Failed to save orders to localStorage:', e);
   }
@@ -1682,6 +1751,24 @@ async function deleteOrder() {
 
   ordersList = ordersList.filter(o => String(o.id) !== String(targetId) && (!o.legacy_id || String(o.legacy_id) !== String(targetId)));
   saveLocalOrders(ordersList);
+
+  // Broadcast deletion across all tabs
+  const delPayload = {
+    type: 'ORDER_DELETED',
+    orderId: String(targetId),
+    legacyId: currentSelectedOrder.legacy_id ? String(currentSelectedOrder.legacy_id) : null,
+    allOrders: ordersList,
+    statusLocks: getLockedOrderStatuses(),
+    timestamp: Date.now()
+  };
+  try {
+    const ch = getAdminBroadcastChannel();
+    if (ch) ch.postMessage(delPayload);
+  } catch (e) {}
+  try {
+    localStorage.setItem('revmoto_last_order_status_event', JSON.stringify(delPayload));
+    localStorage.setItem('revmoto_orders_version', Date.now().toString() + '_' + Math.random().toString(36).slice(2));
+  } catch (e) {}
 
   showToast(`Order #${targetId} deleted.`, 'info');
   closeOrderModal();

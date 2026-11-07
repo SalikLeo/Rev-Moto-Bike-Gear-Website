@@ -687,9 +687,15 @@
           ch.postMessage({
             type: 'NEW_ORDER_PLACED',
             orderId: orderId,
+            allOrders: existingOrders,
             timestamp: Date.now()
           });
-          ch.close();
+          setTimeout(() => { try { ch.close(); } catch (e) {} }, 3000);
+        } catch (e) {}
+
+        // Update orders version for cross-tab storage listeners
+        try {
+          localStorage.setItem('revmoto_orders_version', Date.now().toString() + '_' + Math.random().toString(36).slice(2));
         } catch (e) {}
 
         // Persist order to customer recent orders

@@ -536,6 +536,14 @@ function renderUserProfileModalContent() {
             const items = order.items || [];
             const itemsText = items.map(i => `${i.name} (${i.size || 'M'}) x${i.qty}`).join(', ');
             const status = (order.status || 'pending').toLowerCase();
+            const statusIcons = {
+              pending: '<i class="fas fa-clock" style="font-size: 0.60rem;"></i>',
+              confirmed: '<i class="fas fa-check" style="font-size: 0.60rem;"></i>',
+              dispatched: '<i class="fas fa-truck-fast" style="font-size: 0.60rem;"></i>',
+              delivered: '<i class="fas fa-circle-check" style="font-size: 0.60rem;"></i>',
+              cancelled: '<i class="fas fa-ban" style="font-size: 0.60rem;"></i>'
+            };
+            const statusIcon = statusIcons[status] || statusIcons.pending;
             const dateStr = formatUserOrderDate(order.created_at || order.createdAt);
             const total = order.total_amount || order.totalAmount || order.total || 0;
 
@@ -546,7 +554,7 @@ function renderUserProfileModalContent() {
                     <span class="user-order-num">${escapeUserHtml(orderId.startsWith('#') || orderId.startsWith('INV-') ? orderId : '#' + orderId)}</span>
                     <span class="user-order-date">• ${dateStr}</span>
                   </div>
-                  <span class="status-badge ${status}">${status}</span>
+                  <span class="status-badge ${status}">${statusIcon} ${status.toUpperCase()}</span>
                 </div>
 
                 <div class="user-order-items">
@@ -568,9 +576,6 @@ function renderUserProfileModalContent() {
                     </button>
                     <button type="button" class="btn-user-action" onclick="reorderCustomerOrder('${escapeUserHtml(orderId)}')" title="Re-order items">
                       <i class="fas fa-rotate-right"></i> Buy Again
-                    </button>
-                    <button type="button" class="btn-user-action btn-user-action-wa" onclick="openUserWhatsAppSupport('${escapeUserHtml(orderId)}')" title="WhatsApp Support">
-                      <i class="fab fa-whatsapp"></i> Help
                     </button>
                   </div>
                 </div>

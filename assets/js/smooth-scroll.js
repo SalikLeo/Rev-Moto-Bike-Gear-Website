@@ -48,8 +48,10 @@ var k="1.1.18";function w(r,t,e){return Math.max(r,Math.min(t,e))}function W(r,t
           node.closest('.search-modal') ||
           node.closest('.size-guide-modal') ||
           node.closest('.drawer-overlay') ||
+          node.closest('.user-modal-overlay') ||
+          node.closest('#orderConfirmModal') ||
           node.closest('[data-lenis-prevent]')
-        )) || (document.body && document.body.classList.contains('modal-open'))
+        )) || (document.body && document.body.classList.contains('modal-open')) || (document.documentElement && document.documentElement.classList.contains('modal-open'))
       );
     }
   });

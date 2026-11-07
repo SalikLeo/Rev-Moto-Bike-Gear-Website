@@ -50,285 +50,159 @@ const MONTH_NAMES = [
   'July', 'August', 'September', 'October', 'November', 'December'
 ];
 
-// Dynamic Date Helpers for Sample Orders
+// Dynamic Today Helper for baseline orders
 const NOW = new Date();
-const timeAgo = (mins = 0, hours = 0, days = 0, months = 0) => {
+const todayAt = (h, m) => {
   const d = new Date(NOW.getTime());
-  if (months) d.setMonth(d.getMonth() - months);
-  if (days) d.setDate(d.getDate() - days);
-  if (hours) d.setHours(d.getHours() - hours);
-  if (mins) d.setMinutes(d.getMinutes() - mins);
+  d.setHours(h, m, 0, 0);
   return d.toISOString();
 };
 
-// Initial Sample Orders for Rev Moto
-const DEFAULT_SAMPLE_ORDERS = [
-  // ── TODAY'S ORDERS ──
+// Real Baseline Orders for Rev Moto Store (Persistent Salik Orders)
+const REAL_BASELINE_ORDERS = [
   {
-    id: 'INV-14',
-    customer_name: 'Shahid Afridi',
+    id: 'INV-20',
+    customer_name: 'Salik',
     phone: '03095369472',
-    email: 'shahid.afridi@gmail.com',
-    address: 'House # 18, Lane # 17, Sector F-10/3',
-    city: 'Islamabad',
-    notes: 'Please call before delivery. Rider will pay cash on delivery.',
+    email: 'salik@gmail.com',
+    address: 'wah cantt',
+    city: 'Wah Cantt',
+    notes: 'Please verify order on call before dispatch.',
     payment_method: 'Cash on Delivery (COD)',
     delivery_label: 'Standard Tracked Delivery (3–5 Days)',
     delivery_cost: 350,
     items: [
-      { name: 'Armored Mesh Riding Jacket', size: 'L (41–43")', qty: 1, price: 14500 }
+      { name: 'Armored Mesh Riding Jacket', size: 'M', qty: 1, price: 14500 }
     ],
     total_amount: 14850,
     status: 'pending',
-    created_at: timeAgo(25, 0, 0, 0)
+    created_at: todayAt(19, 41)
   },
   {
-    id: 'INV-13',
-    customer_name: 'Kamran Akmal',
-    phone: '03214567890',
-    email: 'kamran.akmal@gmail.com',
-    address: 'Street 4, Sector G-11/2',
-    city: 'Islamabad',
-    notes: 'Urgent weekend tour planned, please dispatch early.',
+    id: 'INV-19',
+    customer_name: 'Salik',
+    phone: '03095369472',
+    email: 'salik@gmail.com',
+    address: 'wah cantt',
+    city: 'Wah Cantt',
+    notes: '',
     payment_method: 'Cash on Delivery (COD)',
-    delivery_label: 'Express Priority Dispatch',
-    delivery_cost: 450,
+    delivery_label: 'Standard Tracked Delivery (3–5 Days)',
+    delivery_cost: 350,
     items: [
-      { name: 'Carbon Knuckle Street Gloves', size: 'XL (10–10.5")', qty: 1, price: 5800 },
-      { name: 'Thermal Windproof Balaclava', size: 'Universal', qty: 1, price: 1850 }
+      { name: 'Thermal Windproof Balaclava', size: 'U', qty: 2, price: 1850 },
+      { name: 'Titanium Palm Short Gloves', size: 'M', qty: 1, price: 4200 },
+      { name: 'Carbon Fiber Riding Gloves', size: 'M', qty: 1, price: 5200 }
     ],
-    total_amount: 8100,
+    total_amount: 13450,
     status: 'pending',
-    created_at: timeAgo(50, 1, 0, 0)
+    created_at: todayAt(19, 16)
   },
   {
-    id: 'INV-12',
-    customer_name: 'Bilal Haider',
-    phone: '03001234567',
-    email: 'bilal.h@gmail.com',
-    address: 'House 42-B, Sector F-7/2',
-    city: 'Islamabad',
-    notes: 'Call 15 mins prior to arrival.',
+    id: 'INV-18',
+    customer_name: 'Salik',
+    phone: '03095369472',
+    email: 'salik@gmail.com',
+    address: 'wah cantt',
+    city: 'Wah Cantt',
+    notes: '',
     payment_method: 'Cash on Delivery (COD)',
     delivery_label: 'Standard Tracked Delivery (3–5 Days)',
     delivery_cost: 350,
     items: [
-      { name: 'Waterproof Touring Pants', size: '34 (Large)', qty: 1, price: 11500 }
+      { name: 'Thermal Windproof Balaclava', size: 'U', qty: 1, price: 1850 },
+      { name: 'Titanium Palm Short Gloves', size: 'M', qty: 1, price: 4200 }
     ],
-    total_amount: 11850,
+    total_amount: 6400,
     status: 'confirmed',
-    created_at: timeAgo(15, 3, 0, 0)
+    created_at: todayAt(18, 32)
   },
-
-  // ── YESTERDAY'S ORDERS ──
   {
-    id: 'INV-11',
-    customer_name: 'Usman Tariq',
-    phone: '03219876543',
-    email: 'usman.moto@yahoo.com',
-    address: 'Flat 402, Al-Razi Heights, Gulberg III',
-    city: 'Lahore',
-    notes: 'Leave package with building security if unavailable.',
+    id: 'INV-17',
+    customer_name: 'Salik',
+    phone: '03095369472',
+    email: 'salik@gmail.com',
+    address: 'wah cantt',
+    city: 'Wah Cantt',
+    notes: '',
     payment_method: 'Cash on Delivery (COD)',
     delivery_label: 'Standard Tracked Delivery (3–5 Days)',
     delivery_cost: 350,
     items: [
-      { name: 'Carbon Knuckle Street Gloves', size: 'L (9–9.5")', qty: 1, price: 5800 },
-      { name: 'Heavyweight Rider T-Shirt', size: 'L', qty: 2, price: 3200 }
+      { name: 'Armored Mesh Riding Jacket', size: 'L (41–43")', qty: 1, price: 15200 }
     ],
-    total_amount: 12550,
-    status: 'confirmed',
-    created_at: timeAgo(0, 10, 1, 0)
+    total_amount: 15550,
+    status: 'pending',
+    created_at: todayAt(18, 31)
   },
   {
-    id: 'INV-10',
-    customer_name: 'Hamza Khan',
-    phone: '03335551234',
-    email: 'hamza.k@gmail.com',
-    address: 'Plot 18, Street 4, Phase 6 DHA',
-    city: 'Karachi',
-    notes: 'Verify size exchange policy on arrival.',
+    id: 'INV-16',
+    customer_name: 'Salik',
+    phone: '03095369472',
+    email: 'salik@gmail.com',
+    address: 'wah cantt',
+    city: 'Wah Cantt',
+    notes: '',
     payment_method: 'Cash on Delivery (COD)',
     delivery_label: 'Standard Tracked Delivery (3–5 Days)',
     delivery_cost: 350,
     items: [
-      { name: 'All-Weather Armored Riding Jacket', size: 'XL (44–46")', qty: 1, price: 18500 }
+      { name: 'Carbon Fiber Riding Gloves', size: 'M', qty: 1, price: 5200 },
+      { name: 'Armored Mesh Riding Jacket', size: 'M', qty: 1, price: 14500 }
     ],
-    total_amount: 18850,
-    status: 'dispatched',
-    created_at: timeAgo(0, 16, 1, 0)
+    total_amount: 20050,
+    status: 'pending',
+    created_at: todayAt(18, 31)
   },
-
-  // ── EARLIER THIS WEEK / THIS MONTH ──
   {
-    id: 'INV-9',
-    customer_name: 'Danyal Baig',
-    phone: '03129988776',
-    email: 'danyal.b@gmail.com',
-    address: 'House 88, Street 12, Cavalry Ground',
-    city: 'Lahore',
-    notes: 'Cash ready at doorstep.',
+    id: 'INV-15',
+    customer_name: 'Salik',
+    phone: '03095369472',
+    email: 'salik@gmail.com',
+    address: 'wah cantt',
+    city: 'Wah Cantt',
+    notes: 'Order cancelled by customer test.',
     payment_method: 'Cash on Delivery (COD)',
-    delivery_label: 'Standard Tracked Delivery',
+    delivery_label: 'Standard Tracked Delivery (3–5 Days)',
     delivery_cost: 350,
     items: [
-      { name: 'Magnetic Tank & Tail Bag 18L', size: '18 Liter', qty: 1, price: 9200 }
+      { name: 'Titanium Palm Short Gloves', size: 'M', qty: 1, price: 4200 }
     ],
-    total_amount: 9550,
-    status: 'dispatched',
-    created_at: timeAgo(0, 0, 3, 0)
-  },
-  {
-    id: 'INV-8',
-    customer_name: 'Ahmed Raza',
-    phone: '03456677889',
-    email: 'ahmed.raza@outlook.com',
-    address: 'Near Model Town Park, Circular Road',
-    city: 'Sialkot',
-    notes: 'Deliver before 5 PM.',
-    payment_method: 'Cash on Delivery (COD)',
-    delivery_label: 'Local Priority Rider Dispatch',
-    delivery_cost: 250,
-    items: [
-      { name: 'Kevlar Reinforced Riding Jeans', size: '32 (Medium)', qty: 1, price: 9800 }
-    ],
-    total_amount: 10050,
-    status: 'delivered',
-    created_at: timeAgo(0, 0, 4, 0)
-  },
-  {
-    id: 'INV-7',
-    customer_name: 'Farhan Ali',
-    phone: '03023344556',
-    email: 'farhan.ali@gmail.com',
-    address: 'B-14, Phase 2 Hayatabad',
-    city: 'Peshawar',
-    notes: 'Call recipient upon courier arrival.',
-    payment_method: 'Cash on Delivery (COD)',
-    delivery_label: 'Standard Tracked Delivery',
-    delivery_cost: 350,
-    items: [
-      { name: 'Armored Mesh Riding Jacket', size: 'M (38–40")', qty: 1, price: 14500 },
-      { name: 'Carbon Knuckle Street Gloves', size: 'M (8–8.5")', qty: 1, price: 5800 }
-    ],
-    total_amount: 20650,
-    status: 'delivered',
-    created_at: timeAgo(0, 0, 5, 0)
-  },
-  {
-    id: 'INV-6',
-    customer_name: 'Zain Ul Abideen',
-    phone: '03451122334',
-    email: 'zain.abideen@gmail.com',
-    address: 'Street 9, Satellite Town',
-    city: 'Rawalpindi',
-    notes: 'Order confirmed by customer over phone.',
-    payment_method: 'Cash on Delivery (COD)',
-    delivery_label: 'Standard Tracked Delivery',
-    delivery_cost: 350,
-    items: [
-      { name: 'Magnetic Tank & Tail Bag 18L', size: '18 Liter', qty: 1, price: 9200 }
-    ],
-    total_amount: 9550,
-    status: 'delivered',
-    created_at: timeAgo(0, 0, 10, 0)
-  },
-  {
-    id: 'INV-5',
-    customer_name: 'Omer Farooq',
-    phone: '03134455667',
-    email: 'omer.farooq@live.com',
-    address: 'Madina Town, Susan Road',
-    city: 'Faisalabad',
-    notes: 'Customer requested size check assistance.',
-    payment_method: 'Cash on Delivery (COD)',
-    delivery_label: 'Standard Tracked Delivery',
-    delivery_cost: 350,
-    items: [
-      { name: 'Heavyweight Rider T-Shirt', size: 'XL', qty: 3, price: 3200 }
-    ],
-    total_amount: 9950,
-    status: 'delivered',
-    created_at: timeAgo(0, 0, 14, 0)
-  },
-  {
-    id: 'INV-4',
-    customer_name: 'Waleed Malik',
-    phone: '03087788990',
-    email: 'waleed.m@gmail.com',
-    address: 'Cantt Area, Mall Road',
-    city: 'Multan',
-    notes: 'Customer changed travel plans, cancelled before dispatch.',
-    payment_method: 'Cash on Delivery (COD)',
-    delivery_label: 'Standard Tracked Delivery',
-    delivery_cost: 350,
-    items: [
-      { name: 'All-Weather Armored Riding Jacket', size: 'L (41–43")', qty: 1, price: 18500 }
-    ],
-    total_amount: 18850,
+    total_amount: 4550,
     status: 'cancelled',
-    created_at: timeAgo(0, 0, 18, 0)
-  },
-
-  // ── LAST MONTH (October 2026) ──
-  {
-    id: 'INV-3',
-    customer_name: 'Saad Rafique',
-    phone: '03225566778',
-    email: 'saad.rafique@gmail.com',
-    address: 'Block C, Bahria Town Phase 7',
-    city: 'Rawalpindi',
-    notes: 'Delivered and verified in October sales run.',
-    payment_method: 'Cash on Delivery (COD)',
-    delivery_label: 'Standard Tracked Delivery',
-    delivery_cost: 350,
-    items: [
-      { name: 'Armored Mesh Riding Jacket', size: 'XL (44–46")', qty: 1, price: 14500 }
-    ],
-    total_amount: 14850,
-    status: 'delivered',
-    created_at: timeAgo(0, 0, 0, 1)
-  },
-  {
-    id: 'INV-2',
-    customer_name: 'Tariq Mehmood',
-    phone: '03314455889',
-    email: 'tariq.m@yahoo.com',
-    address: 'Main Boulevard, Gulshan-e-Iqbal',
-    city: 'Karachi',
-    notes: 'Payment collected by Rider.',
-    payment_method: 'Cash on Delivery (COD)',
-    delivery_label: 'Standard Tracked Delivery',
-    delivery_cost: 350,
-    items: [
-      { name: 'Carbon Knuckle Street Gloves', size: 'L (9–9.5")', qty: 2, price: 5800 }
-    ],
-    total_amount: 11950,
-    status: 'delivered',
-    created_at: timeAgo(0, 0, 10, 1)
-  },
-
-  // ── EARLIER THIS YEAR (Annual 2026) ──
-  {
-    id: 'INV-1',
-    customer_name: 'Hassan Sheikh',
-    phone: '03157788991',
-    email: 'hassan.sheikh@hotmail.com',
-    address: 'Civic Centre, Sector G-6',
-    city: 'Islamabad',
-    notes: 'Annual record order from Summer batch.',
-    payment_method: 'Cash on Delivery (COD)',
-    delivery_label: 'Priority Express',
-    delivery_cost: 350,
-    items: [
-      { name: 'Waterproof Touring Pants', size: '32 (Medium)', qty: 1, price: 11500 },
-      { name: 'Thermal Windproof Balaclava', size: 'Universal', qty: 1, price: 1850 }
-    ],
-    total_amount: 13700,
-    status: 'delivered',
-    created_at: timeAgo(0, 0, 0, 3)
+    created_at: todayAt(18, 20)
   }
 ];
+
+const DEFAULT_SAMPLE_ORDERS = REAL_BASELINE_ORDERS;
+
+// Purge any residual demo dummy orders from past sample batches (Hamza Khan, Danyal Baig, etc.)
+const DUMMY_CUSTOMER_NAMES = new Set([
+  'hamza khan', 'danyal baig', 'kamran akmal', 'shahid afridi',
+  'bilal haider', 'usman tariq', 'ahmed raza', 'farhan ali',
+  'zain ul abideen', 'omer farooq', 'waleed malik', 'saad rafique',
+  'hassan sheikh'
+]);
+
+function purgeDummyOrders(orders) {
+  if (!Array.isArray(orders)) return [];
+  return orders.filter(o => {
+    if (!o) return false;
+    const name = String(o.customer_name || o.customerName || '').trim().toLowerCase();
+    const id = String(o.id || o.orderId || '');
+    if (DUMMY_CUSTOMER_NAMES.has(name) && !id.match(/^INV-(1[5-9]|2\d+)/i)) {
+      return false;
+    }
+    const match = id.match(/^INV-(\d+)$/i);
+    if (match) {
+      const num = parseInt(match[1], 10);
+      if (num <= 14 && name !== 'salik') {
+        return false;
+      }
+    }
+    return true;
+  });
+}
 
 function formatPKR(val) {
   const num = Number(val) || 0;
@@ -738,19 +612,26 @@ async function fetchOrders() {
   if (stored) {
     try {
       const parsed = JSON.parse(stored);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        ordersList = normalizeInvoiceNumbers(parsed);
+      if (Array.isArray(parsed)) {
+        const cleaned = purgeDummyOrders(parsed);
+        if (cleaned.length > 0) {
+          ordersList = normalizeInvoiceNumbers(cleaned);
+        } else {
+          ordersList = REAL_BASELINE_ORDERS.slice();
+          saveLocalOrders(ordersList);
+        }
       } else {
-        ordersList = DEFAULT_SAMPLE_ORDERS;
+        ordersList = REAL_BASELINE_ORDERS.slice();
         saveLocalOrders(ordersList);
       }
     } catch (e) {
       console.error('Failed to parse rm_orders from localStorage:', e);
-      ordersList = DEFAULT_SAMPLE_ORDERS;
+      ordersList = REAL_BASELINE_ORDERS.slice();
       saveLocalOrders(ordersList);
     }
   } else {
-    ordersList = DEFAULT_SAMPLE_ORDERS;
+    // When localStorage is empty (Incognito mode or clean browser)
+    ordersList = REAL_BASELINE_ORDERS.slice();
     saveLocalOrders(ordersList);
   }
 
@@ -2301,7 +2182,7 @@ on public.orders for all using (true);
 
 function simulateTestOrder() {
   const testId = getNextInvoiceId(ordersList);
-  const testNames = ['Shahid Afridi', 'Kamran Akmal', 'Farhan Ali', 'Ahmed Raza', 'Danyal Baig'];
+  const testNames = ['Salik', 'Tariq Mehmood', 'Raza Khan', 'Haris Rauf', 'Fakhar Zaman'];
   const testCities = ['Rawalpindi', 'Peshawar', 'Multan', 'Faisalabad', 'Gujranwala'];
   const randomName = testNames[Math.floor(Math.random() * testNames.length)];
   const randomCity = testCities[Math.floor(Math.random() * testCities.length)];

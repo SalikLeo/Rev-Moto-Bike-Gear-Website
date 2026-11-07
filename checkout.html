@@ -20,7 +20,7 @@
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-  <link rel="stylesheet" href="assets/css/main.css?v=5.0">
+  <link rel="stylesheet" href="assets/css/main.css?v=5.1">
 
   <link rel="stylesheet" href="assets/css/pages.css?v=4.6">
 
@@ -269,8 +269,8 @@
   </section>
 
   <!-- ═══ ORDER CONFIRMATION MODAL ═════════════════════════════════════ -->
-  <div class="user-modal-overlay" id="orderConfirmModal" onclick="if(event.target===this) closeOrderConfirmModal()" style="z-index: 10000;">
-    <div class="user-modal-card" style="max-width: 480px; max-height: calc(100vh - 32px); max-height: calc(100dvh - 32px); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 60px -10px rgba(15, 23, 42, 0.4);">
+  <div class="user-modal-overlay" id="orderConfirmModal" onclick="if(event.target===this) closeOrderConfirmModal()" style="z-index: 999999 !important;">
+    <div class="user-modal-card" style="max-width: 480px; max-height: min(90vh, 680px); max-height: min(90dvh, 680px); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 60px -10px rgba(15, 23, 42, 0.4); border-radius: 18px;">
       
       <!-- Modal Header (Pinned at Top) -->
       <div class="user-modal-header" style="flex-shrink: 0; padding: 14px 20px; border-bottom: 1px solid var(--border-subtle); display: flex; align-items: center; justify-content: space-between; background: #ffffff;">
@@ -362,7 +362,7 @@
 
   <script src="assets/js/store.js?v=4.8"></script>
 
-  <script src="assets/js/smooth-scroll.js?v=4.5"></script>
+  <script src="assets/js/smooth-scroll.js?v=4.6"></script>
 
   <script src="assets/js/user-profile.js?v=1.5"></script>
   <script src="assets/js/navbar.js?v=4.8"></script>
@@ -581,7 +581,12 @@
 
       // Open confirmation modal
       const modal = document.getElementById('orderConfirmModal');
-      if (modal) modal.classList.add('open');
+      if (modal) {
+        if (modal.parentElement !== document.body) {
+          document.body.appendChild(modal);
+        }
+        modal.classList.add('open');
+      }
       document.documentElement.classList.add('modal-open');
       document.body.classList.add('modal-open');
       if (window.lenis && typeof window.lenis.stop === 'function') {

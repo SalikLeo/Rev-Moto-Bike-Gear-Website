@@ -279,6 +279,30 @@ function getCustomerOrders() {
     }
   } catch (e) {}
 
+  // Always apply persistent status locks from admin
+  try {
+    const rawLocks = localStorage.getItem('rm_order_status_locks');
+    if (rawLocks) {
+      const locks = JSON.parse(rawLocks);
+      allOrders.forEach(o => {
+        if (!o) return;
+        const key = String(o.id || o.orderId || '');
+        const legKey = o.legacy_id ? String(o.legacy_id) : null;
+        const numMatch = key.match(/\d+/);
+        const numKey = numMatch ? numMatch[0] : null;
+        const invKey = numMatch ? ('INV-' + numMatch[0]) : null;
+
+        const lock = (key && locks[key]) || 
+                     (legKey && locks[legKey]) || 
+                     (invKey && locks[invKey]) || 
+                     (numKey && locks[numKey]);
+        if (lock && lock.status) {
+          o.status = lock.status;
+        }
+      });
+    }
+  } catch (e) {}
+
   const googleUser = getStoredCustomerUser();
   const profile = getStoredUserProfile();
   const myIds = [];
@@ -298,6 +322,164 @@ function getCustomerOrders() {
   });
 
   return matched;
+}
+
+// ── REAL-TIME INSTANT STATUS SYNC (NO REFRESH NEEDED) ──
+function updateCustomerOrderInstantly(orderId, newStatus, legacyId) {
+  if (!orderId || !newStatus) return;
+  const normStatus = String(newStatus).toLowerCase();
+  const idStr = String(orderId).toLowerCase();
+  const legStr = legacyId ? String(legacyId).toLowerCase() : null;
+  const numMatch = idStr.match(/\d+/);
+  const numOnly = numMatch ? numMatch[0] : null;
+
+  try {
+    // 1. Update in-memory rm_orders
+    const raw = localStorage.getItem('rm_orders');
+    if (raw) {
+      const orders = JSON.parse(raw);
+      let changed = false;
+      orders.forEach(o => {
+        if (!o) return;
+        const oId = String(o.id || o.orderId || '').toLowerCase();
+        const oLeg = o.legacy_id ? String(o.legacy_id).toLowerCase() : null;
+        const oNum = oId.match(/\d+/) ? oId.match(/\d+/)[0] : null;
+
+        const isMatch = (
+          oId === idStr ||
+          (legStr && oId === legStr) ||
+          (oLeg && (oLeg === idStr || oLeg === legStr)) ||
+          (numOnly && oNum === numOnly)
+        );
+
+        if (isMatch) {
+          if (String(o.status).toLowerCase() !== normStatus) {
+            o.status = normStatus;
+            changed = true;
+          }
+        }
+      });
+      if (changed) {
+        localStorage.setItem('rm_orders', JSON.stringify(orders));
+      }
+    }
+
+    // 2. Update status lock in localStorage
+    const rawLocks = localStorage.getItem('rm_order_status_locks');
+    const locks = rawLocks ? JSON.parse(rawLocks) : {};
+    locks[String(orderId)] = { status: normStatus, lockedAt: new Date().toISOString() };
+    if (legacyId) locks[String(legacyId)] = { status: normStatus, lockedAt: new Date().toISOString() };
+    if (numOnly) {
+      locks['INV-' + numOnly] = { status: normStatus, lockedAt: new Date().toISOString() };
+      locks[numOnly] = { status: normStatus, lockedAt: new Date().toISOString() };
+    }
+    localStorage.setItem('rm_order_status_locks', JSON.stringify(locks));
+
+    // 3. Update DOM in-place if modal is open
+    if (document.getElementById('userProfileOverlay')?.classList.contains('open')) {
+      if (activeUserTab === 'orders') {
+        renderUserProfileModalContent();
+      }
+    }
+  } catch (e) {
+    console.warn('Real-time order status update notice:', e);
+  }
+}
+
+// 1. Instant cross-tab sync via BroadcastChannel (0–5ms delay)
+try {
+  const customerSyncChannel = new BroadcastChannel('revmoto_order_sync');
+  customerSyncChannel.onmessage = (event) => {
+    if (event.data && (event.data.type === 'ORDER_STATUS_CHANGED' || event.data.type === 'ORDER_STATUS_UPDATED')) {
+      const { orderId, status, legacyId } = event.data;
+      updateCustomerOrderInstantly(orderId, status, legacyId);
+    }
+  };
+} catch (e) {}
+
+// 2. Instant cross-tab sync via storage events
+window.addEventListener('storage', (e) => {
+  if (e.key === 'rm_orders' || e.key === 'rm_order_status_locks' || e.key === 'revmoto_last_order_status_event') {
+    if (e.key === 'revmoto_last_order_status_event' && e.newValue) {
+      try {
+        const ev = JSON.parse(e.newValue);
+        if (ev && ev.orderId && ev.status) {
+          updateCustomerOrderInstantly(ev.orderId, ev.status, ev.legacyId);
+          return;
+        }
+      } catch (err) {}
+    }
+    if (document.getElementById('userProfileOverlay')?.classList.contains('open') && activeUserTab === 'orders') {
+      renderUserProfileModalContent();
+    }
+  }
+});
+
+// 3. Cross-device active cloud sync via Supabase REST (2.5s interval while modal is open)
+let customerOrderSyncTimer = null;
+
+async function syncCustomerOrdersFromSupabase() {
+  const sbUrl = localStorage.getItem('rm_supabase_url');
+  const sbKey = localStorage.getItem('rm_supabase_anon_key');
+  if (!sbUrl || !sbKey) return;
+
+  const orders = getCustomerOrders();
+  if (orders.length === 0) return;
+
+  const orderIds = [];
+  orders.forEach(o => {
+    if (o.id) orderIds.push(String(o.id));
+    if (o.orderId && !orderIds.includes(String(o.orderId))) orderIds.push(String(o.orderId));
+    if (o.legacy_id && !orderIds.includes(String(o.legacy_id))) orderIds.push(String(o.legacy_id));
+  });
+  if (orderIds.length === 0) return;
+
+  try {
+    const query = orderIds.map(id => `id.eq.${encodeURIComponent(id)}`).join(',');
+    const url = `${sbUrl}/rest/v1/orders?select=id,status,legacy_id&or=(${query})`;
+    const res = await fetch(url, {
+      headers: {
+        apikey: sbKey,
+        Authorization: `Bearer ${sbKey}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!res.ok) return;
+    const cloudOrders = await res.json();
+    if (!Array.isArray(cloudOrders) || cloudOrders.length === 0) return;
+
+    let hasChanges = false;
+    cloudOrders.forEach(co => {
+      if (co && co.id && co.status) {
+        const localMatch = orders.find(lo => 
+          String(lo.id || lo.orderId).toLowerCase() === String(co.id).toLowerCase() ||
+          (lo.legacy_id && String(lo.legacy_id).toLowerCase() === String(co.id).toLowerCase())
+        );
+        if (localMatch && String(localMatch.status).toLowerCase() !== String(co.status).toLowerCase()) {
+          updateCustomerOrderInstantly(co.id, co.status.toLowerCase(), co.legacy_id);
+          hasChanges = true;
+        }
+      }
+    });
+
+    if (hasChanges && document.getElementById('userProfileOverlay')?.classList.contains('open') && activeUserTab === 'orders') {
+      renderUserProfileModalContent();
+    }
+  } catch (e) {}
+}
+
+function startCustomerOrderSync() {
+  stopCustomerOrderSync();
+  syncCustomerOrdersFromSupabase();
+  customerOrderSyncTimer = setInterval(syncCustomerOrdersFromSupabase, 2500);
+}
+
+function stopCustomerOrderSync() {
+  if (customerOrderSyncTimer) {
+    clearInterval(customerOrderSyncTimer);
+    customerOrderSyncTimer = null;
+  }
 }
 
 // ── MODAL HTML INJECTION ──
@@ -387,6 +569,9 @@ function switchUserTab(tabName) {
   const activeBtn = document.getElementById('userTabBtn' + tabName.charAt(0).toUpperCase() + tabName.slice(1));
   if (activeBtn) activeBtn.classList.add('active');
   renderUserProfileModalContent();
+  if (tabName === 'orders') {
+    syncCustomerOrdersFromSupabase();
+  }
 }
 
 function openUserProfileModal(defaultTab = 'profile') {
@@ -399,11 +584,13 @@ function openUserProfileModal(defaultTab = 'profile') {
   renderUserProfileModalContent();
   document.getElementById('userProfileOverlay').classList.add('open');
   initGoogleSignInButton();
+  startCustomerOrderSync();
 }
 
 function closeUserProfileModal() {
   const el = document.getElementById('userProfileOverlay');
   if (el) el.classList.remove('open');
+  stopCustomerOrderSync();
 }
 
 // ── MODAL CONTENT RENDERING ──

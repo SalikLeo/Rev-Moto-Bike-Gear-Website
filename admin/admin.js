@@ -573,7 +573,35 @@ function lockOrderStatus(orderOrId, newStatus) {
     });
   }
 
+  // Broadcast instant real-time sync notification to customer tabs
+  notifyCustomerOrderStatusChanged(targetId, newStatus, legacyId);
+
   return record;
+}
+
+function notifyCustomerOrderStatusChanged(orderId, newStatus, legacyId) {
+  // 1. BroadcastChannel for instant same-browser cross-tab sync (0-5ms)
+  try {
+    const ch = new BroadcastChannel('revmoto_order_sync');
+    ch.postMessage({
+      type: 'ORDER_STATUS_CHANGED',
+      orderId: String(orderId),
+      legacyId: legacyId ? String(legacyId) : null,
+      status: newStatus,
+      timestamp: Date.now()
+    });
+    ch.close();
+  } catch (e) {}
+
+  // 2. LocalStorage trigger for cross-tab storage event listeners
+  try {
+    localStorage.setItem('revmoto_last_order_status_event', JSON.stringify({
+      orderId: String(orderId),
+      legacyId: legacyId ? String(legacyId) : null,
+      status: newStatus,
+      timestamp: Date.now()
+    }));
+  } catch (e) {}
 }
 
 function unlockOrderStatus(targetId) {
@@ -1608,6 +1636,7 @@ async function saveOrderChanges() {
 
   // 3. Persist to localStorage
   saveLocalOrders(ordersList);
+  notifyCustomerOrderStatusChanged(targetId, newStatus, currentSelectedOrder.legacy_id);
 
   // 4. Update Supabase with both id and legacy_id
   if (supabaseClient) {
@@ -2533,6 +2562,7 @@ async function executeQuickStatusChange() {
 
   // 3. Persist to localStorage
   saveLocalOrders(ordersList);
+  notifyCustomerOrderStatusChanged(targetId, newStatus, qsTargetOrder.legacy_id);
 
   // 4. Update Supabase with both id and legacy_id
   if (supabaseClient) {

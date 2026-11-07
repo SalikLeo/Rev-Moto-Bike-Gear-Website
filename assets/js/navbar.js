@@ -566,7 +566,7 @@
   // Dynamically load user-profile.js engine if not already present
   if (!document.querySelector('script[src*="user-profile.js"]')) {
     const userScript = document.createElement('script');
-    userScript.src = 'assets/js/user-profile.js?v=1.0';
+    userScript.src = 'assets/js/user-profile.js?v=1.5';
     document.head.appendChild(userScript);
   }
 

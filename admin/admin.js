@@ -61,6 +61,26 @@ const todayAt = (h, m) => {
 // Real Baseline Orders for Rev Moto Store (Persistent Salik Orders)
 const REAL_BASELINE_ORDERS = [
   {
+    id: 'INV-21',
+    customer_name: 'Salik',
+    phone: '03095369472',
+    email: 'salik@gmail.com',
+    address: 'wah cantt',
+    city: 'Wah Cantt',
+    notes: '',
+    payment_method: 'Cash on Delivery (COD)',
+    delivery_label: 'Standard Tracked Delivery (3–5 Days)',
+    delivery_cost: 350,
+    items: [
+      { name: 'Magnetic Tank Bag (Modular)', size: 'Standard', qty: 1, price: 7150 },
+      { name: 'Titanium Palm Short Gloves', size: 'M', qty: 1, price: 4200 },
+      { name: 'Carbon Fiber Riding Gloves', size: 'M', qty: 1, price: 5200 }
+    ],
+    total_amount: 16550,
+    status: 'pending',
+    created_at: todayAt(19, 46)
+  },
+  {
     id: 'INV-20',
     customer_name: 'Salik',
     phone: '03095369472',
@@ -477,6 +497,110 @@ function notifyCustomerOrderStatusChanged(orderId, newStatus, legacyId) {
     }));
   } catch (e) {}
 }
+
+// ═══════════════════════════════════════════════════════════════
+// REAL-TIME CROSS-TAB SYNC LISTENER (Multi-Tab Admin Sync < 2ms)
+// ═══════════════════════════════════════════════════════════════
+let adminCrossTabSyncChannel = null;
+
+function syncAdminFromStorageOrEvent(eventData) {
+  // 1. Re-read storage
+  const stored = localStorage.getItem('rm_orders');
+  if (stored) {
+    try {
+      const parsed = JSON.parse(stored);
+      if (Array.isArray(parsed)) {
+        const cleaned = purgeDummyOrders(parsed);
+        if (cleaned.length > 0) {
+          ordersList = normalizeInvoiceNumbers(cleaned);
+        }
+      }
+    } catch (e) {}
+  }
+
+  // 2. Always apply locked statuses from local registry
+  applyLockedStatuses(ordersList);
+
+  // 3. If a specific status change event arrived, apply to memory immediately
+  if (eventData && (eventData.type === 'ORDER_STATUS_CHANGED' || eventData.type === 'ORDER_STATUS_UPDATED')) {
+    const targetId = String(eventData.orderId || '').toLowerCase();
+    const legId = eventData.legacyId ? String(eventData.legacyId).toLowerCase() : null;
+    const normStatus = String(eventData.status || '').toLowerCase();
+
+    if (targetId && normStatus) {
+      ordersList.forEach(o => {
+        if (!o) return;
+        const oId = String(o.id || o.orderId || '').toLowerCase();
+        const oLeg = o.legacy_id ? String(o.legacy_id).toLowerCase() : null;
+        if (oId === targetId || (legId && oId === legId) || (oLeg && (oLeg === targetId || oLeg === legId))) {
+          o.status = normStatus;
+        }
+      });
+      // If quick status modal currently open for this order, update in-modal badge
+      if (typeof qsTargetOrder !== 'undefined' && qsTargetOrder) {
+        const qId = String(qsTargetOrder.id || '').toLowerCase();
+        if (qId === targetId || (legId && qId === legId)) {
+          qsTargetOrder.status = normStatus;
+          const currentBadgeEl = document.getElementById('qsModalCurrentBadge');
+          if (currentBadgeEl) {
+            currentBadgeEl.innerHTML = `<span class="status-badge ${normStatus}">${normStatus}</span>`;
+          }
+        }
+      }
+      if (typeof currentSelectedOrder !== 'undefined' && currentSelectedOrder) {
+        const cId = String(currentSelectedOrder.id || '').toLowerCase();
+        if (cId === targetId || (legId && cId === legId)) {
+          currentSelectedOrder.status = normStatus;
+          const statusSelect = document.getElementById('orderStatusSelect');
+          if (statusSelect) statusSelect.value = normStatus;
+        }
+      }
+    }
+  }
+
+  // 4. Check for any fresh incoming orders
+  checkNewIncomingOrders();
+
+  // 5. Re-render UI
+  renderDashboard();
+}
+
+// 1. BroadcastChannel Listener (Instant 0–2ms cross-tab sync)
+try {
+  adminCrossTabSyncChannel = new BroadcastChannel('revmoto_order_sync');
+  adminCrossTabSyncChannel.onmessage = (event) => {
+    if (event.data) {
+      syncAdminFromStorageOrEvent(event.data);
+    }
+  };
+} catch (e) {}
+
+// 2. Window Storage Event Listener (Instant multi-tab local storage sync)
+window.addEventListener('storage', (e) => {
+  if (
+    e.key === 'rm_orders' ||
+    e.key === 'rm_order_status_locks' ||
+    e.key === 'revmoto_last_order_status_event' ||
+    e.key === 'revmoto_orders_updated_ts'
+  ) {
+    let evData = null;
+    if (e.key === 'revmoto_last_order_status_event' && e.newValue) {
+      try { evData = JSON.parse(e.newValue); } catch (err) {}
+    }
+    syncAdminFromStorageOrEvent(evData);
+  }
+});
+
+// 3. Tab Focus & Page Visibility Listeners (sync on tab switch)
+window.addEventListener('focus', () => {
+  syncAdminFromStorageOrEvent();
+});
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    syncAdminFromStorageOrEvent();
+  }
+});
 
 function unlockOrderStatus(targetId) {
   if (!targetId) return;

@@ -681,6 +681,17 @@
         existingOrders.unshift(orderRecord);
         localStorage.setItem('rm_orders', JSON.stringify(existingOrders));
 
+        // Broadcast new order to open Admin tabs
+        try {
+          const ch = new BroadcastChannel('revmoto_order_sync');
+          ch.postMessage({
+            type: 'NEW_ORDER_PLACED',
+            orderId: orderId,
+            timestamp: Date.now()
+          });
+          ch.close();
+        } catch (e) {}
+
         // Persist order to customer recent orders
         try {
           const myIds = JSON.parse(localStorage.getItem('revmoto_my_order_ids') || '[]');
